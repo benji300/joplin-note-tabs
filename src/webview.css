@@ -1,0 +1,18 @@
+.bp-container {
+  /* background-color: var(--joplin-background-color); */
+  /* color: var(--joplin-color); */
+  /* font-size: var(--joplin-font-size); */
+  /* font-family: var(--joplin-font-family); */
+  /* padding: var(--joplin-main-padding); */
+}
+
+.bp-header {
+  background-color: var(--joplin-background-color3);
+  border-bottom: 1px solid var(--joplin-divider-color);
+  height: 40px;
+  padding: 5px;
+}
+
+.bp-content {
+  padding: 5px;
+}

@@ -1,0 +1,159 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/dist": true,
+			"**/node_modules": true,
+			".*": true,
+			"*workspace": true
+		}
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"presentation": {
+			"clear": true,
+			"panel": "shared"
+		},
+		"problemMatcher": [],
+		"windows": {
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
+		},
+		"tasks": [
+			{
+				"label": "Plugin: Install dependencies",
+				"command": "npm install",
+				"group": "build",
+				"type": "shell"
+			},
+			// {
+			// 	"label": "Plugin: Update API",
+			// 	"command": "start yo",
+			// 	"group": "build",
+			// 	"type": "shell",
+			// 	"args": [
+			// 		"joplin",
+			// 		"--update"
+			// 	]
+			// },
+			{
+				"label": "Plugin: Build Plugin",
+				"command": "npm run dist",
+				"group": "build",
+				"type": "shell"
+			},
+			{
+				"label": "Plugin: Release",
+				"command": "npm run release",
+				"group": "build",
+				"type": "shell"
+			},
+			{
+				"label": "Diff: Compare with user profile (BCompare)",
+				"command": "C:/Program Files/Beyond Compare 4/BCompare.exe",
+				"group": "build",
+				"args": [
+					"./.config/${input:profile}/plugins/${workspaceFolderBasename}",
+					"${workspaceFolder}/dist"
+				],
+				"isBackground": true
+			},
+			{
+				"label": "Diff: Compare active file with...",
+				"type": "process",
+				"command": "${command:workbench.files.action.compareFileWith}",
+				"group": "build",
+				"isBackground": true,
+				"windows": {
+					"options": {
+						"cwd": "C:/Users/${env:username}"
+					}
+				},
+			},
+			{
+				"label": "Joplin: Open App",
+				"command": "C:/Program Files/Joplin/Joplin.exe",
+				"group": "build",
+				"isBackground": true
+			},
+			{
+				"label": "Joplin: Open App (dev)",
+				"command": "C:/Program Files/Joplin/Joplin.exe",
+				"group": "build",
+				"dependsOn": [
+					"Plugin: Build Plugin"
+				],
+				"args": [
+					"--env",
+					"dev"
+				],
+				"isBackground": true
+			},
+			{
+				"label": "Joplin: Reload App",
+				"command": "powershell",
+				"group": "build",
+				"dependsOn": [
+					"Plugin: Build Plugin"
+				],
+				"args": [
+					"Stop-Process -Name \"Joplin\";",
+					"& 'C:/Program Files/Joplin/Joplin.exe'"
+				],
+				"isBackground": true
+			},
+			{
+				"label": "Joplin: Reload App (dev)",
+				"command": "powershell",
+				"group": {
+					"isDefault": true,
+					"kind": "build"
+				},
+				"dependsOn": [
+					"Plugin: Build Plugin"
+				],
+				"args": [
+					"Stop-Process -Name \"Joplin\";",
+					"& 'C:/Program Files/Joplin/Joplin.exe' --env dev"
+				],
+				"isBackground": true
+			},
+			{
+				"label": "Joplin: Open user profile directory",
+				"command": "powershell",
+				"group": "build",
+				"args": [
+					"Invoke-Item ./.config/${input:profile}"
+				],
+				"isBackground": true,
+				"windows": {
+					"options": {
+						"cwd": "C:/Users/${env:username}"
+					}
+				},
+			}
+		],
+		"inputs": [
+			{
+				"id": "profile",
+				"description": "Select user profile directory",
+				"type": "pickString",
+				"default": "default",
+				"options": [
+					"joplin-desktop",
+					"joplindev-desktop"
+				]
+			}
+		]
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.vscode-typescript-next"
+		]
+	}
+}
