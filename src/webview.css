@@ -57,13 +57,11 @@ span {
   padding-right: 3px;
 }
 
-.icon-pin,
-.icon-unpin {
+.tab .fas {
   padding: 2px;
   visibility: hidden;
 }
-.tab:hover .icon-pin,
-.tab:hover .icon-unpin {
+.tab:hover .fas {
   visibility: visible;
 }
 

@@ -1,24 +1,5 @@
 import joplin from 'api';
 
-// helper functions
-function getItemWithAttr(array: any, attr: any, value: any): any {
-	for (var i = 0; i < array.length; i += 1) {
-		if (array[i][attr] === value) {
-			return array[i];
-		}
-	}
-	return -1;
-}
-
-function getIndexWithAttr(array: any, attr: any, value: any): number {
-	for (var i: number = 0; i < array.length; i += 1) {
-		if (array[i][attr] === value) {
-			return i;
-		}
-	}
-	return -1;
-}
-
 joplin.plugins.register({
 	onStart: async function () {
 		// TODO: remove what not used
@@ -29,10 +10,6 @@ joplin.plugins.register({
 		const SETTINGS = joplin.settings;
 		const WORKSPACE = joplin.workspace;
 
-		//#region INITIALIZE PLUGIN
-
-		//#endregion
-
 		//#region REGISTER USER OPTIONS
 
 		await SETTINGS.registerSection('com.benji300.joplin.tabs.settings', {
@@ -42,8 +19,7 @@ joplin.plugins.register({
 
 		// [
 		//   {
-		//     "id": "note id",
-		//     "title": "note title"
+		//     "id": "note id"
 		//   }
 		// ]
 		await SETTINGS.registerSetting('pinnedNotes', {
@@ -59,6 +35,53 @@ joplin.plugins.register({
 
 		//#endregion
 
+		//#region helper functions
+
+		// function getItemWithAttr(array: any, attr: any, value: any): any {
+		// 	for (var i = 0; i < array.length; i += 1) {
+		// 		if (array[i][attr] === value) {
+		// 			return array[i];
+		// 		}
+		// 	}
+		// 	return -1;
+		// }
+
+		function getIndexWithAttr(array: any, attr: any, value: any): number {
+			for (var i: number = 0; i < array.length; i += 1) {
+				if (array[i][attr] === value) {
+					return i;
+				}
+			}
+			return -1;
+		}
+
+		// Add note with handled id to pinned notes array
+		async function pinNote(noteId: string) {
+			// check if note is not already pinned, otherwise return
+			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
+			if (index != -1) return;
+
+			// pin selected note and update panel
+			pinnedNotes.push({ id: noteId });
+			SETTINGS.setValue('pinnedNotes', pinnedNotes);
+			console.info(`${JSON.stringify(pinnedNotes)}`);
+		}
+
+		// Remove note with handled id from pinned notes array
+		async function unpinNote(noteId: string) {
+			// check if note is pinned, otherwise return
+			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
+			if (index == -1) return;
+
+			// unpin selected note and update panel
+			pinnedNotes.splice(index, 1);
+			SETTINGS.setValue('pinnedNotes', pinnedNotes);
+		}
+
+		//#endregion
+
 		//#region REGISTER COMMANDS
 
 		// Command: pinNote
@@ -68,33 +91,12 @@ joplin.plugins.register({
 			label: 'Pin note',
 			iconName: 'fas fa-thumbtack',
 			enabledCondition: "oneNoteSelected",
-			execute: async (id: string) => {
-				// get the noteId either from selectedNote or argument
-				var noteId: string = null;
-				var noteTitle: string = null;
-				if (id) {
-					const note: any = await DATA.get(['notes', id], { fields: ['id', 'title'] });
-					noteId = note.id;
-					noteTitle = note.title;
-				} else {
-					const selectedNote = await WORKSPACE.selectedNote();
-					if (selectedNote) {
-						noteId = selectedNote.id;
-						noteTitle = selectedNote.title;
-					}
-				}
-				if (noteId == null) return;
-				if (noteTitle == null) return;
+			execute: async () => {
+				// get the selected note and exit if none is currently selected
+				const selectedNote: any = await WORKSPACE.selectedNote();
+				if (!selectedNote) return;
 
-				// check if note is not already pinned, otherwise return
-				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-				const note: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-				if (note != -1) return;
-
-				// pin selected note and update panel
-				pinnedNotes.push({ id: noteId, title: noteTitle });
-				SETTINGS.setValue('pinnedNotes', pinnedNotes);
-
+				pinNote(selectedNote.id);
 				updateTabsPanel();
 			}
 		});
@@ -106,25 +108,13 @@ joplin.plugins.register({
 			label: 'Unpin note',
 			iconName: 'fas fa-times',
 			enabledCondition: "oneNoteSelected",
-			execute: async (id: string) => {
-				// get the noteId either from selectedNote or argument
-				var noteId: string = null;
-				if (id) {
-					noteId = id;
-				} else {
-					const selectedNote = await WORKSPACE.selectedNote();
-					if (selectedNote) noteId = selectedNote.id;
-				}
-				if (noteId == null) return;
+			execute: async () => {
+				// get the selected note and exit if none is currently selected
+				const selectedNote: any = await WORKSPACE.selectedNote();
+				if (!selectedNote) return;
 
-				// check if note is pinned, otherwise return
-				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-				const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-				if (index == -1) return;
-
-				// unpin selected note and update panel
-				pinnedNotes.splice(index, 1);
-				SETTINGS.setValue('pinnedNotes', pinnedNotes);
+				// unpin note and update panel
+				unpinNote(selectedNote.id);
 				updateTabsPanel();
 			}
 		});
@@ -148,22 +138,26 @@ joplin.plugins.register({
 
 		// prepare panel object
 		const panel = await PANELS.create("com.benji300.joplin.tabs.panel");
-		await PANELS.addScript(panel, './webview.js');
 		await PANELS.addScript(panel, './webview.css');
+		await PANELS.addScript(panel, './fa/css/all.css');
+		await PANELS.addScript(panel, './webview.js');
 		PANELS.onMessage(panel, (message: any) => {
+			// TODO currently post message is not reached
+			// Remove console outputs when working
 			console.info('message received');
-
 			if (message.name === 'openNote') {
 				console.info('openNote');
 				joplin.commands.execute('openNote', message.id);
 			}
 			if (message.name === 'pinNote') {
 				console.info('pinNote');
-				joplin.commands.execute('pinNote', message.id);
+				pinNote(message.id);
+				updateTabsPanel();
 			}
 			if (message.name === 'unpinNote') {
 				console.info('unpinNote');
-				joplin.commands.execute('unpinNote', message.id);
+				unpinNote(message.id);
+				updateTabsPanel();
 			}
 		});
 
@@ -175,11 +169,19 @@ joplin.plugins.register({
 
 			// add all pinned notes as tabs
 			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			for (const note of pinnedNotes) {
+			for (const pinnedNote of pinnedNotes) {
+				var note: any = null;
 
-				// TODO: check if note id still exists - otherwise remove from pinned notes
+				// check if note id still exists - otherwise remove from pinned notes and continue with next one
+				try {
+					note = await DATA.get(['notes', pinnedNote.id], { fields: ['id', 'title'] });
+				} catch (error) {
+					unpinNote(pinnedNote.id);
+					continue;
+				}
+
 				var active: string = "";
-				if (note.id == selectedNote.id) {
+				if (pinnedNote.id == selectedNote.id) {
 					selectedNoteIsNew = false;
 					active = " active";
 				}
@@ -187,10 +189,8 @@ joplin.plugins.register({
 				tabsHtml.push(`
 					<div role="tab" class="tab${active}">
 						<div class="tab-inner" data-id="${note.id}">
-							<span class="title" data-id="${note.id}">
-								${note.title}
-							</span>
-							<a href="#" class="icon-unpin" title="Unpin" data-id="${note.id}">x</a>
+							<span class="title" data-id="${note.id}">${note.title}</span>
+							<a href="#" class="fas fa-times" title="Unpin" data-id="${note.id}"></a>
 						</div>
 					</div>
 				`);
@@ -201,10 +201,8 @@ joplin.plugins.register({
 				tabsHtml.push(`
 					<div role="tab" class="tab active new">
 						<div class="tab-inner" data-id="${selectedNote.id}">
-							<span class="title" data-id="${selectedNote.id}">
-								${selectedNote.title}
-							</span>
-							<a href="#" class="icon-pin" title="Pin" data-id="${selectedNote.id}">!</a>
+							<span class="title" data-id="${selectedNote.id}">${selectedNote.title}</span>
+							<a href="#" class="fas fa-thumbtack" title="Pin" data-id="${selectedNote.id}"></a>
 						</div>
 					</div>
 				`);
@@ -217,14 +215,15 @@ joplin.plugins.register({
 						${tabsHtml.join('\n')}
 					</div>
 					<div class="controls">
-						<button class="move-left">&lt;</>
-						<button class="move-right">&gt;</>
+						<button class="move-left">
+							<i class="fas fa-chevron-left"></i>
+						</button>
+						<button class="move-right">
+						<i class="fas fa-chevron-right"></i>
+						</button>
 					</div>
 				</div>
 				`);
-
-			// update pinned notes array (maybe some were removed)
-			SETTINGS.setValue('pinnedNotes', pinnedNotes);
 		}
 
 		//#endregion
@@ -232,6 +231,10 @@ joplin.plugins.register({
 		//#region Map events
 
 		joplin.workspace.onNoteSelectionChange(() => {
+			updateTabsPanel();
+		});
+
+		joplin.workspace.onNoteContentChange(() => {
 			updateTabsPanel();
 		});
 

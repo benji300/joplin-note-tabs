@@ -8,19 +8,19 @@ document.addEventListener('click', event => {
 			id: element.dataset.id,
 		});
 	}
-	if (element.className === 'icon-pin') {
-		const id = element.dataset.id;
-		console.info('Pin note: ' + id);
-		webviewApi.postMessage({
-			name: 'pinNote',
-			id: element.dataset.id,
-		});
-	}
-	if (element.className === 'icon-unpin') {
+	if (element.className === 'fas fa-times') {
 		const id = element.dataset.id;
 		console.info('Unpin note: ' + id);
 		webviewApi.postMessage({
 			name: 'unpinNote',
+			id: element.dataset.id,
+		});
+	}
+	if (element.className === 'fas fa-thumbtack') {
+		const id = element.dataset.id;
+		console.info('Pin note: ' + id);
+		webviewApi.postMessage({
+			name: 'pinNote',
 			id: element.dataset.id,
 		});
 	}
