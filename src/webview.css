@@ -19,19 +19,14 @@ span {
 .tabs-container {
   display: flex;
   float: left;
-  height: 100%;
-}
-@media screen and (max-width: 200px) {
-  .tabs-container {
-    display: block;
-  }
+  /* height: 100%; */
 }
 
 .tab {
   border-right: 1px solid var(--joplin-background-color);
   display: flex;
   max-width: 200px;
-  padding: 4px 8px;
+  padding: 0 8px;
   text-overflow: ellipsis;
 }
 .tab:hover {
@@ -67,4 +62,18 @@ span {
 
 .controls {
   float: right;
+  height: 100%;
+  align-items: center;
+  display: flex;
+  padding: 0 5px;
+}
+}
+
+@media screen and (max-width: 400px) {
+  .tabs-container {
+    display: block;
+  }
+  .tab {
+    width: 400px;
+  }
 }

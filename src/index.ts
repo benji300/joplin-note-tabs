@@ -5,7 +5,6 @@ joplin.plugins.register({
 		// TODO: remove what not used
 		const COMMANDS = joplin.commands;
 		const DATA = joplin.data;
-		const DIALOGS = joplin.views.dialogs;
 		const PANELS = joplin.views.panels;
 		const SETTINGS = joplin.settings;
 		const WORKSPACE = joplin.workspace;
@@ -187,7 +186,7 @@ joplin.plugins.register({
 				}
 
 				tabsHtml.push(`
-					<div role="tab" class="tab${active}">
+					<div role="tab" class="tab${active}" style="height:40px">
 						<div class="tab-inner" data-id="${note.id}">
 							<span class="title" data-id="${note.id}">${note.title}</span>
 							<a href="#" class="fas fa-times" title="Unpin" data-id="${note.id}"></a>
@@ -199,7 +198,7 @@ joplin.plugins.register({
 			// if selected note is not already pinned - add is as "new" tab
 			if (selectedNoteIsNew) {
 				tabsHtml.push(`
-					<div role="tab" class="tab active new">
+					<div role="tab" class="tab active new" style="height:40px">
 						<div class="tab-inner" data-id="${selectedNote.id}">
 							<span class="title" data-id="${selectedNote.id}">${selectedNote.title}</span>
 							<a href="#" class="fas fa-thumbtack" title="Pin" data-id="${selectedNote.id}"></a>
