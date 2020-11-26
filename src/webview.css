@@ -1,18 +1,72 @@
-.bp-container {
-  /* background-color: var(--joplin-background-color); */
-  /* color: var(--joplin-color); */
-  /* font-size: var(--joplin-font-size); */
-  /* font-family: var(--joplin-font-family); */
-  /* padding: var(--joplin-main-padding); */
+a {
+  color: var(--joplin-color);
+  text-decoration: none;
+}
+span {
+  cursor: default;
 }
 
-.bp-header {
-  background-color: var(--joplin-background-color3);
-  border-bottom: 1px solid var(--joplin-divider-color);
-  height: 40px;
-  padding: 5px;
+#joplin-plugin-content {
+  background: var(--joplin-background-color3);
+  font-size: var(--joplin-font-size);
+  font-family: var(--joplin-font-family);
 }
 
-.bp-content {
-  padding: 5px;
+.container {
+  width: 100%;
+}
+
+.tabs-container {
+  display: flex;
+  float: left;
+  height: 100%;
+}
+@media screen and (max-width: 200px) {
+  .tabs-container {
+    display: block;
+  }
+}
+
+.tab {
+  border-right: 1px solid var(--joplin-background-color);
+  display: flex;
+  max-width: 200px;
+  padding: 4px 8px;
+  text-overflow: ellipsis;
+}
+.tab:hover {
+  background: var(--joplin-background-color-hover3);
+}
+.active {
+  background: var(--joplin-background-color);
+}
+.new {
+  font-style: italic;
+}
+
+.tab-inner {
+  align-items: center;
+  display: flex;
+  width: 100%;
+}
+
+.title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 3px;
+}
+
+.icon-pin,
+.icon-unpin {
+  padding: 2px;
+  visibility: hidden;
+}
+.tab:hover .icon-pin,
+.tab:hover .icon-unpin {
+  visibility: visible;
+}
+
+.controls {
+  float: right;
 }
