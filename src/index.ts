@@ -41,6 +41,13 @@ joplin.plugins.register({
 			public: true,
 			label: 'Note Tabs height (px)'
 		});
+		await SETTINGS.registerSetting('minTabWidth', {
+			value: "50",
+			type: 1,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			label: 'Minimum Tab width (px)'
+		});
 		await SETTINGS.registerSetting('maxTabWidth', {
 			value: "150",
 			type: 1,
@@ -262,6 +269,7 @@ joplin.plugins.register({
 		async function prepareTabHtml(note: any, selectedNote: any, pinned: boolean): Promise<string> {
 			// get style values from settings
 			const height: number = await SETTINGS.value('tabHeight');
+			const minWidth: number = await SETTINGS.value('minTabWidth');
 			const maxWidth: number = await SETTINGS.value('maxTabWidth');
 			const mainBg: string = await SETTINGS.value('mainBackground');
 			const mainFg: string = await SETTINGS.value('mainForeground');
@@ -279,7 +287,7 @@ joplin.plugins.register({
 
 			const html = `
 				<div role="tab" class="tab${activeTab}${newTab}"
-					style="height:${height}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
+					style="height:${height}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
 					<div class="tab-inner" data-id="${note.id}">
 						<span class="title" data-id="${note.id}" style="color:${foreground};">
 							${note.title}

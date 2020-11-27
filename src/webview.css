@@ -64,6 +64,8 @@ span {
 }
 
 .tab .fas {
+  margin-left: auto;
+  margin-right: 0;
   padding: 2px;
   visibility: hidden;
 }
