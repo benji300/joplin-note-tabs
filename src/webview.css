@@ -8,7 +8,6 @@ div#joplin-plugin-content {
   font-family: var(--joplin-font-family);
 }
 a {
-  /* color: var(--joplin-color); */
   text-decoration: none;
 }
 span {
@@ -23,10 +22,6 @@ span {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 10px;
 }
-
-/* .fas:hover {
-  color: var(--joplin-color4) !important;
-} */
 
 /* HORIZONTAL LAYOUT */
 .container {
@@ -50,11 +45,6 @@ span {
   padding: 0 8px;
   text-overflow: ellipsis;
 }
-/* .tab:hover {
-  background: var(--joplin-background-color-hover3) !important;
-} */
-/* .active {
-} */
 .new {
   font-style: italic;
 }

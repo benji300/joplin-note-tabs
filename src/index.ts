@@ -1,5 +1,8 @@
 import joplin from 'api';
 
+// stores the last opened but unpinned note
+var lastOpenedNote: any;
+
 joplin.plugins.register({
 	onStart: async function () {
 		// TODO: remove what not used
@@ -111,7 +114,7 @@ joplin.plugins.register({
 			// pin selected note and update panel
 			pinnedNotes.push({ id: noteId });
 			SETTINGS.setValue('pinnedNotes', pinnedNotes);
-			console.info(`${JSON.stringify(pinnedNotes)}`);
+			// console.info(`${JSON.stringify(pinnedNotes)}`);
 		}
 
 		// Remove note with handled id from pinned notes array
@@ -207,89 +210,111 @@ joplin.plugins.register({
 			}
 		});
 
-		// update HTML content
-		async function updateTabsPanel() {
-			const tabsHtml: any = [];
-			const selectedNote: any = await joplin.workspace.selectedNote();
-			var selectedNoteIsNew: boolean = true;
-
-			// get setting style values 
-			const tabHeight: number = await SETTINGS.value('tabHeight');
-			const tabMaxWidth: number = await SETTINGS.value('maxTabWidth');
+		// prepare tab HTML
+		async function prepareTabHtml(note: any, selectedNote: any, pinned: boolean): Promise<string> {
+			// get style values from settings
+			const height: number = await SETTINGS.value('tabHeight');
+			const maxWidth: number = await SETTINGS.value('maxTabWidth');
 			const mainBg: string = await SETTINGS.value('mainBackground');
 			const mainFg: string = await SETTINGS.value('mainForeground');
 			const activeBg: string = await SETTINGS.value('activeBackground');
 			const activeFg: string = await SETTINGS.value('activeForeground');
 			const dividerColor: string = await SETTINGS.value('dividerColor');
 
+			// prepare style attributes
+			const background: string = (note.id == selectedNote.id) ? activeBg : mainBg;
+			const foreground: string = (note.id == selectedNote.id) ? activeFg : mainFg;
+			const activeTab: string = (note.id == selectedNote.id) ? " active" : "";
+			const newTab: string = (pinned) ? "" : " new";
+			const icon: string = (pinned) ? "fa-times" : "fa-thumbtack";
+			const iconTitle: string = (pinned) ? "Unpin" : "Pin";
+
+			const html = `
+				<div role="tab" class="tab${activeTab}${newTab}"
+					style="height:${height}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
+					<div class="tab-inner" data-id="${note.id}">
+						<span class="title" data-id="${note.id}" style="color:${foreground};">
+							${note.title}
+						</span>
+						<a href="#" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};">
+						</a>
+					</div>
+				</div>
+			`;
+			return html;
+		}
+
+		// update HTML content
+		async function updateTabsPanel() {
+			const tabsHtml: any = [];
+			const selectedNote: any = await joplin.workspace.selectedNote();
+			var selectedNoteIsNew: boolean = true;
+
 			// add all pinned notes as tabs
 			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
 			for (const pinnedNote of pinnedNotes) {
-				var note: any = null;
+				var realNote: any = null;
+				if (selectedNote && pinnedNote.id == selectedNote.id) {
+					selectedNoteIsNew = false;
+				}
 
 				// check if note id still exists - otherwise remove from pinned notes and continue with next one
 				try {
-					note = await DATA.get(['notes', pinnedNote.id], { fields: ['id', 'title'] });
+					realNote = await DATA.get(['notes', pinnedNote.id], { fields: ['id', 'title'] });
 				} catch (error) {
 					unpinNote(pinnedNote.id);
 					continue;
 				}
 
-				var active: string = "";
-				var background = "none";
-				var foreground = mainFg;
-				if (pinnedNote.id == selectedNote.id) {
-					selectedNoteIsNew = false;
-					active = " active";
-					background = activeBg;
-					foreground = activeFg;
+				tabsHtml.push((await prepareTabHtml(realNote, selectedNote, true)).toString());
+			}
+
+			// check whether selected note is not pinned but active - than set as lastOpenedNote
+			if (selectedNote) {
+				if (selectedNoteIsNew) {
+					lastOpenedNote = selectedNote;
+				} else {
+					// if note is already pinned but also still last opened - clear last opened
+					if (lastOpenedNote && lastOpenedNote.id == selectedNote.id) {
+						lastOpenedNote = null;
+					}
 				}
-
-				tabsHtml.push(`
-					<div role="tab" class="tab${active}"
-						style="height:${tabHeight}px;max-width:${tabMaxWidth}px;border-color:${dividerColor};background:${background};">
-						<div class="tab-inner" data-id="${note.id}">
-							<span class="title" data-id="${note.id}" style="color:${foreground};">
-								${note.title}
-							</span>
-							<a href="#" class="fas fa-times" title="Unpin" data-id="${note.id}" style="color:${foreground};">
-							</a>
-						</div>
-					</div>
-				`);
 			}
 
-			// if selected note is not already pinned - add is as "new" tab
-			if (selectedNoteIsNew) {
-				tabsHtml.push(`
-					<div role="tab" class="tab active new" 
-						style="height:${tabHeight}px;max-width:${tabMaxWidth}px;border-color:${dividerColor};Background:${activeBg};">
-						<div class="tab-inner" data-id="${selectedNote.id}">
-							<span class="title" data-id="${selectedNote.id}" style="color:${activeFg};">
-								${selectedNote.title}
-							</span>
-							<a href="#" class="fas fa-thumbtack" title="Pin" data-id="${selectedNote.id}" style="color:${activeFg};">
-							</a>
-						</div>
-					</div>
-				`);
+			// check whether last opened note still exists - clear if not
+			if (lastOpenedNote) {
+				try {
+					realNote = await DATA.get(['notes', lastOpenedNote.id], { fields: ['id'] });
+				} catch (error) {
+					lastOpenedNote = null;
+				}
 			}
+
+			// add last opened or current selected note at last (unpinned)
+			if (lastOpenedNote) {
+				tabsHtml.push((await prepareTabHtml(lastOpenedNote, selectedNote, false)).toString());
+			}
+
+			// get setting style values
+			const height: number = await SETTINGS.value('tabHeight');
+			const mainBg: string = await SETTINGS.value('mainBackground');
+			const mainFg: string = await SETTINGS.value('mainForeground');
 
 			// add notes to container and push to panel
 			await PANELS.setHtml(panel, `
-				<div class="container" style="background:${mainBg};">
-					<div role="tablist" class="tabs-container">
-						${tabsHtml.join('\n')}
+					<div class="container" style="background:${mainBg};">
+						<div role="tablist" class="tabs-container">
+							${tabsHtml.join('\n')}
+						</div>
+						<div class="controls" style="height:${height}px;">
+							<button class="move-left">
+								<i class="fas fa-chevron-left" style="color:${mainFg};"></i>
+							</button>
+							<button class="move-right">
+								<i class="fas fa-chevron-right" style="color:${mainFg};"></i>
+							</button>
+						</div>
 					</div>
-					<div class="controls" style="height:${tabHeight}px;">
-						<button class="move-left">
-							<i class="fas fa-chevron-left" style="color:${mainFg};"></i>
-						</button>
-						<button class="move-right">
-							<i class="fas fa-chevron-right" style="color:${mainFg};"></i>
-						</button>
-					</div>
-				</div>
 				`);
 		}
 
