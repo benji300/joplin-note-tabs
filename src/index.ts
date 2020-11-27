@@ -114,7 +114,6 @@ joplin.plugins.register({
 			// pin selected note and update panel
 			pinnedNotes.push({ id: noteId });
 			SETTINGS.setValue('pinnedNotes', pinnedNotes);
-			// console.info(`${JSON.stringify(pinnedNotes)}`);
 		}
 
 		// Remove note with handled id from pinned notes array
@@ -133,11 +132,11 @@ joplin.plugins.register({
 
 		//#region REGISTER COMMANDS
 
-		// Command: pinNote
+		// Command: tabsPin
 		// Desc: Pin the selected note to the tabs
 		await COMMANDS.register({
-			name: 'pinNote',
-			label: 'Pin note',
+			name: 'tabsPin',
+			label: 'Tabs: Pin note',
 			iconName: 'fas fa-thumbtack',
 			enabledCondition: "oneNoteSelected",
 			execute: async () => {
@@ -150,11 +149,11 @@ joplin.plugins.register({
 			}
 		});
 
-		// Command: unpinNote
+		// Command: tabsUnpin
 		// Desc: Unpin the selected note from the tabs
 		await COMMANDS.register({
-			name: 'unpinNote',
-			label: 'Unpin note',
+			name: 'tabsUnpin',
+			label: 'Tabs: Unpin note',
 			iconName: 'fas fa-times',
 			enabledCondition: "oneNoteSelected",
 			execute: async () => {
@@ -168,11 +167,59 @@ joplin.plugins.register({
 			}
 		});
 
-		// Command: clearTabs
+		// Command: tabsMoveLeft
+		// Desc: Move active (unpinned) tab to left
+		await COMMANDS.register({
+			name: 'tabsMoveLeft',
+			label: 'Tabs: Move left',
+			iconName: 'fas fa-chevron-left',
+			execute: async (direction: number) => {
+				const selectedNote: any = await joplin.workspace.selectedNote();
+				if (!selectedNote) return;
+
+				// check if note is pinned and not already first, otherwise exit
+				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+				if (index == -1) return;
+				if (index == 0) return;
+
+				// change position of tab and update panel
+				pinnedNotes.splice(index, 1);
+				pinnedNotes.splice(index - 1, 0, selectedNote);
+				SETTINGS.setValue('pinnedNotes', pinnedNotes);
+				updateTabsPanel();
+			}
+		});
+
+		// Command: tabsMoveRight
+		// Desc: Move active (unpinned) tab to right
+		await COMMANDS.register({
+			name: 'tabsMoveRight',
+			label: 'Tabs: Move Right',
+			iconName: 'fas fa-chevron-right',
+			execute: async (direction: number) => {
+				const selectedNote: any = await joplin.workspace.selectedNote();
+				if (!selectedNote) return;
+
+				// check if note is pinned and not already first, otherwise exit
+				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+				if (index == -1) return;
+				if (index == pinnedNotes.length - 1) return;
+
+				// change position of tab and update panel
+				pinnedNotes.splice(index, 1);
+				pinnedNotes.splice(index + 1, 0, selectedNote);
+				SETTINGS.setValue('pinnedNotes', pinnedNotes);
+				updateTabsPanel();
+			}
+		});
+
+		// Command: tabsClear
 		// Desc: Clear all pinned tabs
 		await COMMANDS.register({
-			name: 'clearTabs',
-			label: 'Clear all note tabs',
+			name: 'tabsClear',
+			label: 'Tabs: Clear all tabs',
 			iconName: 'fas fa-times',
 			execute: async () => {
 				const pinnedNotes: any = [];
@@ -194,19 +241,25 @@ joplin.plugins.register({
 			// TODO currently post message is not reached
 			// Remove console outputs when working
 			console.info('message received');
-			if (message.name === 'openNote') {
+			if (message.name === 'tabsOpen') {
 				console.info('openNote');
-				joplin.commands.execute('openNote', message.id);
+				COMMANDS.execute('openNote', message.id);
 			}
-			if (message.name === 'pinNote') {
-				console.info('pinNote');
+			if (message.name === 'tabsPin') {
+				console.info('tabsPin');
 				pinNote(message.id);
 				updateTabsPanel();
 			}
-			if (message.name === 'unpinNote') {
+			if (message.name === 'tabsUnpin') {
 				console.info('unpinNote');
 				unpinNote(message.id);
 				updateTabsPanel();
+			}
+			if (message.name === 'tabsMoveLeft') {
+				COMMANDS.execute('tabsMoveLeft');
+			}
+			if (message.name === 'tabsMoveRight') {
+				COMMANDS.execute('tabsMoveRight');
 			}
 		});
 
@@ -236,7 +289,7 @@ joplin.plugins.register({
 						<span class="title" data-id="${note.id}" style="color:${foreground};">
 							${note.title}
 						</span>
-						<a href="#" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};">
+						<a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};">
 						</a>
 					</div>
 				</div>
@@ -305,14 +358,10 @@ joplin.plugins.register({
 					<div class="container" style="background:${mainBg};">
 						<div role="tablist" class="tabs-container">
 							${tabsHtml.join('\n')}
-						</div>
-						<div class="controls" style="height:${height}px;">
-							<button class="move-left">
-								<i class="fas fa-chevron-left" style="color:${mainFg};"></i>
-							</button>
-							<button class="move-right">
-								<i class="fas fa-chevron-right" style="color:${mainFg};"></i>
-							</button>
+							<div class="controls" style="height:${height}px;">
+								<a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${mainFg};"></a>
+								<a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${mainFg};"></a>
+							</div>
 						</div>
 					</div>
 				`);

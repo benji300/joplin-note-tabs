@@ -2,26 +2,38 @@ document.addEventListener('click', event => {
 	const element = event.target;
 	if (element.className === 'tab-inner' || element.className === 'title') {
 		const id = element.dataset.id;
-		console.info('Open note: ' + id);
+		console.info('tabsOpen: ' + id);
 		webviewApi.postMessage({
-			name: 'openNote',
+			name: 'tabsOpen',
 			id: element.dataset.id,
 		});
 	}
-	if (element.className === 'fas fa-times') {
+	if (element.id === 'Pin') {
 		const id = element.dataset.id;
-		console.info('Unpin note: ' + id);
+		console.info('tabsPin: ' + id);
 		webviewApi.postMessage({
-			name: 'unpinNote',
+			name: 'tabsPin',
 			id: element.dataset.id,
 		});
 	}
-	if (element.className === 'fas fa-thumbtack') {
+	if (element.id === 'Unpin') {
 		const id = element.dataset.id;
-		console.info('Pin note: ' + id);
+		console.info('tabsUnpin: ' + id);
 		webviewApi.postMessage({
-			name: 'pinNote',
+			name: 'tabsUnpin',
 			id: element.dataset.id,
+		});
+	}
+	if (element.id === 'moveTabLeft') {
+		console.info('tabsMoveLeft');
+		webviewApi.postMessage({
+			name: 'tabsMoveLeft'
+		});
+	}
+	if (element.id === 'moveTabRight') {
+		console.info('tabsMoveRight');
+		webviewApi.postMessage({
+			name: 'tabsMoveRight'
 		});
 	}
 })
