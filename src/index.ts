@@ -104,18 +104,6 @@ joplin.plugins.register({
 			return -1;
 		}
 
-		// Add note with handled id to pinned notes array
-		async function pinNote(noteId: string) {
-			// check if note is not already pinned, otherwise return
-			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-			if (index != -1) return;
-
-			// pin selected note and update panel
-			pinnedNotes.push({ id: noteId });
-			SETTINGS.setValue('pinnedNotes', pinnedNotes);
-		}
-
 		// Remove note with handled id from pinned notes array
 		async function unpinNote(noteId: string) {
 			// check if note is pinned, otherwise return
@@ -132,10 +120,10 @@ joplin.plugins.register({
 
 		//#region REGISTER COMMANDS
 
-		// Command: tabsPin
+		// Command: tabsPinNote
 		// Desc: Pin the selected note to the tabs
 		await COMMANDS.register({
-			name: 'tabsPin',
+			name: 'tabsPinNote',
 			label: 'Tabs: Pin note',
 			iconName: 'fas fa-thumbtack',
 			enabledCondition: "oneNoteSelected",
@@ -144,15 +132,21 @@ joplin.plugins.register({
 				const selectedNote: any = await WORKSPACE.selectedNote();
 				if (!selectedNote) return;
 
-				pinNote(selectedNote.id);
+				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+				if (index != -1) return;
+
+				// pin selected note and update panel
+				pinnedNotes.push({ id: selectedNote.id });
+				SETTINGS.setValue('pinnedNotes', pinnedNotes);
 				updateTabsPanel();
 			}
 		});
 
-		// Command: tabsUnpin
+		// Command: tabsUnpinNote
 		// Desc: Unpin the selected note from the tabs
 		await COMMANDS.register({
-			name: 'tabsUnpin',
+			name: 'tabsUnpinNote',
 			label: 'Tabs: Unpin note',
 			iconName: 'fas fa-times',
 			enabledCondition: "oneNoteSelected",
@@ -173,6 +167,7 @@ joplin.plugins.register({
 			name: 'tabsMoveLeft',
 			label: 'Tabs: Move left',
 			iconName: 'fas fa-chevron-left',
+			enabledCondition: "oneNoteSelected",
 			execute: async (direction: number) => {
 				const selectedNote: any = await joplin.workspace.selectedNote();
 				if (!selectedNote) return;
@@ -197,6 +192,7 @@ joplin.plugins.register({
 			name: 'tabsMoveRight',
 			label: 'Tabs: Move Right',
 			iconName: 'fas fa-chevron-right',
+			enabledCondition: "oneNoteSelected",
 			execute: async (direction: number) => {
 				const selectedNote: any = await joplin.workspace.selectedNote();
 				if (!selectedNote) return;
@@ -245,13 +241,12 @@ joplin.plugins.register({
 				console.info('openNote');
 				COMMANDS.execute('openNote', message.id);
 			}
-			if (message.name === 'tabsPin') {
-				console.info('tabsPin');
-				pinNote(message.id);
-				updateTabsPanel();
+			if (message.name === 'tabsPinNote') {
+				console.info('tabsPinNote');
+				COMMANDS.execute('tabsPinNote');
 			}
-			if (message.name === 'tabsUnpin') {
-				console.info('unpinNote');
+			if (message.name === 'tabsUnpinNote') {
+				console.info('tabsUnpinNote');
 				unpinNote(message.id);
 				updateTabsPanel();
 			}

@@ -10,17 +10,17 @@ document.addEventListener('click', event => {
 	}
 	if (element.id === 'Pin') {
 		const id = element.dataset.id;
-		console.info('tabsPin: ' + id);
+		console.info('tabsPinNote: ' + id);
 		webviewApi.postMessage({
-			name: 'tabsPin',
+			name: 'tabsPinNote',
 			id: element.dataset.id,
 		});
 	}
 	if (element.id === 'Unpin') {
 		const id = element.dataset.id;
-		console.info('tabsUnpin: ' + id);
+		console.info('tabsUnpinNote: ' + id);
 		webviewApi.postMessage({
-			name: 'tabsUnpin',
+			name: 'tabsUnpinNote',
 			id: element.dataset.id,
 		});
 	}
