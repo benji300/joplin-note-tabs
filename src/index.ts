@@ -13,7 +13,7 @@ joplin.plugins.register({
 
 		await SETTINGS.registerSection('com.benji300.joplin.tabs.settings', {
 			label: 'Note Tabs',
-			iconName: 'fas fa-music', // TODO: select icon
+			iconName: 'fas fa-window-maximize',
 		});
 
 		// [
@@ -30,20 +30,67 @@ joplin.plugins.register({
 			description: 'List of pinned notes.'
 		});
 
-		// TODO add setting for tabs-list height
+		// General styles
+		await SETTINGS.registerSetting('tabHeight', {
+			value: "40",
+			type: 1,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			label: 'Note Tabs height (px)'
+		});
+		await SETTINGS.registerSetting('maxTabWidth', {
+			value: "150",
+			type: 1,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			label: 'Maximum Tab width (px)'
+		});
+
+		// Advanced styles
+		await SETTINGS.registerSetting('mainBackground', {
+			value: "var(--joplin-background-color3)",
+			type: 2,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			advanced: true,
+			label: 'Background color'
+		});
+		await SETTINGS.registerSetting('activeBackground', {
+			value: "var(--joplin-background-color)",
+			type: 2,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			advanced: true,
+			label: 'Active background color'
+		});
+		await SETTINGS.registerSetting('mainForeground', {
+			value: "var(--joplin-color-faded)",
+			type: 2,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			advanced: true,
+			label: 'Foreground color'
+		});
+		await SETTINGS.registerSetting('activeForeground', {
+			value: "var(--joplin-color)",
+			type: 2,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			advanced: true,
+			label: 'Active foreground color'
+		});
+		await SETTINGS.registerSetting('dividerColor', {
+			value: "var(--joplin-background-color)",
+			type: 2,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			advanced: true,
+			label: 'Divider color'
+		});
 
 		//#endregion
 
 		//#region helper functions
-
-		// function getItemWithAttr(array: any, attr: any, value: any): any {
-		// 	for (var i = 0; i < array.length; i += 1) {
-		// 		if (array[i][attr] === value) {
-		// 			return array[i];
-		// 		}
-		// 	}
-		// 	return -1;
-		// }
 
 		function getIndexWithAttr(array: any, attr: any, value: any): number {
 			for (var i: number = 0; i < array.length; i += 1) {
@@ -166,6 +213,15 @@ joplin.plugins.register({
 			const selectedNote: any = await joplin.workspace.selectedNote();
 			var selectedNoteIsNew: boolean = true;
 
+			// get setting style values 
+			const tabHeight: number = await SETTINGS.value('tabHeight');
+			const tabMaxWidth: number = await SETTINGS.value('maxTabWidth');
+			const mainBg: string = await SETTINGS.value('mainBackground');
+			const mainFg: string = await SETTINGS.value('mainForeground');
+			const activeBg: string = await SETTINGS.value('activeBackground');
+			const activeFg: string = await SETTINGS.value('activeForeground');
+			const dividerColor: string = await SETTINGS.value('dividerColor');
+
 			// add all pinned notes as tabs
 			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
 			for (const pinnedNote of pinnedNotes) {
@@ -180,16 +236,24 @@ joplin.plugins.register({
 				}
 
 				var active: string = "";
+				var background = "none";
+				var foreground = mainFg;
 				if (pinnedNote.id == selectedNote.id) {
 					selectedNoteIsNew = false;
 					active = " active";
+					background = activeBg;
+					foreground = activeFg;
 				}
 
 				tabsHtml.push(`
-					<div role="tab" class="tab${active}" style="height:40px">
+					<div role="tab" class="tab${active}"
+						style="height:${tabHeight}px;max-width:${tabMaxWidth}px;border-color:${dividerColor};background:${background};">
 						<div class="tab-inner" data-id="${note.id}">
-							<span class="title" data-id="${note.id}">${note.title}</span>
-							<a href="#" class="fas fa-times" title="Unpin" data-id="${note.id}"></a>
+							<span class="title" data-id="${note.id}" style="color:${foreground};">
+								${note.title}
+							</span>
+							<a href="#" class="fas fa-times" title="Unpin" data-id="${note.id}" style="color:${foreground};">
+							</a>
 						</div>
 					</div>
 				`);
@@ -198,10 +262,14 @@ joplin.plugins.register({
 			// if selected note is not already pinned - add is as "new" tab
 			if (selectedNoteIsNew) {
 				tabsHtml.push(`
-					<div role="tab" class="tab active new" style="height:40px">
+					<div role="tab" class="tab active new" 
+						style="height:${tabHeight}px;max-width:${tabMaxWidth}px;border-color:${dividerColor};Background:${activeBg};">
 						<div class="tab-inner" data-id="${selectedNote.id}">
-							<span class="title" data-id="${selectedNote.id}">${selectedNote.title}</span>
-							<a href="#" class="fas fa-thumbtack" title="Pin" data-id="${selectedNote.id}"></a>
+							<span class="title" data-id="${selectedNote.id}" style="color:${activeFg};">
+								${selectedNote.title}
+							</span>
+							<a href="#" class="fas fa-thumbtack" title="Pin" data-id="${selectedNote.id}" style="color:${activeFg};">
+							</a>
 						</div>
 					</div>
 				`);
@@ -209,16 +277,16 @@ joplin.plugins.register({
 
 			// add notes to container and push to panel
 			await PANELS.setHtml(panel, `
-				<div class="container" style="height:40px">
+				<div class="container" style="background:${mainBg};">
 					<div role="tablist" class="tabs-container">
 						${tabsHtml.join('\n')}
 					</div>
-					<div class="controls">
+					<div class="controls" style="height:${tabHeight}px;">
 						<button class="move-left">
-							<i class="fas fa-chevron-left"></i>
+							<i class="fas fa-chevron-left" style="color:${mainFg};"></i>
 						</button>
 						<button class="move-right">
-						<i class="fas fa-chevron-right"></i>
+							<i class="fas fa-chevron-right" style="color:${mainFg};"></i>
 						</button>
 					</div>
 				</div>
