@@ -4,7 +4,7 @@
 	"app_min_version": "1.4",
 	"version": "0.1.0",
 	"name": "Note Tabs",
-	"description": "TBD",
+	"description": "Displays selected note in a tab panel and allows to pin/unpin notes as tabs.",
 	"author": "Benji300",
 	"homepage_url": "https://github.com/benji300/joplin-note-tabs"
 }

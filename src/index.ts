@@ -96,7 +96,7 @@ joplin.plugins.register({
 			type: 3,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
-			label: 'Unpin completed to-dos'
+			label: 'Automatically unpin completed to-dos'
 		});
 		await SETTINGS.registerSetting('tabHeight', {
 			value: "40",

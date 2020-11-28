@@ -1,20 +1,21 @@
 # Joplin Note Tabs
 
-This is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
+Joplin Note Tabs is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
 
-> TODO - describe what it does "It..."
+It displays the selected note in a tab panel and allows to pin/unpin notes as tabs.
 
-> :warning: **CAUTION** - Requires Joplin **v1.4.11** or newer
+> :warning: **CAUTION** - Requires Joplin **v1.4.16** or newer
+
+> :construction: **BETA** - This is a development version at a very early stage. Please make a backup copy of the user data (especially from the database) before using this plugin. I don't think that the plugin causes any damage to the database, but unfortunately I can't rule it out completely. I neither have the time nor the possibilities to test all possible use cases.
 
 ## Table of contents
 
 - [Features](#features)
-  - [New commands](#new-commands)
-  - [UI enhancements](#ui-enhancements)
+  - [Screenshots](#screenshots)
+  - [Commands](#Commands)
   - [User options](#user-options)
 - [Installation](#installation)
 - [Uninstallation](#uninstallation)
-- [UI tweaks](#ui-tweaks)
 - [Feedback](#feedback)
 - [Development](#development)
 - [Changes](#changes)
@@ -22,59 +23,115 @@ This is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) d
 
 ## Features
 
-> TODO - Describe features in general here...
+- Display selected note as tab
+  - Remember last opened and unpinned note
+- Pin/Unpin selected note to/from the tabs
+- Change position of pinned tabs
+- Toggle to-do state from tab
+  - Automatically unpin completed to-dos ([configurable](#user-options))
+- [Configurable](#user-options) style attributes
 
-### New commands
+## Screenshots
+
+### Tabs above note content
+
+![tabs-top-horizontal](./assets/tabs-top-horizontal.png)
+
+### Tabs below note content
+
+![tabs-bottom-horizontal](./assets/tabs-bottom-horizontal.png)
+
+> **NOTE** - The used UI theme on this screenshot can be downloaded [here](https://github.com/benji300/joplin-wanaka-ui).
+
+### Tabs beside note content (vertical layout)
+
+![tabs-right-vertical](./assets/tabs-right-vertical.png)
+
+> **NOTE** - The used UI theme on this screenshot can be downloaded [here](https://github.com/benji300/joplin-milford-ui).
+
+### Commands
 
 This plugin provides the commands as described in the following chapters.
 
-- Column `Additional UI Locations` describes where the command can additionally be added to the UI
-  - Whether the command is displayed or not can be set in the [user options](#user-options)
 - Default keyboard shortcuts can be changed in user options
   - Navigate to `Tools > Options > Keyboard Shortcuts` and search for the command label to be changed
 
-> TODO - Add commands here... Example:
+#### Tabs: Pin note (`tabsPinNote`)
 
-#### Add new Note (`addNewNote`)
+| Command Label  | Command ID    | Default Key | Menu           |
+| -------------- | ------------- | ----------- | -------------- |
+| Tabs: Pin note | `tabsPinNote` | -           | `Tools > Tabs` |
 
-| Command Label | Command ID   | Default Key         | Menu   | Additional UI Locations       |
-| ------------- | ------------ | ------------------- | ------ | ----------------------------- |
-| Add new note  | `addNewNote` | `CmdOrCtrl+Shift+N` | `Note` | Note context,<br>Note toolbar |
+Pin the selected note to the tabs.
 
-Adds a new note to the active notebook.
+#### Tabs: Unpin note (`tabsUnpinNote`)
 
-> **NOTE** - Something noteworthy...
+| Command Label    | Command ID      | Default Key | Menu           |
+| ---------------- | --------------- | ----------- | -------------- |
+| Tabs: Unpin note | `tabsUnpinNote` | -           | `Tools > Tabs` |
 
-### UI enhancements
+Unpin the selected note from the tabs.
 
-This plugin adds the following elements to the UI.
+#### Tabs: Move tab left (`tabsMoveLeft`)
 
-To get the best result, check out the [UI tweaks](#ui-tweaks) also.
+| Command Label       | Command ID     | Default Key | Menu           |
+| ------------------- | -------------- | ----------- | -------------- |
+| Tabs: Move tab left | `tabsMoveLeft` | -           | `Tools > Tabs` |
 
-> TODO - describe additions to the UI (with screenshots, if available)
-> New panels, views, dialogs, ... in sub-chapters
-> Otherwise remove chapters
+Move pinned and active note tab one position to the left.
 
-#### Menus
+#### Tabs: Move tab right (`tabsMoveRight`)
 
-> TODO - Add menu entries here... Example:
+| Command Label        | Command ID      | Default Key | Menu           |
+| -------------------- | --------------- | ----------- | -------------- |
+| Tabs: Move tab right | `tabsMoveRight` | -           | `Tools > Tabs` |
 
-- Add context menu entry for `Add new Note` command
+Move pinned and active note tab one position to the right.
 
-#### Panels/Views/etc.
+#### Tabs: Clear all tabs (`tabsClear`)
 
-> TODO - Add panel/view descriptions here...
+| Command Label        | Command ID  | Default Key | Menu           |
+| -------------------- | ----------- | ----------- | -------------- |
+| Tabs: Clear all tabs | `tabsClear` | -           | `Tools > Tabs` |
+
+Clear all pinned tabs.
 
 ### User options
 
-This plugin adds the following user options which can be accessed via `Tools > Options > %PLUGIN-NAME%`.
+This plugin adds the following user options which can be accessed via `Tools > Options > Note Tabs`.
 
 > **NOTE** - Changes to the user options are only applied after a restart of the app
 
-> TODO - Add user options here... Example:
+- Automatically unpin completed to-dos:\
+  _Select whether completed to-dos shall be automatically unpinned or not_
 
-- Show [Add new note](#add-new-note) on note toolbar:\
-  _Select whether a button for the command shall be shown on the note toolbar (next to note title) or not_
+- Note Tabs height (px):\
+  _Specify the heigth of all tabs in pixel_
+
+- Minimum Tab width (px):\
+  _Specifiy the minimum width of a single tab in pixel_
+
+- Maximum Tab width (px):\
+  _Specifiy the maximum width of a single tab in pixel_
+
+#### Advanced options
+
+> **NOTE** - All settings here must be specified as valid CSS attribute values, e.g. `#ffffff` or `rgb(255,255,255)`. Joplin internal CSS variables can also be specified with "`var(-joplin-background-color)`".
+
+- Background color:\
+  _Specifiy the background color of the panel_
+
+- Active background color:\
+  _Specifiy the background color of the active tab_
+
+- Foreground color:\
+  _Specifiy the main foreground color to be used for text and icons_
+
+- Active foreground color:\
+  _Specifiy the foreground color of the active tab_
+
+- Divider color:\
+  _Specifiy the color of the tabs divider (border)_
 
 ## Installation
 
@@ -89,38 +146,19 @@ This plugin adds the following user options which can be accessed via `Tools > O
 
 - Open Joplin
 - Navigate to `Tools > Options > Plugins`
-- Search for the `Command Extension` plugin
+- Search for the `Note Tabs` plugin
 - Click `Delete` to remove the plugin from the user profile directory
   - Alternatively you can also disable the plugin by clicking on the toggle button
 - Restart Joplin
 
-## UI tweaks
-
-> TODO - describe how to change `webview.css` or `userchrome.css` (if available)\
-> E.g. to not show something which is displayed elsewhere via the new plugin.\
-> Otherwise remove chapters
-
-### Plugin styles
-
-- Open Joplin and navigate to `Help > Open user profile directory`
-- In the opened file explorer navigate to the plugin folder (`/plugins/%plugin-name%`)
-- Search for `webview.css` (should be content of subfolder `/dist`) and open it with any text editor
-- Follow the steps below
-
-> TODO Add steps here...
-
-### General App styles
-
-- Open Joplin and navigate to `Joplin > Preferences > Appearances`
-- Click `Advanced Settings`
-- Click `Custom stylesheet for Joplin-wide app styles` to open `userchrome.css` in any text editor
-- Follow the steps below
-
-> TODO Add steps here...
-
 ## Feedback
 
-If you need help or found a bug, open an issue on [GitHub](https://github.com/benji300/joplin-note-tabs/issues).
+- :question: Need help?
+  - Ask a question on the [Joplin Forum](https://discourse.joplinapp.org/c/plugins/18) (TODO: Paste link to thread)
+- :bulb: An idea to improve or enhance the plugin?
+  - [Request a new feature](https://github.com/benji300/joplin-note-tabs/issues) or upvote [popular feature requests](https://github.com/benji300/joplin-note-tabs/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc+)
+- :bug: Found a bug?
+  - File an issue on [GitHub](https://github.com/benji300/joplin-note-tabs/issues)
 
 ## Development
 

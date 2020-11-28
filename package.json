@@ -1,7 +1,7 @@
 {
   "name": "com.benji300.joplin.tabs",
   "version": "0.1.0",
-  "description": "TBD",
+  "description": "Displays selected note in a tab panel and allows to pin/unpin notes as tabs.",
   "keywords": [
     "joplin",
     "plugin"
