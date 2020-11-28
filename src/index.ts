@@ -33,7 +33,14 @@ joplin.plugins.register({
 			description: 'List of pinned notes.'
 		});
 
-		// General styles
+		// General settings
+		await SETTINGS.registerSetting('unpinCompletedTodos', {
+			value: false,
+			type: 3,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			label: 'Unpin completed to-dos'
+		});
 		await SETTINGS.registerSetting('tabHeight', {
 			value: "40",
 			type: 1,
@@ -175,7 +182,7 @@ joplin.plugins.register({
 			label: 'Tabs: Move left',
 			iconName: 'fas fa-chevron-left',
 			enabledCondition: "oneNoteSelected",
-			execute: async (direction: number) => {
+			execute: async () => {
 				const selectedNote: any = await joplin.workspace.selectedNote();
 				if (!selectedNote) return;
 
@@ -200,7 +207,7 @@ joplin.plugins.register({
 			label: 'Tabs: Move Right',
 			iconName: 'fas fa-chevron-right',
 			enabledCondition: "oneNoteSelected",
-			execute: async (direction: number) => {
+			execute: async () => {
 				const selectedNote: any = await joplin.workspace.selectedNote();
 				if (!selectedNote) return;
 
@@ -231,6 +238,28 @@ joplin.plugins.register({
 			}
 		});
 
+		// TODO make this command invisble to the user - if post messages work
+		// Command: tabsToggleTodo (internal)
+		await COMMANDS.register({
+			name: 'tabsToggleTodo',
+			label: 'Tabs: Toggle to-do state',
+			iconName: 'fas fa-check',
+			enabledCondition: "noteIsTodo && oneNoteSelected && !inConflictFolder",
+			execute: async () => {
+				// get the selected note and exit if none is currently selected
+				const selectedNote: any = await joplin.workspace.selectedNote();
+				if (!selectedNote) return;
+
+				if (selectedNote.todo_completed) {
+					await DATA.put(['notes', selectedNote.id], null, { todo_completed: 0 });
+				} else {
+					await DATA.put(['notes', selectedNote.id], null, { todo_completed: Date.now() });
+				}
+
+				updateTabsPanel();
+			}
+		});
+
 		//#endregion
 
 		//#region Setup panel
@@ -256,6 +285,10 @@ joplin.plugins.register({
 				console.info('tabsUnpinNote');
 				unpinNote(message.id);
 				updateTabsPanel();
+			}
+			if (message.name === 'tabsToggleTodo') {
+				console.info('tabsToggleTodo');
+				COMMANDS.execute('tabsToggleTodo');
 			}
 			if (message.name === 'tabsMoveLeft') {
 				COMMANDS.execute('tabsMoveLeft');
@@ -285,11 +318,15 @@ joplin.plugins.register({
 			const icon: string = (pinned) ? "fa-times" : "fa-thumbtack";
 			const iconTitle: string = (pinned) ? "Unpin" : "Pin";
 
+			const checkbox: string = (note.is_todo) ? `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">` : '';
+			const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
+
 			const html = `
 				<div role="tab" class="tab${activeTab}${newTab}"
 					style="height:${height}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
 					<div class="tab-inner" data-id="${note.id}">
-						<span class="title" data-id="${note.id}" style="color:${foreground};">
+						${checkbox}
+						<span class="title" data-id="${note.id}" style="color:${foreground};text-decoration: ${textDecoration};">
 							${note.title}
 						</span>
 						<a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};">
@@ -309,20 +346,27 @@ joplin.plugins.register({
 			// add all pinned notes as tabs
 			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
 			for (const pinnedNote of pinnedNotes) {
-				var realNote: any = null;
 				if (selectedNote && pinnedNote.id == selectedNote.id) {
 					selectedNoteIsNew = false;
 				}
 
 				// check if note id still exists - otherwise remove from pinned notes and continue with next one
+				var note: any = null; // representation of the real note data
 				try {
-					realNote = await DATA.get(['notes', pinnedNote.id], { fields: ['id', 'title'] });
+					note = await DATA.get(['notes', pinnedNote.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
 				} catch (error) {
 					unpinNote(pinnedNote.id);
 					continue;
 				}
 
-				tabsHtml.push((await prepareTabHtml(realNote, selectedNote, true)).toString());
+				// check if note is pinned and completed, then unpin it if enabled and continue with next one
+				const unpinCompleted: boolean = await SETTINGS.value('unpinCompletedTodos');
+				if (unpinCompleted && note.is_todo && note.todo_completed) {
+					unpinNote(note.id);
+					continue;
+				}
+
+				tabsHtml.push((await prepareTabHtml(note, selectedNote, true)).toString());
 			}
 
 			// check whether selected note is not pinned but active - than set as lastOpenedNote
@@ -340,7 +384,7 @@ joplin.plugins.register({
 			// check whether last opened note still exists - clear if not
 			if (lastOpenedNote) {
 				try {
-					realNote = await DATA.get(['notes', lastOpenedNote.id], { fields: ['id'] });
+					note = await DATA.get(['notes', lastOpenedNote.id], { fields: ['id'] });
 				} catch (error) {
 					lastOpenedNote = null;
 				}
@@ -385,6 +429,5 @@ joplin.plugins.register({
 		//#endregion
 
 		updateTabsPanel();
-		console.info('com.benji300.joplin.tabs started!');
 	},
 });

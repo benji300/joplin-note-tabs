@@ -1,5 +1,6 @@
 document.addEventListener('click', event => {
 	const element = event.target;
+
 	if (element.className === 'tab-inner' || element.className === 'title') {
 		const id = element.dataset.id;
 		console.info('tabsOpen: ' + id);
@@ -21,6 +22,14 @@ document.addEventListener('click', event => {
 		console.info('tabsUnpinNote: ' + id);
 		webviewApi.postMessage({
 			name: 'tabsUnpinNote',
+			id: element.dataset.id,
+		});
+	}
+	if (element.id === 'check') {
+		const id = element.dataset.id;
+		console.info('tabsToggleTodo: ' + id);
+		webviewApi.postMessage({
+			name: 'tabsToggleTodo',
 			id: element.dataset.id,
 		});
 	}
