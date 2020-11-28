@@ -26,8 +26,7 @@ span {
 /* HORIZONTAL LAYOUT */
 .container {
   height: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto;
   width: 100%;
 }
 
