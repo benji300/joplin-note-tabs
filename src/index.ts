@@ -266,8 +266,8 @@ joplin.plugins.register({
 
 		// prepare panel object
 		const panel = await PANELS.create("com.benji300.joplin.tabs.panel");
+		await PANELS.addScript(panel, './fontawesome/css/all.min.css');
 		await PANELS.addScript(panel, './webview.css');
-		await PANELS.addScript(panel, './fa/css/all.css');
 		await PANELS.addScript(panel, './webview.js');
 		PANELS.onMessage(panel, (message: any) => {
 			// TODO currently post message is not reached
