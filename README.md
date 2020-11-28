@@ -100,8 +100,6 @@ Clear all pinned tabs.
 
 This plugin adds the following user options which can be accessed via `Tools > Options > Note Tabs`.
 
-> **NOTE** - Changes to the user options are only applied after a restart of the app
-
 - Automatically unpin completed to-dos:\
   _Select whether completed to-dos shall be automatically unpinned or not_
 
