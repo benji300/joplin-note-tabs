@@ -1,4 +1,5 @@
 import joplin from 'api';
+import { MenuItem, MenuItemLocation } from 'api/types';
 
 // stores the last opened but unpinned note
 var lastOpenedNote: any;
@@ -11,6 +12,62 @@ joplin.plugins.register({
 		const PANELS = joplin.views.panels;
 		const SETTINGS = joplin.settings;
 		const WORKSPACE = joplin.workspace;
+
+		//#region COMMAND HELPER FUNCTIONS
+
+		function getIndexWithAttr(array: any, attr: any, value: any): number {
+			for (var i: number = 0; i < array.length; i += 1) {
+				if (array[i][attr] === value) {
+					return i;
+				}
+			}
+			return -1;
+		}
+
+		async function pinNote(noteId: string) {
+			// check if note is not already pinned, otherwise return
+			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
+			if (index != -1) return;
+
+			// check if current note was the last opened note - clear if so
+			if (noteId == lastOpenedNote.id) {
+				lastOpenedNote = null;
+			}
+
+			// pin handled note
+			pinnedNotes.push({ id: noteId });
+			SETTINGS.setValue('pinnedNotes', pinnedNotes);
+		}
+
+		// Remove note with handled id from pinned notes array
+		async function unpinNote(noteId: string) {
+			// check if note is pinned, otherwise return
+			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
+			if (index == -1) return;
+
+			// unpin handled note
+			pinnedNotes.splice(index, 1);
+			SETTINGS.setValue('pinnedNotes', pinnedNotes);
+		}
+
+		// try to get note from data and toggle their todo state
+		async function toggleTodo(noteId: string, checked: any) {
+			try {
+				const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
+				if (note.is_todo && checked) {
+					await DATA.put(['notes', note.id], null, { todo_completed: Date.now() });
+				} else {
+					await DATA.put(['notes', note.id], null, { todo_completed: 0 });
+				}
+			} catch (error) {
+				return;
+			}
+			updateTabsPanel();
+		}
+
+		//#endregion
 
 		//#region REGISTER USER OPTIONS
 
@@ -107,62 +164,6 @@ joplin.plugins.register({
 
 		//#endregion
 
-		//#region helper functions
-
-		function getIndexWithAttr(array: any, attr: any, value: any): number {
-			for (var i: number = 0; i < array.length; i += 1) {
-				if (array[i][attr] === value) {
-					return i;
-				}
-			}
-			return -1;
-		}
-
-		async function pinNote(noteId: string) {
-			// check if note is not already pinned, otherwise return
-			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-			if (index != -1) return;
-
-			// check if current note was the last opened note - clear if so
-			if (noteId == lastOpenedNote.id) {
-				lastOpenedNote = null;
-			}
-
-			// pin handled note
-			pinnedNotes.push({ id: noteId });
-			SETTINGS.setValue('pinnedNotes', pinnedNotes);
-		}
-
-		// Remove note with handled id from pinned notes array
-		async function unpinNote(noteId: string) {
-			// check if note is pinned, otherwise return
-			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-			if (index == -1) return;
-
-			// unpin handled note
-			pinnedNotes.splice(index, 1);
-			SETTINGS.setValue('pinnedNotes', pinnedNotes);
-		}
-
-		// try to get note from data and toggle their todo state
-		async function toggleTodo(noteId: string, checked: any) {
-			try {
-				const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
-				if (note.is_todo && checked) {
-					await DATA.put(['notes', note.id], null, { todo_completed: Date.now() });
-				} else {
-					await DATA.put(['notes', note.id], null, { todo_completed: 0 });
-				}
-			} catch (error) {
-				return;
-			}
-			updateTabsPanel();
-		}
-
-		//#endregion
-
 		//#region REGISTER COMMANDS
 
 		// Command: tabsPinNote
@@ -205,7 +206,7 @@ joplin.plugins.register({
 		// Desc: Move active (unpinned) tab to left
 		await COMMANDS.register({
 			name: 'tabsMoveLeft',
-			label: 'Tabs: Move left',
+			label: 'Tabs: Move tab left',
 			iconName: 'fas fa-chevron-left',
 			enabledCondition: "oneNoteSelected",
 			execute: async () => {
@@ -230,7 +231,7 @@ joplin.plugins.register({
 		// Desc: Move active (unpinned) tab to right
 		await COMMANDS.register({
 			name: 'tabsMoveRight',
-			label: 'Tabs: Move Right',
+			label: 'Tabs: Move tab right',
 			iconName: 'fas fa-chevron-right',
 			enabledCondition: "oneNoteSelected",
 			execute: async () => {
@@ -266,7 +267,7 @@ joplin.plugins.register({
 
 		//#endregion
 
-		//#region Setup panel
+		//#region SETUP PANEL
 
 		// prepare panel object
 		const panel = await PANELS.create("com.benji300.joplin.tabs.panel");
@@ -415,7 +416,38 @@ joplin.plugins.register({
 
 		//#endregion
 
-		//#region Map events
+		//#region MAP COMMANDS TO MENU
+
+		// prepare "Properties" submenu
+		const tabsCommandsSubMenu: MenuItem[] = [
+			{
+				commandName: "tabsPinNote",
+				label: 'Pin note'
+			},
+			{
+				commandName: "tabsUnpinNote",
+				label: 'Unpin note'
+			},
+			{
+				commandName: "tabsMoveLeft",
+				label: 'Move tab left'
+			},
+			{
+				commandName: "tabsMoveRight",
+				label: 'Move tab right'
+			},
+			{
+				commandName: "tabsClear",
+				label: 'Clear all tabs'
+			}
+		]
+
+		// add commands to "View" menu
+		await joplin.views.menus.create('menuViewTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
+
+		//#endregion
+
+		//#region MAP INTERNAL EVENTS
 
 		joplin.workspace.onNoteSelectionChange(() => {
 			updateTabsPanel();
