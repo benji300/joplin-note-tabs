@@ -130,6 +130,21 @@ joplin.plugins.register({
 			SETTINGS.setValue('pinnedNotes', pinnedNotes);
 		}
 
+		// try to get note from data and toggle their todo state
+		async function toggleTodo(noteId: string, checked: any) {
+			try {
+				const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
+				if (note.is_todo && checked) {
+					await DATA.put(['notes', note.id], null, { todo_completed: Date.now() });
+				} else {
+					await DATA.put(['notes', note.id], null, { todo_completed: 0 });
+				}
+			} catch (error) {
+				return;
+			}
+			updateTabsPanel();
+		}
+
 		//#endregion
 
 		//#region REGISTER COMMANDS
@@ -238,28 +253,6 @@ joplin.plugins.register({
 			}
 		});
 
-		// TODO make this command invisble to the user - if post messages work
-		// Command: tabsToggleTodo (internal)
-		await COMMANDS.register({
-			name: 'tabsToggleTodo',
-			label: 'Tabs: Toggle to-do state',
-			iconName: 'fas fa-check',
-			enabledCondition: "noteIsTodo && oneNoteSelected && !inConflictFolder",
-			execute: async () => {
-				// get the selected note and exit if none is currently selected
-				const selectedNote: any = await joplin.workspace.selectedNote();
-				if (!selectedNote) return;
-
-				if (selectedNote.todo_completed) {
-					await DATA.put(['notes', selectedNote.id], null, { todo_completed: 0 });
-				} else {
-					await DATA.put(['notes', selectedNote.id], null, { todo_completed: Date.now() });
-				}
-
-				updateTabsPanel();
-			}
-		});
-
 		//#endregion
 
 		//#region Setup panel
@@ -270,25 +263,19 @@ joplin.plugins.register({
 		await PANELS.addScript(panel, './webview.css');
 		await PANELS.addScript(panel, './webview.js');
 		PANELS.onMessage(panel, (message: any) => {
-			// TODO currently post message is not reached
-			// Remove console outputs when working
-			console.info('message received');
 			if (message.name === 'tabsOpen') {
-				console.info('openNote');
 				COMMANDS.execute('openNote', message.id);
 			}
 			if (message.name === 'tabsPinNote') {
-				console.info('tabsPinNote');
 				COMMANDS.execute('tabsPinNote');
 			}
 			if (message.name === 'tabsUnpinNote') {
-				console.info('tabsUnpinNote');
 				unpinNote(message.id);
 				updateTabsPanel();
 			}
 			if (message.name === 'tabsToggleTodo') {
-				console.info('tabsToggleTodo');
-				COMMANDS.execute('tabsToggleTodo');
+				toggleTodo(message.id, message.checked);
+				updateTabsPanel();
 			}
 			if (message.name === 'tabsMoveLeft') {
 				COMMANDS.execute('tabsMoveLeft');
