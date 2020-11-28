@@ -118,6 +118,22 @@ joplin.plugins.register({
 			return -1;
 		}
 
+		async function pinNote(noteId: string) {
+			// check if note is not already pinned, otherwise return
+			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
+			if (index != -1) return;
+
+			// check if current note was the last opened note - clear if so
+			if (noteId == lastOpenedNote.id) {
+				lastOpenedNote = null;
+			}
+
+			// pin handled note
+			pinnedNotes.push({ id: noteId });
+			SETTINGS.setValue('pinnedNotes', pinnedNotes);
+		}
+
 		// Remove note with handled id from pinned notes array
 		async function unpinNote(noteId: string) {
 			// check if note is pinned, otherwise return
@@ -125,7 +141,7 @@ joplin.plugins.register({
 			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
 			if (index == -1) return;
 
-			// unpin selected note and update panel
+			// unpin handled note
 			pinnedNotes.splice(index, 1);
 			SETTINGS.setValue('pinnedNotes', pinnedNotes);
 		}
@@ -161,13 +177,8 @@ joplin.plugins.register({
 				const selectedNote: any = await WORKSPACE.selectedNote();
 				if (!selectedNote) return;
 
-				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
-				if (index != -1) return;
-
 				// pin selected note and update panel
-				pinnedNotes.push({ id: selectedNote.id });
-				SETTINGS.setValue('pinnedNotes', pinnedNotes);
+				pinNote(selectedNote.id);
 				updateTabsPanel();
 			}
 		});
@@ -184,7 +195,7 @@ joplin.plugins.register({
 				const selectedNote: any = await WORKSPACE.selectedNote();
 				if (!selectedNote) return;
 
-				// unpin note and update panel
+				// unpin selected note and update panel
 				unpinNote(selectedNote.id);
 				updateTabsPanel();
 			}
@@ -267,7 +278,8 @@ joplin.plugins.register({
 				COMMANDS.execute('openNote', message.id);
 			}
 			if (message.name === 'tabsPinNote') {
-				COMMANDS.execute('tabsPinNote');
+				pinNote(message.id);
+				updateTabsPanel();
 			}
 			if (message.name === 'tabsUnpinNote') {
 				unpinNote(message.id);
