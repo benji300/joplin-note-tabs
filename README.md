@@ -32,7 +32,7 @@ It displays the selected note in a tab panel and allows to pin/unpin notes as ta
 - [Configurable](#user-options) style attributes
 - Support horizontal and vertical layout
 
-![screencast](./assets/screencast.mp4)
+![screencast](./assets/screencast.gif)
 
 ## Screenshots
 
