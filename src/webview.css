@@ -1,9 +1,18 @@
 /* GENERAL STYLES */
+/* roboto-regular - latin */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  src: local(""), url("./fonts/roboto-v20-latin-regular.woff2") format("woff2"),
+    url("./fonts/roboto-v20-latin-regular.woff") format("woff");
+}
+
 html,
 body,
 body > div,
 div#joplin-plugin-content {
-  font-family: var(--joplin-font-family);
+  font-family: "Roboto", sans-serif;
   font-size: var(--joplin-font-size);
   height: 100%;
 }
