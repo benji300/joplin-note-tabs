@@ -449,11 +449,15 @@ joplin.plugins.register({
 
 		//#region MAP INTERNAL EVENTS
 
-		joplin.workspace.onNoteSelectionChange(() => {
+		WORKSPACE.onNoteSelectionChange(() => {
 			updateTabsPanel();
 		});
 
-		joplin.workspace.onNoteContentChange(() => {
+		WORKSPACE.onNoteContentChange(() => {
+			updateTabsPanel();
+		});
+
+		WORKSPACE.onSyncComplete(() => {
 			updateTabsPanel();
 		});
 
