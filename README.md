@@ -143,6 +143,13 @@ This plugin adds the following user options which can be accessed via `Tools > O
 - Confirm selection
 - Restart Joplin to enable the plugin
 
+### Place tabs
+By default the tabs will be on the right side of the screen, this can be adjusted by: 
+- `View > Change` application layout
+- Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
+- Move the splitter (between content and tabs panel) up to reach the desired height of the panel
+- Press ESC to save the layout and return to normal mode
+
 ## Uninstallation
 
 - Open Joplin
