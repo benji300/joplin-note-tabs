@@ -75,6 +75,22 @@ Pin the selected note to the tabs.
 
 Unpin the selected note from the tabs.
 
+#### Tabs: Switch tab left (`tabsSwitchLeft`)
+
+| Command Label            | Command ID       | Default Key | Menu           |
+| ------------------------ | ---------------- | ----------- | -------------- |
+| Tabs: Switch to left tab | `tabsSwitchLeft` | -           | `Tools > Tabs` |
+
+Switch to the left pinned tab, i.e. select the left note.
+
+#### Tabs: Switch tab right (`tabsSwitchRight`)
+
+| Command Label             | Command ID        | Default Key | Menu           |
+| ------------------------- | ----------------- | ----------- | -------------- |
+| Tabs: Switch to right tab | `tabsSwitchRight` | -           | `Tools > Tabs` |
+
+Switch to the right pinned tab, i.e. select the right note.
+
 #### Tabs: Move tab left (`tabsMoveLeft`)
 
 | Command Label       | Command ID     | Default Key | Menu           |

@@ -224,8 +224,7 @@ joplin.plugins.register({
 				// check if note is pinned and not already first, otherwise exit
 				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
 				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
-				if (index == -1) return;
-				if (index == 0) return;
+				if (index <= 0) return;
 
 				// change position of tab and update panel
 				pinnedNotes.splice(index, 1);
@@ -246,7 +245,7 @@ joplin.plugins.register({
 				const selectedNote: any = await joplin.workspace.selectedNote();
 				if (!selectedNote) return;
 
-				// check if note is pinned and not already first, otherwise exit
+				// check if note is pinned and not already last, otherwise exit
 				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
 				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
 				if (index == -1) return;
@@ -257,6 +256,51 @@ joplin.plugins.register({
 				pinnedNotes.splice(index + 1, 0, selectedNote);
 				SETTINGS.setValue('pinnedNotes', pinnedNotes);
 				updateTabsPanel();
+			}
+		});
+
+		// Command: tabsSwitchLeft
+		// Desc: Switch to left tab, i.e. select left note
+		await COMMANDS.register({
+			name: 'tabsSwitchLeft',
+			label: 'Tabs: Switch to left tab',
+			iconName: 'fas fa-step-backward',
+			enabledCondition: "oneNoteSelected",
+			execute: async () => {
+				const selectedNote: any = await joplin.workspace.selectedNote();
+				if (!selectedNote) return;
+
+				// check if note is pinned and not already first, otherwise exit
+				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+				if (index <= 0) return;
+
+				// get id of left pinned note and select it
+				await COMMANDS.execute('openNote', pinnedNotes[index - 1].id);
+				// updateTabsPanel is triggered on onNoteSelectionChange event
+			}
+		});
+
+		// Command: tabsSwitchRight
+		// Desc: Switch to right tab, i.e. select right note
+		await COMMANDS.register({
+			name: 'tabsSwitchRight',
+			label: 'Tabs: Switch to right tab',
+			iconName: 'fas fa-step-forward',
+			enabledCondition: "oneNoteSelected",
+			execute: async () => {
+				const selectedNote: any = await joplin.workspace.selectedNote();
+				if (!selectedNote) return;
+
+				// check if note is pinned and not already last, otherwise exit
+				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
+				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+				if (index == -1) return;
+				if (index == pinnedNotes.length - 1) return;
+
+				// get id of right pinned note and select it
+				await COMMANDS.execute('openNote', pinnedNotes[index + 1].id);
+				// updateTabsPanel is triggered on onNoteSelectionChange event
 			}
 		});
 
@@ -436,6 +480,14 @@ joplin.plugins.register({
 			{
 				commandName: "tabsUnpinNote",
 				label: 'Unpin note'
+			},
+			{
+				commandName: "tabsSwitchLeft",
+				label: 'Switch to left tab'
+			},
+			{
+				commandName: "tabsSwitchRight",
+				label: 'Switch to right tab'
 			},
 			{
 				commandName: "tabsMoveLeft",

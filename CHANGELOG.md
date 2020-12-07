@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added option to specifiy the font family for the plugin
+- Option to specify the font family for the plugin
   - Including integrated Roboto font-face
+- Commands to switch between tabs ([#5](https://github.com/benji300/joplin-note-tabs/issues/5))
 
 ### Changed
 
