@@ -103,6 +103,8 @@ Clear all pinned tabs.
 
 This plugin adds the following user options which can be accessed via `Tools > Options > Note Tabs`.
 
+#### **General options**
+
 - Automatically unpin completed to-dos:\
   _Select whether completed to-dos shall be automatically unpinned or not_
 
@@ -115,9 +117,12 @@ This plugin adds the following user options which can be accessed via `Tools > O
 - Maximum Tab width (px):\
   _Specifiy the maximum width of a single tab in pixel_
 
-#### Advanced options
+#### **Advanced options**
 
-> **NOTE** - All settings here must be specified as valid CSS attribute values, e.g. `#ffffff` or `rgb(255,255,255)`. Joplin internal CSS variables can also be specified with "`var(-joplin-background-color)`".
+- Font family:\
+  _Specify the font family for the plugin. Font families other than 'Roboto' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font._
+
+> **NOTE** - All below settings must be specified as valid CSS attribute values, e.g. `#ffffff` or `rgb(255,255,255)`. Joplin internal CSS variables can also be specified with "`var(-joplin-background-color)`".
 
 - Background color:\
   _Specifiy the background color of the panel_
@@ -144,11 +149,13 @@ This plugin adds the following user options which can be accessed via `Tools > O
 - Restart Joplin to enable the plugin
 
 ### Place tabs
-By default the tabs will be on the right side of the screen, this can be adjusted by: 
-- `View > Change` application layout
+
+By default the tabs will be on the right side of the screen, this can be adjusted by:
+
+- `View > Change application layout`
 - Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
 - Move the splitter (between content and tabs panel) up to reach the desired height of the panel
-- Press ESC to save the layout and return to normal mode
+- Press `ESC` to save the layout and return to normal mode
 
 ## Uninstallation
 

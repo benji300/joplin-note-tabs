@@ -1,5 +1,5 @@
 import joplin from 'api';
-import { MenuItem, MenuItemLocation } from 'api/types';
+import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
 
 // stores the last opened but unpinned note
 var lastOpenedNote: any;
@@ -82,7 +82,7 @@ joplin.plugins.register({
 		// ]
 		await SETTINGS.registerSetting('pinnedNotes', {
 			value: [],
-			type: 4,
+			type: SettingItemType.Array,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: false,
 			label: 'Pinned Notes',
@@ -92,37 +92,46 @@ joplin.plugins.register({
 		// General settings
 		await SETTINGS.registerSetting('unpinCompletedTodos', {
 			value: false,
-			type: 3,
+			type: SettingItemType.Bool,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			label: 'Automatically unpin completed to-dos'
 		});
 		await SETTINGS.registerSetting('tabHeight', {
 			value: "40",
-			type: 1,
+			type: SettingItemType.Int,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			label: 'Note Tabs height (px)'
 		});
 		await SETTINGS.registerSetting('minTabWidth', {
 			value: "50",
-			type: 1,
+			type: SettingItemType.Int,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			label: 'Minimum Tab width (px)'
 		});
 		await SETTINGS.registerSetting('maxTabWidth', {
 			value: "150",
-			type: 1,
+			type: SettingItemType.Int,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			label: 'Maximum Tab width (px)'
 		});
 
 		// Advanced styles
+		await SETTINGS.registerSetting('fontFamily', {
+			value: "Roboto",
+			type: SettingItemType.String,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			advanced: true,
+			label: 'Font family',
+			description: "Specify the font family for the plugin. Font families other than 'Roboto' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font."
+		});
 		await SETTINGS.registerSetting('mainBackground', {
 			value: "var(--joplin-background-color3)",
-			type: 2,
+			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
@@ -130,7 +139,7 @@ joplin.plugins.register({
 		});
 		await SETTINGS.registerSetting('activeBackground', {
 			value: "var(--joplin-background-color)",
-			type: 2,
+			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
@@ -138,7 +147,7 @@ joplin.plugins.register({
 		});
 		await SETTINGS.registerSetting('mainForeground', {
 			value: "var(--joplin-color-faded)",
-			type: 2,
+			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
@@ -146,7 +155,7 @@ joplin.plugins.register({
 		});
 		await SETTINGS.registerSetting('activeForeground', {
 			value: "var(--joplin-color)",
-			type: 2,
+			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
@@ -154,7 +163,7 @@ joplin.plugins.register({
 		});
 		await SETTINGS.registerSetting('dividerColor', {
 			value: "var(--joplin-background-color)",
-			type: 2,
+			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
@@ -396,12 +405,13 @@ joplin.plugins.register({
 
 			// get setting style values
 			const height: number = await SETTINGS.value('tabHeight');
+			const font: string = await SETTINGS.value('fontFamily');
 			const mainBg: string = await SETTINGS.value('mainBackground');
 			const mainFg: string = await SETTINGS.value('mainForeground');
 
 			// add notes to container and push to panel
 			await PANELS.setHtml(panel, `
-					<div class="container" style="background:${mainBg};">
+					<div class="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
 						<div role="tablist" class="tabs-container">
 							${tabsHtml.join('\n')}
 							<div class="controls" style="height:${height}px;">

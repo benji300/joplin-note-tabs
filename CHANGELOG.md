@@ -7,8 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added option to specifiy the font family for the plugin
+  - Including integrated Roboto font-face
+
+### Changed
+
 - Decreased jpl size
-- Roboto font-face integrated into the plugin
+
+### Fixed
+
+- Fixed typo in generated package name
 
 ## [0.1.0] - 2020-11-28
 
