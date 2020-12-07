@@ -6,7 +6,6 @@ var lastOpenedNote: any;
 
 joplin.plugins.register({
 	onStart: async function () {
-		// TODO: remove what not used
 		const COMMANDS = joplin.commands;
 		const DATA = joplin.data;
 		const PANELS = joplin.views.panels;

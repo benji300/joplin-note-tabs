@@ -1,6 +1,6 @@
 {
 	"manifest_version": 1,
-	"id": "com.benj300.joplin.tabs",
+	"id": "com.benji300.joplin.tabs",
 	"app_min_version": "1.4",
 	"version": "0.1.0",
 	"name": "Note Tabs",
