@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to specify the font family for the plugin
   - Including integrated Roboto font-face
 - Commands to switch between tabs ([#5](https://github.com/benji300/joplin-note-tabs/issues/5))
+- Option to disable to-do checkboxes on tabs ([#6](https://github.com/benji300/joplin-note-tabs/issues/6))
 
 ### Changed
 

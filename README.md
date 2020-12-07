@@ -121,17 +121,20 @@ This plugin adds the following user options which can be accessed via `Tools > O
 
 #### **General options**
 
+- Show checkboxes for to-dos on tabs:\
+  _Select whether checkboxes for to-dos shall be shown on the tabs or not. If enabled, to-dos can be completed directly on the tabs._
+
 - Automatically unpin completed to-dos:\
-  _Select whether completed to-dos shall be automatically unpinned or not_
+  _Select whether completed to-dos shall be automatically unpinned or not._
 
 - Note Tabs height (px):\
-  _Specify the heigth of all tabs in pixel_
+  _Specify the heigth of all tabs in pixel._
 
 - Minimum Tab width (px):\
-  _Specifiy the minimum width of a single tab in pixel_
+  _Specifiy the minimum width of a single tab in pixel._
 
 - Maximum Tab width (px):\
-  _Specifiy the maximum width of a single tab in pixel_
+  _Specifiy the maximum width of a single tab in pixel._
 
 #### **Advanced options**
 
@@ -141,19 +144,19 @@ This plugin adds the following user options which can be accessed via `Tools > O
 > **NOTE** - All below settings must be specified as valid CSS attribute values, e.g. `#ffffff` or `rgb(255,255,255)`. Joplin internal CSS variables can also be specified with "`var(-joplin-background-color)`".
 
 - Background color:\
-  _Specifiy the background color of the panel_
+  _Specifiy the background color of the panel._
 
 - Active background color:\
-  _Specifiy the background color of the active tab_
+  _Specifiy the background color of the active tab._
 
 - Foreground color:\
-  _Specifiy the main foreground color to be used for text and icons_
+  _Specifiy the main foreground color to be used for text and icons._
 
 - Active foreground color:\
-  _Specifiy the foreground color of the active tab_
+  _Specifiy the foreground color of the active tab._
 
 - Divider color:\
-  _Specifiy the color of the tabs divider (border)_
+  _Specifiy the color of the tabs divider (border)._
 
 ## Installation
 

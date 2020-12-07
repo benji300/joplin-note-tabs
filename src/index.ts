@@ -90,6 +90,13 @@ joplin.plugins.register({
 		});
 
 		// General settings
+		await SETTINGS.registerSetting('showTodoCheckboxes', {
+			value: true,
+			type: SettingItemType.Bool,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			label: 'Show checkboxes for to-dos on tabs'
+		});
 		await SETTINGS.registerSetting('unpinCompletedTodos', {
 			value: false,
 			type: SettingItemType.Bool,
@@ -353,6 +360,7 @@ joplin.plugins.register({
 		// prepare tab HTML
 		async function prepareTabHtml(note: any, selectedNote: any, pinned: boolean): Promise<string> {
 			// get style values from settings
+			const showCheckboxes: boolean = await SETTINGS.value('showTodoCheckboxes');
 			const height: number = await SETTINGS.value('tabHeight');
 			const minWidth: number = await SETTINGS.value('minTabWidth');
 			const maxWidth: number = await SETTINGS.value('maxTabWidth');
@@ -370,7 +378,7 @@ joplin.plugins.register({
 			const icon: string = (pinned) ? "fa-times" : "fa-thumbtack";
 			const iconTitle: string = (pinned) ? "Unpin" : "Pin";
 
-			const checkbox: string = (note.is_todo) ? `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">` : '';
+			const checkbox: string = (showCheckboxes && note.is_todo) ? `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">` : '';
 			const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
 
 			const html = `
