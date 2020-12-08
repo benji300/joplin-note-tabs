@@ -513,7 +513,7 @@ joplin.plugins.register({
 
 		// add commands to "View" menu
 		await joplin.views.menus.create('menuViewTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
-
+		await joplin.views.menuItems.create('menuPinMote', 'tabsPinNote', MenuItemLocation.EditorContextMenu)
 		//#endregion
 
 		//#region MAP INTERNAL EVENTS
