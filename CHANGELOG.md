@@ -13,12 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Including integrated Roboto font-face
 - Commands to switch between tabs ([#5](https://github.com/benji300/joplin-note-tabs/issues/5))
 - Option to disable to-do checkboxes on tabs ([#6](https://github.com/benji300/joplin-note-tabs/issues/6))
-- Possibility to pin note from editor context menu (#9 by @ambrt)
+- Possibility to pin note from editor context menu ([#9](https://github.com/benji300/joplin-note-tabs/pull/9) by [@ambrt](https://github.com/ambrt))
 
 ### Changed
 
 - Decreased jpl size
-- Added description to place tabs to README (#4 by @amandamcg)
+- Added description to place tabs to README ([#4](https://github.com/benji300/joplin-note-tabs/pull/4) by [@amandamcg](https://github.com/amandamcg))
 
 ### Fixed
 
