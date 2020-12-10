@@ -1,6 +1,6 @@
 {
   "name": "com.benji300.joplin.tabs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Displays selected note in a tab panel and allows to pin/unpin notes as tabs.",
   "keywords": [
     "joplin",
