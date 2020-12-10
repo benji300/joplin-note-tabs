@@ -61,9 +61,9 @@ This plugin provides the commands as described in the following chapters.
 
 #### Tabs: Pin note (`tabsPinNote`)
 
-| Command Label  | Command ID    | Default Key | Menu           |
-| -------------- | ------------- | ----------- | -------------- |
-| Tabs: Pin note | `tabsPinNote` | -           | `Tools > Tabs` |
+| Command Label  | Command ID    | Default Key | Menu                               |
+| -------------- | ------------- | ----------- | ---------------------------------- |
+| Tabs: Pin note | `tabsPinNote` | -           | `Tools > Tabs`<br>`Editor context` |
 
 Pin the selected note to the tabs.
 
