@@ -26,35 +26,24 @@
 		},
 		"tasks": [
 			{
-				"label": "Plugin: Install dependencies",
+				"label": "$(cloud-download) Install npm dependencies",
 				"command": "npm install",
 				"group": "build",
 				"type": "shell"
 			},
-			// {
-			// 	"label": "Plugin: Update API",
-			// 	"command": "start yo",
-			// 	"group": "build",
-			// 	"type": "shell",
-			// 	"args": [
-			// 		"joplin",
-			// 		"--update"
-			// 	]
-			// },
 			{
-				"label": "Plugin: Build Plugin",
+				"label": "Build Plugin",
 				"command": "npm run dist",
-				"group": "build",
 				"type": "shell"
 			},
 			{
-				"label": "Plugin: Release",
+				"label": "$(tag) Release Plugin",
 				"command": "npm run release",
 				"group": "build",
 				"type": "shell"
 			},
 			{
-				"label": "Diff: Compare with user profile (BCompare)",
+				"label": "$(compare-changes) Compare with user profile (BCompare)",
 				"command": "C:/Program Files/Beyond Compare 4/BCompare.exe",
 				"group": "build",
 				"args": [
@@ -64,7 +53,7 @@
 				"isBackground": true
 			},
 			{
-				"label": "Diff: Compare active file with...",
+				"label": "$(compare-changes) Compare active file with...",
 				"type": "process",
 				"command": "${command:workbench.files.action.compareFileWith}",
 				"group": "build",
@@ -74,19 +63,20 @@
 						"cwd": "C:/Users/${env:username}"
 					}
 				},
+				"problemMatcher": []
 			},
 			{
-				"label": "Joplin: Open App",
+				"label": "$(window) Open Joplin",
 				"command": "C:/Program Files/Joplin/Joplin.exe",
 				"group": "build",
 				"isBackground": true
 			},
 			{
-				"label": "Joplin: Open App (dev)",
+				"label": "$(window) Open Joplin (dev)",
 				"command": "C:/Program Files/Joplin/Joplin.exe",
 				"group": "build",
 				"dependsOn": [
-					"Plugin: Build Plugin"
+					"Build Plugin"
 				],
 				"args": [
 					"--env",
@@ -95,11 +85,11 @@
 				"isBackground": true
 			},
 			{
-				"label": "Joplin: Reload App",
+				"label": "$(refresh) Reload Joplin",
 				"command": "powershell",
 				"group": "build",
 				"dependsOn": [
-					"Plugin: Build Plugin"
+					"Build Plugin"
 				],
 				"args": [
 					"Stop-Process -Name \"Joplin\";",
@@ -108,14 +98,14 @@
 				"isBackground": true
 			},
 			{
-				"label": "Joplin: Reload App (dev)",
+				"label": "$(refresh) Reload Joplin (dev)",
 				"command": "powershell",
 				"group": {
 					"isDefault": true,
 					"kind": "build"
 				},
 				"dependsOn": [
-					"Plugin: Build Plugin"
+					"Build Plugin"
 				],
 				"args": [
 					"Stop-Process -Name \"Joplin\";",
@@ -124,7 +114,7 @@
 				"isBackground": true
 			},
 			{
-				"label": "Joplin: Open user profile directory",
+				"label": "$(folder-opened) Open user profile directory",
 				"command": "powershell",
 				"group": "build",
 				"args": [
@@ -135,7 +125,7 @@
 					"options": {
 						"cwd": "C:/Users/${env:username}"
 					}
-				},
+				}
 			}
 		],
 		"inputs": [

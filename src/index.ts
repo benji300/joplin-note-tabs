@@ -85,8 +85,8 @@ joplin.plugins.register({
 			type: SettingItemType.Array,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: false,
-			label: 'Pinned Notes',
-			description: 'List of pinned notes.'
+			label: 'tabbed Notes',
+			description: 'List of tabbed notes.'
 		});
 
 		// General settings
@@ -95,7 +95,8 @@ joplin.plugins.register({
 			type: SettingItemType.Bool,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
-			label: 'Show checkboxes for to-dos on tabs'
+			label: 'Show checkboxes for to-dos on tabs',
+			description: 'If enabled, to-dos can be completed directly on the tabs.'
 		});
 		await SETTINGS.registerSetting('unpinCompletedTodos', {
 			value: false,
@@ -109,7 +110,8 @@ joplin.plugins.register({
 			type: SettingItemType.Int,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
-			label: 'Note Tabs height (px)'
+			label: 'Note Tabs height (px)',
+			description: "Height of the tabs. Row height in vertical layout."
 		});
 		await SETTINGS.registerSetting('minTabWidth', {
 			value: "50",
@@ -134,7 +136,7 @@ joplin.plugins.register({
 			public: true,
 			advanced: true,
 			label: 'Font family',
-			description: "Specify the font family for the plugin. Font families other than 'Roboto' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font."
+			description: "Font family used in the panel. Font families other than 'Roboto' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font."
 		});
 		await SETTINGS.registerSetting('mainBackground', {
 			value: "var(--joplin-background-color3)",
@@ -142,7 +144,8 @@ joplin.plugins.register({
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
-			label: 'Background color'
+			label: 'Background color',
+			description: "Default background color of the panel."
 		});
 		await SETTINGS.registerSetting('activeBackground', {
 			value: "var(--joplin-background-color)",
@@ -150,7 +153,8 @@ joplin.plugins.register({
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
-			label: 'Active background color'
+			label: 'Active background color',
+			description: "Background color of the current active tab."
 		});
 		await SETTINGS.registerSetting('mainForeground', {
 			value: "var(--joplin-color-faded)",
@@ -158,7 +162,8 @@ joplin.plugins.register({
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
-			label: 'Foreground color'
+			label: 'Foreground color',
+			description: "Default foreground color used for text and icons."
 		});
 		await SETTINGS.registerSetting('activeForeground', {
 			value: "var(--joplin-color)",
@@ -166,7 +171,8 @@ joplin.plugins.register({
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
-			label: 'Active foreground color'
+			label: 'Active foreground color',
+			description: "Foreground color of the current active tab."
 		});
 		await SETTINGS.registerSetting('dividerColor', {
 			value: "var(--joplin-background-color)",
@@ -174,7 +180,8 @@ joplin.plugins.register({
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
-			label: 'Divider color'
+			label: 'Divider color',
+			description: "Color of the divider between the tabs."
 		});
 
 		//#endregion
