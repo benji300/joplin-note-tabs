@@ -3,8 +3,8 @@
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
-  src: local(""), url("./roboto/roboto-v20-latin-regular.woff2") format("woff2"),
-    url("./roboto/roboto-v20-latin-regular.woff") format("woff");
+  src: local(""), url("./assets/roboto/roboto-v20-latin-regular.woff2") format("woff2"),
+    url("./assets/roboto/roboto-v20-latin-regular.woff") format("woff");
 }
 
 html,

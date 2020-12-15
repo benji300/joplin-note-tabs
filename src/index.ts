@@ -349,7 +349,7 @@ joplin.plugins.register({
 
 		// prepare panel object
 		const panel = await PANELS.create("com.benji300.joplin.tabs.panel");
-		await PANELS.addScript(panel, './fontawesome/css/all.min.css');
+		await PANELS.addScript(panel, './assets/fontawesome/css/all.min.css');
 		await PANELS.addScript(panel, './webview.css');
 		await PANELS.addScript(panel, './webview.js');
 		await PANELS.onMessage(panel, async (message: any) => {
@@ -397,7 +397,7 @@ joplin.plugins.register({
 				try {
 					await DATA.get(['notes', noteTab.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
 
-					if (selectedNote != null && noteTab.id == selectedNote.id) {
+					if (selectedNote && noteTab.id == selectedNote.id) {
 						selectedNoteIsNew = false;
 					}
 
