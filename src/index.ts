@@ -385,11 +385,6 @@ joplin.plugins.register({
 			var selectedNoteIsNew: boolean = true;
 			var tempTabIndex: number = -1;
 			var noteTabs: any = await SETTINGS.value('noteTabs');
-
-			// debug print
-			// console.log(`selected note: ${selectedNote}`);
-			// console.log(`noteTabs before: ${JSON.stringify(noteTabs)}`);
-
 			for (const noteTab of noteTabs) {
 				const index: number = getIndexWithAttr(noteTabs, 'id', noteTab.id);
 
@@ -409,11 +404,8 @@ joplin.plugins.register({
 				}
 			}
 
-			// debug print
-			// console.log(`noteTabs after patching: ${JSON.stringify(noteTabs)}`);
-
 			// if selected note is not already a tab...
-			if (selectedNote != null) {
+			if (selectedNote) {
 				if (selectedNoteIsNew) {
 					if (tempTabIndex >= 0) {
 						// replace existing temporary tab
@@ -487,9 +479,9 @@ joplin.plugins.register({
 
 		//#endregion
 
-		//#region MAP COMMANDS TO MENU
+		//#region MAP COMMANDS TO MENUS
 
-		// prepare "Properties" submenu
+		// prepare Tools > Tabs menu
 		const tabsCommandsSubMenu: MenuItem[] = [
 			{
 				commandName: "tabsPinNote",
@@ -520,9 +512,9 @@ joplin.plugins.register({
 				label: 'Clear all tabs'
 			}
 		]
-
-		// add commands to menus
 		await joplin.views.menus.create('toolsTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
+
+		// add commands to editor context menu
 		await joplin.views.menuItems.create('editorContextMenuPinNote', 'tabsPinNote', MenuItemLocation.EditorContextMenu);
 
 		//#endregion
