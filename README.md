@@ -24,10 +24,10 @@ It displays the selected note in a tab panel and allows to pin/unpin notes as ta
 ## Features
 
 - Display selected note as tab
-  - Remember last opened and unpinned note
+- Remember last opened and unpinned note
 - Pin/Unpin selected note to/from the tabs
-- Change position of pinned tabs
-- Toggle to-do state from tab
+- Change position of tabs within the panel
+- Toggle to-do state from tabs
   - Automatically unpin completed to-dos ([configurable](#user-options))
 - [Configurable](#user-options) style attributes
 - Support horizontal and vertical layout
@@ -81,7 +81,7 @@ Unpin the selected note from the tabs.
 | ------------------------ | ---------------- | ----------- | -------------- |
 | Tabs: Switch to left tab | `tabsSwitchLeft` | -           | `Tools > Tabs` |
 
-Switch to the left pinned tab, i.e. select the left note.
+Switch to the left tab next to the active, i.e. select the left note.
 
 #### Tabs: Switch tab right (`tabsSwitchRight`)
 
@@ -89,7 +89,7 @@ Switch to the left pinned tab, i.e. select the left note.
 | ------------------------- | ----------------- | ----------- | -------------- |
 | Tabs: Switch to right tab | `tabsSwitchRight` | -           | `Tools > Tabs` |
 
-Switch to the right pinned tab, i.e. select the right note.
+Switch to the right tab next to the active, i.e. select the right note.
 
 #### Tabs: Move tab left (`tabsMoveLeft`)
 
@@ -97,7 +97,7 @@ Switch to the right pinned tab, i.e. select the right note.
 | ------------------- | -------------- | ----------- | -------------- |
 | Tabs: Move tab left | `tabsMoveLeft` | -           | `Tools > Tabs` |
 
-Move pinned and active note tab one position to the left.
+Move active tab one position to the left.
 
 #### Tabs: Move tab right (`tabsMoveRight`)
 
@@ -105,7 +105,7 @@ Move pinned and active note tab one position to the left.
 | -------------------- | --------------- | ----------- | -------------- |
 | Tabs: Move tab right | `tabsMoveRight` | -           | `Tools > Tabs` |
 
-Move pinned and active note tab one position to the right.
+Move active tab one position to the right.
 
 #### Tabs: Clear all tabs (`tabsClear`)
 

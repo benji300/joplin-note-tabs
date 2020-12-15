@@ -1,8 +1,12 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
 
-// stores the last opened but unpinned note
-var lastOpenedNote: any;
+enum NoteTabType {
+	Temporary = 1,
+	// Open state is currently not used
+	Open = 2,
+	Pinned = 3
+}
 
 joplin.plugins.register({
 	onStart: async function () {
@@ -11,62 +15,6 @@ joplin.plugins.register({
 		const PANELS = joplin.views.panels;
 		const SETTINGS = joplin.settings;
 		const WORKSPACE = joplin.workspace;
-
-		//#region COMMAND HELPER FUNCTIONS
-
-		function getIndexWithAttr(array: any, attr: any, value: any): number {
-			for (var i: number = 0; i < array.length; i += 1) {
-				if (array[i][attr] === value) {
-					return i;
-				}
-			}
-			return -1;
-		}
-
-		async function pinNote(noteId: string) {
-			// check if note is not already pinned, otherwise return
-			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-			if (index != -1) return;
-
-			// check if current note was the last opened note - clear if so
-			if (noteId == lastOpenedNote.id) {
-				lastOpenedNote = null;
-			}
-
-			// pin handled note
-			pinnedNotes.push({ id: noteId });
-			SETTINGS.setValue('pinnedNotes', pinnedNotes);
-		}
-
-		// Remove note with handled id from pinned notes array
-		async function unpinNote(noteId: string) {
-			// check if note is pinned, otherwise return
-			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			const index: number = getIndexWithAttr(pinnedNotes, 'id', noteId);
-			if (index == -1) return;
-
-			// unpin handled note
-			pinnedNotes.splice(index, 1);
-			SETTINGS.setValue('pinnedNotes', pinnedNotes);
-		}
-
-		// try to get note from data and toggle their todo state
-		async function toggleTodo(noteId: string, checked: any) {
-			try {
-				const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
-				if (note.is_todo && checked) {
-					await DATA.put(['notes', note.id], null, { todo_completed: Date.now() });
-				} else {
-					await DATA.put(['notes', note.id], null, { todo_completed: 0 });
-				}
-			} catch (error) {
-				return;
-			}
-			updateTabsPanel();
-		}
-
-		//#endregion
 
 		//#region REGISTER USER OPTIONS
 
@@ -77,16 +25,16 @@ joplin.plugins.register({
 
 		// [
 		//   {
-		//     "id": "note id"
+		//     "id": "note id",
+		//     "type": NoteTabType
 		//   }
 		// ]
-		await SETTINGS.registerSetting('pinnedNotes', {
+		await SETTINGS.registerSetting('noteTabs', {
 			value: [],
 			type: SettingItemType.Array,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: false,
-			label: 'tabbed Notes',
-			description: 'List of tabbed notes.'
+			label: 'Note tabs'
 		});
 
 		// General settings
@@ -186,6 +134,68 @@ joplin.plugins.register({
 
 		//#endregion
 
+		//#region COMMAND HELPER FUNCTIONS
+
+		function getIndexWithAttr(array: any, attr: any, value: any): number {
+			for (var i: number = 0; i < array.length; i += 1) {
+				if (array[i][attr] === value) {
+					return i;
+				}
+			}
+			return -1;
+		}
+
+		async function pinNote(noteId: string) {
+			const noteTabs: any = await SETTINGS.value('noteTabs');
+			const index: number = getIndexWithAttr(noteTabs, 'id', noteId);
+
+			// if note has not already a tab
+			if (index < 0) {
+				// add as new one at the end
+				await noteTabs.push({ id: noteId, type: NoteTabType.Pinned });
+			} else {
+				// otherwise change type to pinned
+				await noteTabs.splice(index, 1, { id: noteId, type: NoteTabType.Pinned });
+			}
+
+			await SETTINGS.setValue('noteTabs', noteTabs);
+		}
+
+		// Remove note with handled id from pinned notes array
+		async function removeNote(noteId: string) {
+			// check if note has a tab, otherwise return
+			const noteTabs: any = await SETTINGS.value('noteTabs');
+			const index: number = getIndexWithAttr(noteTabs, 'id', noteId);
+			if (index < 0) return;
+
+			// remove note from tabs
+			await noteTabs.splice(index, 1);
+			await SETTINGS.setValue('noteTabs', noteTabs);
+		}
+
+		// try to get note from data and toggle their todo state
+		async function toggleTodo(noteId: string, checked: any) {
+			try {
+				const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
+				if (note.is_todo && checked) {
+					await DATA.put(['notes', note.id], null, { todo_completed: Date.now() });
+
+					// if auto unpin is enabled, remove from noteTabs
+					const removeCompleted: boolean = await SETTINGS.value('unpinCompletedTodos');
+					if (removeCompleted) {
+						await removeNote(noteId);
+					}
+
+				} else {
+					await DATA.put(['notes', note.id], null, { todo_completed: 0 });
+				}
+			} catch (error) {
+				return;
+			}
+		}
+
+		//#endregion
+
 		//#region REGISTER COMMANDS
 
 		// Command: tabsPinNote
@@ -201,8 +211,8 @@ joplin.plugins.register({
 				if (!selectedNote) return;
 
 				// pin selected note and update panel
-				pinNote(selectedNote.id);
-				updateTabsPanel();
+				await pinNote(selectedNote.id);
+				await updateTabsPanel();
 			}
 		});
 
@@ -219,8 +229,8 @@ joplin.plugins.register({
 				if (!selectedNote) return;
 
 				// unpin selected note and update panel
-				unpinNote(selectedNote.id);
-				updateTabsPanel();
+				await removeNote(selectedNote.id);
+				await updateTabsPanel();
 			}
 		});
 
@@ -235,16 +245,17 @@ joplin.plugins.register({
 				const selectedNote: any = await joplin.workspace.selectedNote();
 				if (!selectedNote) return;
 
-				// check if note is pinned and not already first, otherwise exit
-				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+				// check if note is not already first, otherwise exit
+				const noteTabs: any = await SETTINGS.value('noteTabs');
+				const index: number = getIndexWithAttr(noteTabs, 'id', selectedNote.id);
 				if (index <= 0) return;
 
 				// change position of tab and update panel
-				pinnedNotes.splice(index, 1);
-				pinnedNotes.splice(index - 1, 0, selectedNote);
-				SETTINGS.setValue('pinnedNotes', pinnedNotes);
-				updateTabsPanel();
+				const tab: any = noteTabs[index];
+				await noteTabs.splice(index, 1);
+				await noteTabs.splice(index - 1, 0, tab);
+				await SETTINGS.setValue('noteTabs', noteTabs);
+				await updateTabsPanel();
 			}
 		});
 
@@ -259,17 +270,18 @@ joplin.plugins.register({
 				const selectedNote: any = await joplin.workspace.selectedNote();
 				if (!selectedNote) return;
 
-				// check if note is pinned and not already last, otherwise exit
-				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+				// check if note is not already last, otherwise exit
+				const noteTabs: any = await SETTINGS.value('noteTabs');
+				const index: number = getIndexWithAttr(noteTabs, 'id', selectedNote.id);
 				if (index == -1) return;
-				if (index == pinnedNotes.length - 1) return;
+				if (index == noteTabs.length - 1) return;
 
 				// change position of tab and update panel
-				pinnedNotes.splice(index, 1);
-				pinnedNotes.splice(index + 1, 0, selectedNote);
-				SETTINGS.setValue('pinnedNotes', pinnedNotes);
-				updateTabsPanel();
+				const tab: any = noteTabs[index];
+				await noteTabs.splice(index, 1);
+				await noteTabs.splice(index + 1, 0, tab);
+				await SETTINGS.setValue('noteTabs', noteTabs);
+				await updateTabsPanel();
 			}
 		});
 
@@ -284,13 +296,13 @@ joplin.plugins.register({
 				const selectedNote: any = await joplin.workspace.selectedNote();
 				if (!selectedNote) return;
 
-				// check if note is pinned and not already first, otherwise exit
-				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+				// check if note is not already first, otherwise exit
+				const noteTabs: any = await SETTINGS.value('noteTabs');
+				const index: number = getIndexWithAttr(noteTabs, 'id', selectedNote.id);
 				if (index <= 0) return;
 
 				// get id of left pinned note and select it
-				await COMMANDS.execute('openNote', pinnedNotes[index - 1].id);
+				await COMMANDS.execute('openNote', noteTabs[index - 1].id);
 				// updateTabsPanel is triggered on onNoteSelectionChange event
 			}
 		});
@@ -306,14 +318,14 @@ joplin.plugins.register({
 				const selectedNote: any = await joplin.workspace.selectedNote();
 				if (!selectedNote) return;
 
-				// check if note is pinned and not already last, otherwise exit
-				const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-				const index: number = getIndexWithAttr(pinnedNotes, 'id', selectedNote.id);
+				// check if note is not already last, otherwise exit
+				const noteTabs: any = await SETTINGS.value('noteTabs');
+				const index: number = getIndexWithAttr(noteTabs, 'id', selectedNote.id);
 				if (index == -1) return;
-				if (index == pinnedNotes.length - 1) return;
+				if (index == noteTabs.length - 1) return;
 
 				// get id of right pinned note and select it
-				await COMMANDS.execute('openNote', pinnedNotes[index + 1].id);
+				await COMMANDS.execute('openNote', noteTabs[index + 1].id);
 				// updateTabsPanel is triggered on onNoteSelectionChange event
 			}
 		});
@@ -325,9 +337,9 @@ joplin.plugins.register({
 			label: 'Tabs: Clear all tabs',
 			iconName: 'fas fa-times',
 			execute: async () => {
-				const pinnedNotes: any = [];
-				SETTINGS.setValue('pinnedNotes', pinnedNotes);
-				updateTabsPanel();
+				const noteTabs: any = [];
+				await SETTINGS.setValue('noteTabs', noteTabs);
+				await updateTabsPanel();
 			}
 		});
 
@@ -340,146 +352,137 @@ joplin.plugins.register({
 		await PANELS.addScript(panel, './fontawesome/css/all.min.css');
 		await PANELS.addScript(panel, './webview.css');
 		await PANELS.addScript(panel, './webview.js');
-		PANELS.onMessage(panel, (message: any) => {
+		await PANELS.onMessage(panel, async (message: any) => {
 			if (message.name === 'tabsOpen') {
-				COMMANDS.execute('openNote', message.id);
+				await COMMANDS.execute('openNote', message.id);
 			}
 			if (message.name === 'tabsPinNote') {
-				pinNote(message.id);
-				updateTabsPanel();
+				await pinNote(message.id);
+				await updateTabsPanel();
 			}
 			if (message.name === 'tabsUnpinNote') {
-				unpinNote(message.id);
-				updateTabsPanel();
+				await removeNote(message.id);
+				await updateTabsPanel();
 			}
 			if (message.name === 'tabsToggleTodo') {
-				toggleTodo(message.id, message.checked);
-				updateTabsPanel();
+				await toggleTodo(message.id, message.checked);
+				await updateTabsPanel();
 			}
 			if (message.name === 'tabsMoveLeft') {
-				COMMANDS.execute('tabsMoveLeft');
+				await COMMANDS.execute('tabsMoveLeft');
 			}
 			if (message.name === 'tabsMoveRight') {
-				COMMANDS.execute('tabsMoveRight');
+				await COMMANDS.execute('tabsMoveRight');
 			}
 		});
 
-		// prepare tab HTML
-		async function prepareTabHtml(note: any, selectedNote: any, pinned: boolean): Promise<string> {
+		// update HTML content
+		async function updateTabsPanel() {
+			const noteTabsHtml: any = [];
+			const selectedNote: any = await joplin.workspace.selectedNote();
+
+			// update note tabs array
+			var selectedNoteIsNew: boolean = true;
+			var tempTabIndex: number = -1;
+			var noteTabs: any = await SETTINGS.value('noteTabs');
+
+			// debug print
+			// console.log(`selected note: ${selectedNote}`);
+			// console.log(`noteTabs before: ${JSON.stringify(noteTabs)}`);
+
+			for (const noteTab of noteTabs) {
+				const index: number = getIndexWithAttr(noteTabs, 'id', noteTab.id);
+
+				// check if note id still exists and remove tab if not
+				try {
+					await DATA.get(['notes', noteTab.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
+
+					if (selectedNote != null && noteTab.id == selectedNote.id) {
+						selectedNoteIsNew = false;
+					}
+
+					if (noteTab.type == NoteTabType.Temporary) {
+						tempTabIndex = index;
+					}
+				} catch (error) {
+					noteTabs.splice(index, 1);
+				}
+			}
+
+			// debug print
+			// console.log(`noteTabs after patching: ${JSON.stringify(noteTabs)}`);
+
+			// if selected note is not already a tab...
+			if (selectedNote != null) {
+				if (selectedNoteIsNew) {
+					if (tempTabIndex >= 0) {
+						// replace existing temporary tab
+						noteTabs.splice(tempTabIndex, 1, { id: selectedNote.id, type: NoteTabType.Temporary });
+					} else {
+						// add as new temporary tab at the end
+						noteTabs.push({ id: selectedNote.id, type: NoteTabType.Temporary });
+					}
+				}
+			}
+
 			// get style values from settings
 			const showCheckboxes: boolean = await SETTINGS.value('showTodoCheckboxes');
 			const height: number = await SETTINGS.value('tabHeight');
 			const minWidth: number = await SETTINGS.value('minTabWidth');
 			const maxWidth: number = await SETTINGS.value('maxTabWidth');
+			const font: string = await SETTINGS.value('fontFamily');
 			const mainBg: string = await SETTINGS.value('mainBackground');
 			const mainFg: string = await SETTINGS.value('mainForeground');
 			const activeBg: string = await SETTINGS.value('activeBackground');
 			const activeFg: string = await SETTINGS.value('activeForeground');
 			const dividerColor: string = await SETTINGS.value('dividerColor');
 
-			// prepare style attributes
-			const background: string = (note.id == selectedNote.id) ? activeBg : mainBg;
-			const foreground: string = (note.id == selectedNote.id) ? activeFg : mainFg;
-			const activeTab: string = (note.id == selectedNote.id) ? " active" : "";
-			const newTab: string = (pinned) ? "" : " new";
-			const icon: string = (pinned) ? "fa-times" : "fa-thumbtack";
-			const iconTitle: string = (pinned) ? "Unpin" : "Pin";
+			// create HTML for each tab
+			for (const noteTab of noteTabs) {
+				const note: any = await DATA.get(['notes', noteTab.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
 
-			const checkbox: string = (showCheckboxes && note.is_todo) ? `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">` : '';
-			const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
+				if (note) {
+					// prepare tab style attributes
+					const background: string = (selectedNote && note.id == selectedNote.id) ? activeBg : mainBg;
+					const foreground: string = (selectedNote && note.id == selectedNote.id) ? activeFg : mainFg;
+					const activeTab: string = (selectedNote && note.id == selectedNote.id) ? " active" : "";
+					const newTab: string = (noteTab.type == NoteTabType.Temporary) ? " new" : "";
+					const icon: string = (noteTab.type == NoteTabType.Pinned) ? "fa-times" : "fa-thumbtack";
+					const iconTitle: string = (noteTab.type == NoteTabType.Pinned) ? "Unpin" : "Pin";
+					const checkbox: string = (showCheckboxes && note.is_todo) ? `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">` : '';
+					const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
 
-			const html = `
-				<div role="tab" class="tab${activeTab}${newTab}"
-					style="height:${height}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
-					<div class="tab-inner" data-id="${note.id}">
-						${checkbox}
-						<span class="title" data-id="${note.id}" style="color:${foreground};text-decoration: ${textDecoration};">
-							${note.title}
-						</span>
-						<a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};">
-						</a>
-					</div>
-				</div>
-			`;
-			return html;
-		}
-
-		// update HTML content
-		async function updateTabsPanel() {
-			const tabsHtml: any = [];
-			const selectedNote: any = await joplin.workspace.selectedNote();
-			var selectedNoteIsNew: boolean = true;
-
-			// add all pinned notes as tabs
-			const pinnedNotes: any = await SETTINGS.value('pinnedNotes');
-			for (const pinnedNote of pinnedNotes) {
-				if (selectedNote && pinnedNote.id == selectedNote.id) {
-					selectedNoteIsNew = false;
-				}
-
-				// check if note id still exists - otherwise remove from pinned notes and continue with next one
-				var note: any = null; // representation of the real note data
-				try {
-					note = await DATA.get(['notes', pinnedNote.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
-				} catch (error) {
-					unpinNote(pinnedNote.id);
-					continue;
-				}
-
-				// check if note is pinned and completed, then unpin it if enabled and continue with next one
-				const unpinCompleted: boolean = await SETTINGS.value('unpinCompletedTodos');
-				if (unpinCompleted && note.is_todo && note.todo_completed) {
-					unpinNote(note.id);
-					continue;
-				}
-
-				tabsHtml.push((await prepareTabHtml(note, selectedNote, true)).toString());
-			}
-
-			// check whether selected note is not pinned but active - than set as lastOpenedNote
-			if (selectedNote) {
-				if (selectedNoteIsNew) {
-					lastOpenedNote = selectedNote;
-				} else {
-					// if note is already pinned but also still last opened - clear last opened
-					if (lastOpenedNote && lastOpenedNote.id == selectedNote.id) {
-						lastOpenedNote = null;
-					}
-				}
-			}
-
-			// check whether last opened note still exists - clear if not
-			if (lastOpenedNote) {
-				try {
-					note = await DATA.get(['notes', lastOpenedNote.id], { fields: ['id'] });
-				} catch (error) {
-					lastOpenedNote = null;
-				}
-			}
-
-			// add last opened or current selected note at last (unpinned)
-			if (lastOpenedNote) {
-				tabsHtml.push((await prepareTabHtml(lastOpenedNote, selectedNote, false)).toString());
-			}
-
-			// get setting style values
-			const height: number = await SETTINGS.value('tabHeight');
-			const font: string = await SETTINGS.value('fontFamily');
-			const mainBg: string = await SETTINGS.value('mainBackground');
-			const mainFg: string = await SETTINGS.value('mainForeground');
-
-			// add notes to container and push to panel
-			await PANELS.setHtml(panel, `
-					<div class="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
-						<div role="tablist" class="tabs-container">
-							${tabsHtml.join('\n')}
-							<div class="controls" style="height:${height}px;">
-								<a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${mainFg};"></a>
-								<a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${mainFg};"></a>
+					noteTabsHtml.push(`
+						<div role="tab" class="tab${activeTab}${newTab}"
+							style="height:${height}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
+							<div class="tab-inner" data-id="${note.id}">
+								${checkbox}
+								<span class="title" data-id="${note.id}" style="color:${foreground};text-decoration: ${textDecoration};">
+									${note.title}
+								</span>
+								<a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};">
+								</a>
 							</div>
 						</div>
+					`);
+				}
+			}
+
+			// add tabs to container and push to panel
+			await PANELS.setHtml(panel, `
+				<div class="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
+					<div role="tablist" class="tabs-container">
+						${noteTabsHtml.join('\n')}
+						<div class="controls" style="height:${height}px;">
+							<a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${mainFg};"></a>
+							<a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${mainFg};"></a>
+						</div>
 					</div>
-				`);
+				</div>
+			`);
+
+			// write note tabs back to settings
+			await SETTINGS.setValue('noteTabs', noteTabs);
 		}
 
 		//#endregion
