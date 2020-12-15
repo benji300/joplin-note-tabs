@@ -25,7 +25,7 @@ It displays the selected note in a tab panel and allows to pin/unpin notes as ta
 
 - Display selected note as tab
 - Remember last opened and unpinned note
-- Pin/Unpin selected note to/from the tabs
+- Pin/Unpin note(s) to/from the tabs
 - Change position of tabs within the panel
 - Toggle to-do state from tabs
   - Automatically unpin completed to-dos ([configurable](#user-options))
@@ -59,7 +59,15 @@ This plugin provides the commands as described in the following chapters.
 - Default keyboard shortcuts can be changed in user options
   - Navigate to `Tools > Options > Keyboard Shortcuts` and search for the command label to be changed
 
-#### Tabs: Pin note (`tabsPinNote`)
+#### Pin to tabs
+
+| Command Label     | Command ID      | Default Key | Menu                |
+| ----------------- | --------------- | ----------- | ------------------- |
+| Tabs: Pin to tabs | `tabsPinToTabs` | -           | `Note list context` |
+
+Pin note(s) to the tabs. Works with multiple selected notes.
+
+#### Pin note
 
 | Command Label  | Command ID    | Default Key | Menu                               |
 | -------------- | ------------- | ----------- | ---------------------------------- |
@@ -67,7 +75,7 @@ This plugin provides the commands as described in the following chapters.
 
 Pin the selected note to the tabs.
 
-#### Tabs: Unpin note (`tabsUnpinNote`)
+#### Unpin note
 
 | Command Label    | Command ID      | Default Key | Menu           |
 | ---------------- | --------------- | ----------- | -------------- |
@@ -75,7 +83,7 @@ Pin the selected note to the tabs.
 
 Unpin the selected note from the tabs.
 
-#### Tabs: Switch tab left (`tabsSwitchLeft`)
+#### Switch tab left
 
 | Command Label            | Command ID       | Default Key | Menu           |
 | ------------------------ | ---------------- | ----------- | -------------- |
@@ -83,7 +91,7 @@ Unpin the selected note from the tabs.
 
 Switch to the left tab next to the active, i.e. select the left note.
 
-#### Tabs: Switch tab right (`tabsSwitchRight`)
+#### Switch tab right
 
 | Command Label             | Command ID        | Default Key | Menu           |
 | ------------------------- | ----------------- | ----------- | -------------- |
@@ -91,7 +99,7 @@ Switch to the left tab next to the active, i.e. select the left note.
 
 Switch to the right tab next to the active, i.e. select the right note.
 
-#### Tabs: Move tab left (`tabsMoveLeft`)
+#### Move tab left
 
 | Command Label       | Command ID     | Default Key | Menu           |
 | ------------------- | -------------- | ----------- | -------------- |
@@ -99,7 +107,7 @@ Switch to the right tab next to the active, i.e. select the right note.
 
 Move active tab one position to the left.
 
-#### Tabs: Move tab right (`tabsMoveRight`)
+#### Move tab right
 
 | Command Label        | Command ID      | Default Key | Menu           |
 | -------------------- | --------------- | ----------- | -------------- |
@@ -107,7 +115,7 @@ Move active tab one position to the left.
 
 Move active tab one position to the right.
 
-#### Tabs: Clear all tabs (`tabsClear`)
+#### Clear all tabs
 
 | Command Label        | Command ID  | Default Key | Menu           |
 | -------------------- | ----------- | ----------- | -------------- |

@@ -185,7 +185,6 @@ joplin.plugins.register({
 					if (removeCompleted) {
 						await removeNote(noteId);
 					}
-
 				} else {
 					await DATA.put(['notes', note.id], null, { todo_completed: 0 });
 				}
@@ -212,6 +211,23 @@ joplin.plugins.register({
 
 				// pin selected note and update panel
 				await pinNote(selectedNote.id);
+				await updateTabsPanel();
+			}
+		});
+
+		// Command: tabsPinToTabs
+		// Desc: Pin all handled notes to the tabs
+		await COMMANDS.register({
+			name: 'tabsPinToTabs',
+			label: 'Tabs: Pin to tabs',
+			iconName: 'fas fa-thumbtack',
+			enabledCondition: "someNotesSelected",
+			execute: async (noteIds: string[]) => {
+				// pin all handled notes
+				for (const noteId of noteIds) {
+					await pinNote(noteId);
+				}
+				// update panel
 				await updateTabsPanel();
 			}
 		});
@@ -357,8 +373,8 @@ joplin.plugins.register({
 				await COMMANDS.execute('openNote', message.id);
 			}
 			if (message.name === 'tabsPinNote') {
-				await pinNote(message.id);
-				await updateTabsPanel();
+				let id: string[] = [message.id];
+				await COMMANDS.execute('tabsPinToTabs', id);
 			}
 			if (message.name === 'tabsUnpinNote') {
 				await removeNote(message.id);
@@ -513,6 +529,9 @@ joplin.plugins.register({
 			}
 		]
 		await joplin.views.menus.create('toolsTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
+
+		// add commands to note list context menu
+		await joplin.views.menuItems.create('noteListContextMenuPinToTabs', 'tabsPinToTabs', MenuItemLocation.NoteListContextMenu);
 
 		// add commands to editor context menu
 		await joplin.views.menuItems.create('editorContextMenuPinNote', 'tabsPinNote', MenuItemLocation.EditorContextMenu);
