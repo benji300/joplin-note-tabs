@@ -8,6 +8,15 @@ enum NoteTabType {
 	Pinned = 3
 }
 
+// default advanced style values
+const DEFAULT: string = "default";
+const DEFAULT_FONT: string = "Roboto";
+const DEFAULT_BACKGROUND: string = "var(--joplin-background-color3)";
+const DEFAULT_ACT_BACKGROUND: string = "var(--joplin-background-color)";
+const DEFAULT_FOREGROUND: string = "var(--joplin-color-faded)";
+const DEFAULT_ACT_FOREGROUND: string = "var(--joplin-color)";
+const DEFAULT_DIVIDER_COLOR: string = "var(--joplin-background-color)";
+
 joplin.plugins.register({
 	onStart: async function () {
 		const COMMANDS = joplin.commands;
@@ -78,25 +87,25 @@ joplin.plugins.register({
 
 		// Advanced styles
 		await SETTINGS.registerSetting('fontFamily', {
-			value: "Roboto",
+			value: "default",
 			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
 			label: 'Font family',
-			description: "Font family used in the panel. Font families other than 'Roboto' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font."
+			description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font."
 		});
 		await SETTINGS.registerSetting('mainBackground', {
-			value: "var(--joplin-background-color3)",
+			value: "default",
 			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			advanced: true,
 			label: 'Background color',
-			description: "Default background color of the panel."
+			description: "Main background color of the panel."
 		});
 		await SETTINGS.registerSetting('activeBackground', {
-			value: "var(--joplin-background-color)",
+			value: "default",
 			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
@@ -105,7 +114,7 @@ joplin.plugins.register({
 			description: "Background color of the current active tab."
 		});
 		await SETTINGS.registerSetting('mainForeground', {
-			value: "var(--joplin-color-faded)",
+			value: "default",
 			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
@@ -114,7 +123,7 @@ joplin.plugins.register({
 			description: "Default foreground color used for text and icons."
 		});
 		await SETTINGS.registerSetting('activeForeground', {
-			value: "var(--joplin-color)",
+			value: "default",
 			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
@@ -123,7 +132,7 @@ joplin.plugins.register({
 			description: "Foreground color of the current active tab."
 		});
 		await SETTINGS.registerSetting('dividerColor', {
-			value: "var(--joplin-background-color)",
+			value: "default",
 			type: SettingItemType.String,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
@@ -135,6 +144,15 @@ joplin.plugins.register({
 		//#endregion
 
 		//#region COMMAND HELPER FUNCTIONS
+
+		async function getSettingOrDefault(setting: string, defaultValue: string): Promise<string> {
+			const value: string = await SETTINGS.value(setting);
+			if (value.match(new RegExp(DEFAULT, "i"))) {
+				return defaultValue;
+			} else {
+				return value;
+			}
+		}
 
 		function getIndexWithAttr(array: any, attr: any, value: any): number {
 			for (var i: number = 0; i < array.length; i += 1) {
@@ -438,12 +456,12 @@ joplin.plugins.register({
 			const height: number = await SETTINGS.value('tabHeight');
 			const minWidth: number = await SETTINGS.value('minTabWidth');
 			const maxWidth: number = await SETTINGS.value('maxTabWidth');
-			const font: string = await SETTINGS.value('fontFamily');
-			const mainBg: string = await SETTINGS.value('mainBackground');
-			const mainFg: string = await SETTINGS.value('mainForeground');
-			const activeBg: string = await SETTINGS.value('activeBackground');
-			const activeFg: string = await SETTINGS.value('activeForeground');
-			const dividerColor: string = await SETTINGS.value('dividerColor');
+			const font: string = await getSettingOrDefault('fontFamily', DEFAULT_FONT);
+			const mainBg: string = await getSettingOrDefault('mainBackground', DEFAULT_BACKGROUND);
+			const mainFg: string = await getSettingOrDefault('mainForeground', DEFAULT_FOREGROUND);
+			const activeBg: string = await getSettingOrDefault('activeBackground', DEFAULT_ACT_BACKGROUND);
+			const activeFg: string = await getSettingOrDefault('activeForeground', DEFAULT_ACT_FOREGROUND);
+			const dividerColor: string = await getSettingOrDefault('dividerColor', DEFAULT_DIVIDER_COLOR);
 
 			// create HTML for each tab
 			for (const noteTab of noteTabs) {

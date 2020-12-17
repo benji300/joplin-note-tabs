@@ -127,7 +127,9 @@ Clear all pinned tabs.
 
 This plugin adds several user options which can be changed via `Tools > Options > Note Tabs`.
 
-> **NOTE** - All color settings must be specified as valid CSS attribute values, e.g. `#ffffff` or `rgb(255,255,255)`. Joplin internal CSS variables can also be specified with "`var(-joplin-background-color)`".
+> **NOTE** - If `default` is set for an advanced style setting, the corresponding default color, font family, etc. will be used to match the common App look.
+
+> **NOTE** - In case color settings shall be overwritten, they must be specified as valid CSS attribute values, e.g. `#ffffff`, `rgb(255,255,255)`, etc.
 
 ## Installation
 
