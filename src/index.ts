@@ -34,13 +34,12 @@ joplin.plugins.register({
 		});
 
 		// General settings
-		await SETTINGS.registerSetting('showTodoCheckboxes', {
-			value: true,
+		await SETTINGS.registerSetting('autoPinEditedNotes', {
+			value: false,
 			type: SettingItemType.Bool,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
-			label: 'Show checkboxes for to-dos on tabs',
-			description: 'If enabled, to-dos can be completed directly on the tabs.'
+			label: 'Automatically pin notes when edited'
 		});
 		await SETTINGS.registerSetting('unpinCompletedTodos', {
 			value: false,
@@ -48,6 +47,14 @@ joplin.plugins.register({
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			label: 'Automatically unpin completed to-dos'
+		});
+		await SETTINGS.registerSetting('showTodoCheckboxes', {
+			value: true,
+			type: SettingItemType.Bool,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			label: 'Show checkboxes for to-dos on tabs',
+			description: 'If enabled, to-dos can be completed directly on the tabs.'
 		});
 		await SETTINGS.registerSetting('tabHeight', {
 			value: "40",
@@ -576,8 +583,13 @@ joplin.plugins.register({
 			if (selectedNote) lastActiveNoteQueue.push(selectedNote.id);
 		});
 
-		WORKSPACE.onNoteContentChange(() => {
-			updateTabsPanel();
+		WORKSPACE.onNoteContentChange(async () => {
+			const autoPinEditedNotes: boolean = await SETTINGS.value('autoPinEditedNotes');
+			if (autoPinEditedNotes) {
+				await COMMANDS.execute('tabsPinNote');
+			} else {
+				updateTabsPanel();
+			}
 		});
 
 		WORKSPACE.onSyncComplete(() => {
