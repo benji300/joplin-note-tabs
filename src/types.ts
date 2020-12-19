@@ -20,7 +20,7 @@ export enum SettingDefaults {
   Foreground = 'var(--joplin-color-faded)',
   ActiveBackground = 'var(--joplin-background-color)',
   ActiveForeground = 'var(--joplin-color)',
-  DividerColor = 'var(--joplin-background-color)'
+  DividerColor = 'var(--joplin-divider-color)'
 }
 
 /**
