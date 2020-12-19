@@ -3,7 +3,8 @@
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
-  src: local(""), url("./assets/roboto/roboto-v20-latin-regular.woff2") format("woff2"),
+  src: local(""),
+    url("./assets/roboto/roboto-v20-latin-regular.woff2") format("woff2"),
     url("./assets/roboto/roboto-v20-latin-regular.woff") format("woff");
 }
 
@@ -101,6 +102,23 @@ span {
 }
 .controls .fas:hover {
   opacity: 1;
+}
+
+/* CONTEXT MENU */
+.context {
+  background: #ffffff;
+  box-shadow: 0 4px 5px 3px rgba(0, 0, 0, 0.2);
+  display: none;
+  min-width: 100px;
+  position: absolute;
+  z-index: 9999 !important;
+}
+.menu-options {
+  list-style: none;
+  padding: 5px 0;
+}
+.menu-option {
+  cursor: pointer;
 }
 
 /* VERCTICAL LAYOUT OVERWRITES */

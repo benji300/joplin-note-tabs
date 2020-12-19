@@ -511,6 +511,13 @@ joplin.plugins.register({
 						</div>
 					</div>
 				</div>
+				<div class="context">
+					<ul class="menu-options">
+						<li class="menu-option">Test 1</li>
+						<li class="menu-option">Test 2</li>
+						<li class="menu-option">Test 3</li>
+					</ul>
+				</div>
 			`);
 
 			// write note tabs back to settings

@@ -1,5 +1,10 @@
+const menu = document.querySelector(".context");
+let menuVisible = false;
+
 document.addEventListener('click', event => {
 	const element = event.target;
+
+	if(menuVisible)toggleMenu("hide");
 
 	if (element.className === 'tab-inner' || element.className === 'title') {
 		webviewApi.postMessage({
@@ -37,3 +42,18 @@ document.addEventListener('click', event => {
 		});
 	}
 })
+
+const toggleMenu = command => {
+	const menu = document.querySelector(".context");
+  menu.style.display = command === "show" ? "block" : "none";
+  menuVisible = !menuVisible;
+};
+
+document.addEventListener("contextmenu", e => {
+	e.preventDefault();
+	const menu = document.querySelector(".context");
+  menu.style.left = `${e.pageX}px`;
+  menu.style.top = `${e.pageY}px`;
+  toggleMenu("show");
+  return false;
+});
