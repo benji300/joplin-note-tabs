@@ -1,3 +1,14 @@
+document.addEventListener('dblclick', event => {
+	const element = event.target;
+
+	if (element.className === 'tab-inner' || element.className === 'title') {
+		webviewApi.postMessage({
+			name: 'tabsPinNote',
+			id: element.dataset.id,
+		});
+	}
+})
+
 document.addEventListener('click', event => {
 	const element = event.target;
 
