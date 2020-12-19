@@ -1,6 +1,6 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
-import { NoteTabType, SettingDefaults } from './types';
+import { NoteTabType, SettingDefaults, LastActiveNoteQueue } from './types';
 
 joplin.plugins.register({
 	onStart: async function () {
@@ -9,6 +9,8 @@ joplin.plugins.register({
 		const PANELS = joplin.views.panels;
 		const SETTINGS = joplin.settings;
 		const WORKSPACE = joplin.workspace;
+
+		let lastActiveNoteQueue = new LastActiveNoteQueue();
 
 		//#region REGISTER USER OPTIONS
 
@@ -140,7 +142,7 @@ joplin.plugins.register({
 		}
 
 		function getIndexWithAttr(array: any, attr: any, value: any): number {
-			for (var i: number = 0; i < array.length; i += 1) {
+			for (let i: number = 0; i < array.length; i += 1) {
 				if (array[i][attr] === value) {
 					return i;
 				}
@@ -304,6 +306,25 @@ joplin.plugins.register({
 			}
 		});
 
+		// Command: tabsSwitchToLastNote
+		// Desc: Switcht to last active note
+		await COMMANDS.register({
+			name: 'tabsSwitchToLastNote',
+			label: 'Tabs: Switch to last active note',
+			iconName: 'fas fa-step-backward',
+			enabledCondition: "oneNoteSelected",
+			execute: async () => {
+				if (lastActiveNoteQueue.length() > 1) {
+					// get the last active note from the queue
+					const lastActiveNoteId = lastActiveNoteQueue.pop();
+
+					// select note with stored id
+					await COMMANDS.execute('openNote', lastActiveNoteId);
+					// updateTabsPanel is triggered on onNoteSelectionChange event
+				}
+			}
+		});
+
 		// Command: tabsSwitchLeft
 		// Desc: Switch to left tab, i.e. select left note
 		await COMMANDS.register({
@@ -401,9 +422,9 @@ joplin.plugins.register({
 			const selectedNote: any = await joplin.workspace.selectedNote();
 
 			// update note tabs array
-			var selectedNoteIsNew: boolean = true;
-			var tempTabIndex: number = -1;
-			var noteTabs: any = await SETTINGS.value('noteTabs');
+			let selectedNoteIsNew: boolean = true;
+			let tempTabIndex: number = -1;
+			let noteTabs: any = await SETTINGS.value('noteTabs');
 			for (const noteTab of noteTabs) {
 				const index: number = getIndexWithAttr(noteTabs, 'id', noteTab.id);
 
@@ -511,6 +532,10 @@ joplin.plugins.register({
 				label: 'Unpin note'
 			},
 			{
+				commandName: "tabsSwitchToLastNote",
+				label: 'Switcht to last active note'
+			},
+			{
 				commandName: "tabsSwitchLeft",
 				label: 'Switch to left tab'
 			},
@@ -543,8 +568,12 @@ joplin.plugins.register({
 
 		//#region MAP INTERNAL EVENTS
 
-		WORKSPACE.onNoteSelectionChange(() => {
-			updateTabsPanel();
+		WORKSPACE.onNoteSelectionChange(async () => {
+			await updateTabsPanel();
+
+			// add selectd note id to last active queue
+			const selectedNote: any = await joplin.workspace.selectedNote();
+			if (selectedNote) lastActiveNoteQueue.push(selectedNote.id);
 		});
 
 		WORKSPACE.onNoteContentChange(() => {
@@ -558,5 +587,9 @@ joplin.plugins.register({
 		//#endregion
 
 		updateTabsPanel();
+
+		// initiallly add selectd note id to last active queue
+		const selectedNote: any = await joplin.workspace.selectedNote();
+		if (selectedNote) lastActiveNoteQueue.push(selectedNote.id);
 	},
 });
