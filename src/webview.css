@@ -3,7 +3,8 @@
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
-  src: local(""), url("./assets/roboto/roboto-v20-latin-regular.woff2") format("woff2"),
+  src: local(""),
+    url("./assets/roboto/roboto-v20-latin-regular.woff2") format("woff2"),
     url("./assets/roboto/roboto-v20-latin-regular.woff") format("woff");
 }
 
@@ -52,6 +53,9 @@ span {
   padding: 0 8px;
   text-overflow: ellipsis;
 }
+/* .tab[drop-active="true"] {
+  background-color: rgba(0, 0, 0, 0.5);
+} */
 .new {
   font-style: italic;
 }
@@ -101,6 +105,22 @@ span {
 }
 .controls .fas:hover {
   opacity: 1;
+}
+
+/* DRAG AND DROP */
+[draggable="true"] {
+  /* To prevent user selecting inside the drag source */
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+.dragging {
+  /* background: red !important; */
+  /* transform: SkewY(10deg); */
+}
+.dragover {
+  background-color: var(--joplin-background-color-hover3);
 }
 
 /* VERCTICAL LAYOUT OVERWRITES */

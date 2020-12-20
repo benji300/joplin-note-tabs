@@ -48,3 +48,48 @@ document.addEventListener('click', event => {
 		});
 	}
 })
+
+/* DRAG AND DROP */
+function cancelDefault(event) {
+	event.preventDefault();
+	event.stopPropagation();
+	return false;
+}
+
+function dragStart(event) {
+	const element = event.target;
+	element.classList.add("dragging");
+	event.dataTransfer.setData("text/plain", element.dataset.id);
+}
+
+function dragEnd(event) {
+	const element = event.target;
+	element.classList.remove("dragging");
+}
+
+function dragOver(event) {
+	cancelDefault(event);
+	const element = event.target;
+	element.classList.add("dragover");
+}
+
+function dragLeave(event) {
+	const element = event.target;
+	element.classList.remove("dragover");
+}
+
+function drop(event) {
+	cancelDefault(event);
+	const dragOverElement = event.target;
+	const draggedTabId = event.dataTransfer.getData("text/plain");
+
+	if (dragOverElement && draggedTabId) {
+		
+		webviewApi.postMessage({
+			name: 'tabsDrag',
+			dragOverId: dragOverElement.dataset.id,
+			draggedId: draggedTabId
+		});
+		dragOverElement.classList.remove("dragover");
+	}
+}

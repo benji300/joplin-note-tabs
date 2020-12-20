@@ -157,6 +157,27 @@ joplin.plugins.register({
 			return -1;
 		}
 
+		async function dragNote(dragOverId: string, draggedId: string) {
+			// return if handled ids are empty
+			if (dragOverId == null || draggedId == null) return;
+
+			// get indexes of handled note ids
+			const noteTabs: any = await SETTINGS.value('noteTabs');
+			const droppedIndex: number = getIndexWithAttr(noteTabs, 'id', dragOverId);
+			const draggedIndex: number = getIndexWithAttr(noteTabs, 'id', draggedId);
+			if (droppedIndex < 0) return;
+			if (draggedIndex < 0) return;
+
+			// console.log(`dragged: ${draggedId} - index: ${draggedIndex}`);
+			// console.log(`dropped: ${droppedId} - index: ${droppedIndex}`);
+
+			// change position of dragged tab
+			const tab: any = noteTabs[draggedIndex];
+			await noteTabs.splice(draggedIndex, 1);
+			await noteTabs.splice(droppedIndex == 0 ? 0 : droppedIndex, 0, tab);
+			await SETTINGS.setValue('noteTabs', noteTabs);
+		}
+
 		async function pinNote(noteId: string) {
 			const noteTabs: any = await SETTINGS.value('noteTabs');
 			const index: number = getIndexWithAttr(noteTabs, 'id', noteId);
@@ -421,6 +442,10 @@ joplin.plugins.register({
 			if (message.name === 'tabsMoveRight') {
 				await COMMANDS.execute('tabsMoveRight');
 			}
+			if (message.name === 'tabsDrag') {
+				await dragNote(message.dragOverId, message.draggedId);
+				await updateTabsPanel();
+			}
 		});
 
 		// update HTML content
@@ -491,8 +516,10 @@ joplin.plugins.register({
 					const checkbox: string = (showCheckboxes && note.is_todo) ? `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">` : '';
 					const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
 
+					// ondragstart="dragStart(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
 					noteTabsHtml.push(`
-						<div role="tab" class="tab${activeTab}${newTab}"
+						<div role="tab" class="tab${activeTab}${newTab}" data-id="${note.id}"
+							draggable="true" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
 							style="height:${height}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
 							<div class="tab-inner" data-id="${note.id}">
 								${checkbox}
