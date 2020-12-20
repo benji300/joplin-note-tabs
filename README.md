@@ -144,7 +144,7 @@ This plugin adds several user options which can be changed via `Tools > Options 
 - Download the latest released JPL package (`com.benji300.joplin.tabs.jpl`) from [here](https://github.com/benji300/joplin-note-tabs/releases)
 - Open Joplin
 - Navigate to `Tools > Options > Plugins`
-- Click `Install plugin` and select the previously downloaded `jpl` file
+- Press `Install plugin` and select the previously downloaded `jpl` file
 - Confirm selection
 - Restart Joplin to enable the plugin
 
@@ -162,7 +162,7 @@ By default the tabs will be on the right side of the screen, this can be adjuste
 - Open Joplin
 - Navigate to `Tools > Options > Plugins`
 - Search for the `Note Tabs` plugin
-- Click `Delete` to remove the plugin from the user profile directory
+- Press `Delete` to remove the plugin from the user profile directory
   - Alternatively you can also disable the plugin by clicking on the toggle button
 - Restart Joplin
 
@@ -185,7 +185,7 @@ If you want to build the plugin by your own simply run:
 npm run dist
 ```
 
-Or run to create also the archives:
+Or run the following to create an additional ZIP and TAR archive:
 
 ```
 npm run release
