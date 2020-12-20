@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command to pin note(s) from note list context menu ([#12](https://github.com/benji300/joplin-note-tabs/pull/12)
 - Possibility to pin note from editor context menu ([#9](https://github.com/benji300/joplin-note-tabs/pull/9) by [@ambrt](https://github.com/ambrt))
 - Possibility to pin note with double click on tab
+- Possibility to rearrange tabs by drag & drop ([#3](https://github.com/benji300/joplin-note-tabs/pull/3)
+  - Can be deactivated via the settings
 
 ### Changed
 

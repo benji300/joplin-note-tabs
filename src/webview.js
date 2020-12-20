@@ -84,7 +84,6 @@ function drop(event) {
 	const draggedTabId = event.dataTransfer.getData("text/plain");
 
 	if (dragOverElement && draggedTabId) {
-		
 		webviewApi.postMessage({
 			name: 'tabsDrag',
 			dragOverId: dragOverElement.dataset.id,

@@ -86,7 +86,6 @@ span {
 
 .controls {
   align-items: center;
-  display: flex;
   float: right;
   padding: 0 5px;
   margin-left: auto;
@@ -115,10 +114,10 @@ span {
   -webkit-user-select: none;
   -ms-user-select: none;
 }
-.dragging {
-  /* background: red !important; */
-  /* transform: SkewY(10deg); */
-}
+/* .dragging {
+  background: red !important;
+  transform: SkewY(10deg);
+} */
 .dragover {
   background-color: var(--joplin-background-color-hover3);
 }

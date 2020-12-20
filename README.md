@@ -27,6 +27,7 @@ It displays the selected note in a tab panel and allows to pin/unpin notes as ta
 - Remember last opened and unpinned note
 - Pin/Unpin note(s) to/from the tabs
 - Change position of tabs within the panel
+  - Either via drag & drop or keyboard shortcuts (which have been assigned to the corresponding commands)
 - Toggle to-do state from tabs
   - Automatically unpin completed to-dos ([configurable](#user-options))
 - [Configurable](#user-options) style attributes

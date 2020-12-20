@@ -34,19 +34,19 @@ joplin.plugins.register({
 		});
 
 		// General settings
+		await SETTINGS.registerSetting('enableDragAndDrop', {
+			value: true,
+			type: SettingItemType.Bool,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			label: 'Enable drag & drop of tabs'
+		});
 		await SETTINGS.registerSetting('autoPinEditedNotes', {
-			value: false,
+			value: true,
 			type: SettingItemType.Bool,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
 			label: 'Automatically pin notes when edited'
-		});
-		await SETTINGS.registerSetting('unpinCompletedTodos', {
-			value: false,
-			type: SettingItemType.Bool,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			label: 'Automatically unpin completed to-dos'
 		});
 		await SETTINGS.registerSetting('showTodoCheckboxes', {
 			value: true,
@@ -55,6 +55,13 @@ joplin.plugins.register({
 			public: true,
 			label: 'Show checkboxes for to-dos on tabs',
 			description: 'If enabled, to-dos can be completed directly on the tabs.'
+		});
+		await SETTINGS.registerSetting('unpinCompletedTodos', {
+			value: false,
+			type: SettingItemType.Bool,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			label: 'Automatically unpin completed to-dos'
 		});
 		await SETTINGS.registerSetting('tabHeight', {
 			value: "40",
@@ -490,6 +497,7 @@ joplin.plugins.register({
 			}
 
 			// get style values from settings
+			const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
 			const showCheckboxes: boolean = await SETTINGS.value('showTodoCheckboxes');
 			const height: number = await SETTINGS.value('tabHeight');
 			const minWidth: number = await SETTINGS.value('minTabWidth');
@@ -519,7 +527,7 @@ joplin.plugins.register({
 					// ondragstart="dragStart(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
 					noteTabsHtml.push(`
 						<div role="tab" class="tab${activeTab}${newTab}" data-id="${note.id}"
-							draggable="true" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
+							draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
 							style="height:${height}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
 							<div class="tab-inner" data-id="${note.id}">
 								${checkbox}
@@ -534,12 +542,15 @@ joplin.plugins.register({
 				}
 			}
 
+			// prepare style attributes
+			const displayControls: string = (enableDragAndDrop) ? "none" : "flex";
+
 			// add tabs to container and push to panel
 			await PANELS.setHtml(panel, `
 				<div class="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
 					<div role="tablist" class="tabs-container">
 						${noteTabsHtml.join('\n')}
-						<div class="controls" style="height:${height}px;">
+						<div class="controls" style="height:${height}px;display:${displayControls};">
 							<a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${mainFg};"></a>
 							<a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${mainFg};"></a>
 						</div>
