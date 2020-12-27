@@ -41,13 +41,6 @@ joplin.plugins.register({
 			public: true,
 			label: 'Enable drag & drop of tabs'
 		});
-		await SETTINGS.registerSetting('autoPinEditedNotes', {
-			value: true,
-			type: SettingItemType.Bool,
-			section: 'com.benji300.joplin.tabs.settings',
-			public: true,
-			label: 'Automatically pin notes when edited'
-		});
 		await SETTINGS.registerSetting('showTodoCheckboxes', {
 			value: true,
 			type: SettingItemType.Bool,
@@ -55,6 +48,13 @@ joplin.plugins.register({
 			public: true,
 			label: 'Show checkboxes for to-dos on tabs',
 			description: 'If enabled, to-dos can be completed directly on the tabs.'
+		});
+		await SETTINGS.registerSetting('autoPinEditedNotes', {
+			value: false,
+			type: SettingItemType.Bool,
+			section: 'com.benji300.joplin.tabs.settings',
+			public: true,
+			label: 'Automatically pin notes when edited'
 		});
 		await SETTINGS.registerSetting('unpinCompletedTodos', {
 			value: false,
@@ -638,7 +638,7 @@ joplin.plugins.register({
 
 		updateTabsPanel();
 
-		// initiallly add selectd note id to last active queue
+		// initially add selectd note id to last active queue
 		const selectedNote: any = await joplin.workspace.selectedNote();
 		if (selectedNote) lastActiveNoteQueue.push(selectedNote.id);
 	},
