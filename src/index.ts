@@ -409,7 +409,7 @@ joplin.plugins.register({
 		// Desc: Clear all pinned tabs
 		await COMMANDS.register({
 			name: 'tabsClear',
-			label: 'Tabs: Clear all tabs',
+			label: 'Tabs: Clear all pinned tabs',
 			iconName: 'fas fa-times',
 			execute: async () => {
 				const noteTabs: any = [];
@@ -595,7 +595,7 @@ joplin.plugins.register({
 			},
 			{
 				commandName: "tabsClear",
-				label: 'Clear all tabs'
+				label: 'Clear all pinned tabs'
 			}
 		]
 		await joplin.views.menus.create('toolsTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
