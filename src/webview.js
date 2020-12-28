@@ -51,6 +51,7 @@ document.addEventListener('click', event => {
 
 /* DRAG AND DROP */
 let sourceNoteId = "";
+let lastHoverId = "";
 
 function cancelDefault(event) {
 	event.preventDefault();
@@ -69,21 +70,20 @@ function dragEnd(event) {
 	cancelDefault(event);
 	const element = event.target;
 	element.classList.remove("dragging");
+	sourceNoteId = "";
+	lastHoverId = "";
 }
 
 function dragOver(event) {
 	cancelDefault(event);
 	const element = event.target;
 
+	if (element.dataset.id !== lastHoverId) {
+		document.querySelectorAll('#tab').forEach(tab => {
+			tab.classList.remove("dragover");
+		});
+	}
 	if (element.dataset.id !== sourceNoteId) {
-		// let dragSource = document.querySelector(`div#tab[data-id="${element.dataset.id}"]`);
-		// if (dragSource) dragSource.classList.add("dragover");
-
-	// let dragSources = document.querySelectorAll(`div#tab[data-id="${element.dataset.id}"]`);
-	// dragSources.forEach(dragSource => {
-	// 		dragSource.classList.add("dragover");
-	// });
-
 		if (element.id === 'tab') {
 			element.classList.add("dragover");
 		} else if (element.parentElement.id === 'tab') {
@@ -96,17 +96,10 @@ function dragOver(event) {
 
 function dragLeave(event) {
 	const element = event.target;
-
-	// let dragSource = document.querySelector(`div#tab[data-id="${element.dataset.id}"]`);
-	// if (dragSource) dragSource.classList.remove("dragover");
-
+	lastHoverId = element.dataset.id;
 	if (element.dataset.id !== sourceNoteId) {
 		if (element.id === 'tab') {
 			element.classList.remove("dragover");
-		} else if (element.parentElement.id === 'tab') {
-			element.parentElement.classList.remove("dragover");
-		} else if (element.parentElement.parentElement.id === 'tab') {
-			element.parentElement.parentElement.classList.remove("dragover");
 		}
 	}
 }
