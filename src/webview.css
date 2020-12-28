@@ -53,9 +53,6 @@ span {
   padding: 0 8px;
   text-overflow: ellipsis;
 }
-/* .tab[drop-active="true"] {
-  background-color: rgba(0, 0, 0, 0.5);
-} */
 .new {
   font-style: italic;
 }
@@ -114,11 +111,7 @@ span {
   -webkit-user-select: none;
   -ms-user-select: none;
 }
-/* .dragging {
-  background: red !important;
-  transform: SkewY(10deg);
-} */
-.dragover {
+div[draggable="true"].dragover {
   background-color: var(--joplin-background-color-hover3);
 }
 

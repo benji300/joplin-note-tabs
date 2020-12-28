@@ -58,13 +58,11 @@ function cancelDefault(event) {
 
 function dragStart(event) {
 	const element = event.target;
-	element.classList.add("dragging");
 	event.dataTransfer.setData("text/plain", element.dataset.id);
 }
 
 function dragEnd(event) {
-	const element = event.target;
-	element.classList.remove("dragging");
+	cancelDefault(event);
 }
 
 function dragOver(event) {

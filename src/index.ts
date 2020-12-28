@@ -524,7 +524,6 @@ joplin.plugins.register({
 					const checkbox: string = (showCheckboxes && note.is_todo) ? `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">` : '';
 					const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
 
-					// ondragstart="dragStart(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
 					noteTabsHtml.push(`
 						<div role="tab" class="tab${activeTab}${newTab}" data-id="${note.id}"
 							draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
