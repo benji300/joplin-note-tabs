@@ -9,23 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Option to specify the font family for the plugin
+- User option to specify the font family for the plugin
   - Including integrated Roboto font-face
-- Option to disable to-do checkboxes on tabs ([#6](https://github.com/benji300/joplin-note-tabs/issues/6))
-- Option to automatically pin notes when edited ([#11](https://github.com/benji300/joplin-note-tabs/issues/11))
+- User option to disable to-do checkboxes on tabs ([#6](https://github.com/benji300/joplin-note-tabs/issues/6))
+- User option to automatically pin notes when edited ([#11](https://github.com/benji300/joplin-note-tabs/issues/11))
 - Commands to switch between tabs ([#5](https://github.com/benji300/joplin-note-tabs/issues/5))
 - Command to switch to last active note ([#8](https://github.com/benji300/joplin-note-tabs/issues/8))
-- Command to pin note(s) from note list context menu ([#12](https://github.com/benji300/joplin-note-tabs/pull/12)
-- Possibility to pin note from editor context menu ([#9](https://github.com/benji300/joplin-note-tabs/pull/9) by [@ambrt](https://github.com/ambrt))
-- Possibility to pin note with double click on tab
-- Possibility to rearrange tabs by drag & drop ([#3](https://github.com/benji300/joplin-note-tabs/pull/3)
-  - Can be deactivated via the settings
+- Ability to pin note(s) from note list context menu ([#12](https://github.com/benji300/joplin-note-tabs/pull/12)
+- Ability to pin note from editor context menu ([#9](https://github.com/benji300/joplin-note-tabs/pull/9) by [@ambrt](https://github.com/ambrt))
+- Ability to pin note with double click on tab
+- Ability to rearrange tabs by drag & drop ([#3](https://github.com/benji300/joplin-note-tabs/pull/3)
+  - Can be deactivated via user option
+- Ability to move unpinned tabs
+- Description to place tabs to README ([#4](https://github.com/benji300/joplin-note-tabs/pull/4) by [@amandamcg](https://github.com/amandamcg))
 
 ### Changed
 
 - Decreased jpl size
-- Added description to place tabs to README ([#4](https://github.com/benji300/joplin-note-tabs/pull/4) by [@amandamcg](https://github.com/amandamcg))
-- Allow moving unpinned tabs
 - Default value of advanced style settings is now `default` for all
 
 ### Fixed

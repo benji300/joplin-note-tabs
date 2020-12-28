@@ -1,7 +1,7 @@
 document.addEventListener('dblclick', event => {
 	const element = event.target;
 
-	if (element.className === 'tab-inner' || element.className === 'title') {
+	if (element.id === 'tab' || element.className === 'tab-inner' || element.className === 'title') {
 		webviewApi.postMessage({
 			name: 'tabsPinNote',
 			id: element.dataset.id,
@@ -12,7 +12,7 @@ document.addEventListener('dblclick', event => {
 document.addEventListener('click', event => {
 	const element = event.target;
 
-	if (element.className === 'tab-inner' || element.className === 'title') {
+	if (element.id === 'tab' || element.className === 'tab-inner' || element.className === 'title') {
 		webviewApi.postMessage({
 			name: 'tabsOpen',
 			id: element.dataset.id,
@@ -50,6 +50,8 @@ document.addEventListener('click', event => {
 })
 
 /* DRAG AND DROP */
+let sourceNoteId = "";
+
 function cancelDefault(event) {
 	event.preventDefault();
 	event.stopPropagation();
@@ -58,35 +60,70 @@ function cancelDefault(event) {
 
 function dragStart(event) {
 	const element = event.target;
+	element.classList.add("dragging");
 	event.dataTransfer.setData("text/plain", element.dataset.id);
+	sourceNoteId = element.dataset.id
 }
 
 function dragEnd(event) {
 	cancelDefault(event);
+	const element = event.target;
+	element.classList.remove("dragging");
 }
 
 function dragOver(event) {
 	cancelDefault(event);
 	const element = event.target;
-	element.classList.add("dragover");
+
+	if (element.dataset.id !== sourceNoteId) {
+		// let dragSource = document.querySelector(`div#tab[data-id="${element.dataset.id}"]`);
+		// if (dragSource) dragSource.classList.add("dragover");
+
+	// let dragSources = document.querySelectorAll(`div#tab[data-id="${element.dataset.id}"]`);
+	// dragSources.forEach(dragSource => {
+	// 		dragSource.classList.add("dragover");
+	// });
+
+		if (element.id === 'tab') {
+			element.classList.add("dragover");
+		} else if (element.parentElement.id === 'tab') {
+			element.parentElement.classList.add("dragover");
+		} else if (element.parentElement.parentElement.id === 'tab') {
+			element.parentElement.parentElement.classList.add("dragover");
+		}
+	}
 }
 
 function dragLeave(event) {
 	const element = event.target;
-	element.classList.remove("dragover");
+
+	// let dragSource = document.querySelector(`div#tab[data-id="${element.dataset.id}"]`);
+	// if (dragSource) dragSource.classList.remove("dragover");
+
+	if (element.dataset.id !== sourceNoteId) {
+		if (element.id === 'tab') {
+			element.classList.remove("dragover");
+		} else if (element.parentElement.id === 'tab') {
+			element.parentElement.classList.remove("dragover");
+		} else if (element.parentElement.parentElement.id === 'tab') {
+			element.parentElement.parentElement.classList.remove("dragover");
+		}
+	}
 }
 
 function drop(event) {
 	cancelDefault(event);
-	const dragOverElement = event.target;
-	const draggedTabId = event.dataTransfer.getData("text/plain");
+	const targetElement = event.target;
+	const sourceId = event.dataTransfer.getData("text/plain");
 
-	if (dragOverElement && draggedTabId) {
-		webviewApi.postMessage({
-			name: 'tabsDrag',
-			dragOverId: dragOverElement.dataset.id,
-			draggedId: draggedTabId
-		});
-		dragOverElement.classList.remove("dragover");
+	if (targetElement && sourceId) {
+		if (targetElement.dataset.id !== sourceNoteId) {
+			webviewApi.postMessage({
+				name: 'tabsDrag',
+				targetId: targetElement.dataset.id,
+				sourceId: sourceId
+			});
+			targetElement.classList.remove("dragover");
+		}
 	}
 }

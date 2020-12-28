@@ -32,20 +32,20 @@ span {
 }
 
 /* HORIZONTAL LAYOUT */
-.container {
+#container {
   height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   width: 100%;
 }
 
-.tabs-container {
+#tabs-container {
   display: flex;
   float: left;
   width: 100%;
 }
 
-.tab {
+#tab {
   border-style: solid;
   border-width: 0;
   border-right-width: 1px;
@@ -53,6 +53,7 @@ span {
   padding: 0 8px;
   text-overflow: ellipsis;
 }
+
 .new {
   font-style: italic;
 }
@@ -71,24 +72,24 @@ span {
   white-space: nowrap;
 }
 
-.tab .fas {
+#tab .fas {
   margin-left: auto;
   margin-right: 0;
   padding: 2px;
   visibility: hidden;
 }
-.tab:hover .fas {
+#tab:hover .fas {
   visibility: visible;
 }
 
-.controls {
+#controls {
   align-items: center;
   float: right;
   padding: 0 5px;
   margin-left: auto;
   margin-right: 0;
 }
-.controls .fas {
+#controls .fas {
   align-items: center;
   display: flex;
   font-size: 14.4px;
@@ -99,7 +100,7 @@ span {
   opacity: 0.8;
   width: 26px;
 }
-.controls .fas:hover {
+#controls .fas:hover {
   opacity: 1;
 }
 
@@ -111,23 +112,26 @@ span {
   -webkit-user-select: none;
   -ms-user-select: none;
 }
-div[draggable="true"].dragover {
-  background-color: var(--joplin-background-color-hover3);
+.dragging {
+  opacity: 0.5;
+}
+.dragover {
+  background-color: var(--joplin-background-color-hover3) !important;
 }
 
 /* VERCTICAL LAYOUT OVERWRITES */
 @media screen and (max-width: 400px) {
-  .container {
+  #container {
     overflow-x: hidden;
     overflow-y: auto;
   }
 
-  .tabs-container {
+  #tabs-container {
     display: block;
     width: 100%;
   }
 
-  .tab {
+  #tab {
     border-right-width: 0;
     border-bottom-width: 1px;
     max-width: 100% !important;

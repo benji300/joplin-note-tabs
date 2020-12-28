@@ -164,14 +164,14 @@ joplin.plugins.register({
 			return -1;
 		}
 
-		async function dragNote(dragOverId: string, draggedId: string) {
+		async function dragNote(targetId: string, sourceId: string) {
 			// return if handled ids are empty
-			if (dragOverId == null || draggedId == null) return;
+			if (targetId == null || sourceId == null) return;
 
 			// get indexes of handled note ids
 			const noteTabs: any = await SETTINGS.value('noteTabs');
-			const droppedIndex: number = getIndexWithAttr(noteTabs, 'id', dragOverId);
-			const draggedIndex: number = getIndexWithAttr(noteTabs, 'id', draggedId);
+			const droppedIndex: number = getIndexWithAttr(noteTabs, 'id', targetId);
+			const draggedIndex: number = getIndexWithAttr(noteTabs, 'id', sourceId);
 			if (droppedIndex < 0) return;
 			if (draggedIndex < 0) return;
 
@@ -342,7 +342,7 @@ joplin.plugins.register({
 		});
 
 		// Command: tabsSwitchToLastNote
-		// Desc: Switcht to last active note
+		// Desc: Switch to last active note
 		await COMMANDS.register({
 			name: 'tabsSwitchToLastNote',
 			label: 'Tabs: Switch to last active note',
@@ -450,7 +450,7 @@ joplin.plugins.register({
 				await COMMANDS.execute('tabsMoveRight');
 			}
 			if (message.name === 'tabsDrag') {
-				await dragNote(message.dragOverId, message.draggedId);
+				await dragNote(message.targetId, message.sourceId);
 				await updateTabsPanel();
 			}
 		});
@@ -517,7 +517,6 @@ joplin.plugins.register({
 					// prepare tab style attributes
 					const background: string = (selectedNote && note.id == selectedNote.id) ? activeBg : mainBg;
 					const foreground: string = (selectedNote && note.id == selectedNote.id) ? activeFg : mainFg;
-					const activeTab: string = (selectedNote && note.id == selectedNote.id) ? " active" : "";
 					const newTab: string = (noteTab.type == NoteTabType.Temporary) ? " new" : "";
 					const icon: string = (noteTab.type == NoteTabType.Pinned) ? "fa-times" : "fa-thumbtack";
 					const iconTitle: string = (noteTab.type == NoteTabType.Pinned) ? "Unpin" : "Pin";
@@ -525,7 +524,7 @@ joplin.plugins.register({
 					const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
 
 					noteTabsHtml.push(`
-						<div role="tab" class="tab${activeTab}${newTab}" data-id="${note.id}"
+						<div id="tab" class="${newTab}" data-id="${note.id}" role="tab"
 							draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
 							style="height:${height}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
 							<div class="tab-inner" data-id="${note.id}">
@@ -533,8 +532,7 @@ joplin.plugins.register({
 								<span class="title" data-id="${note.id}" style="color:${foreground};text-decoration: ${textDecoration};">
 									${note.title}
 								</span>
-								<a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};">
-								</a>
+								<a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};"></a>
 							</div>
 						</div>
 					`);
@@ -546,10 +544,10 @@ joplin.plugins.register({
 
 			// add tabs to container and push to panel
 			await PANELS.setHtml(panel, `
-				<div class="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
-					<div role="tablist" class="tabs-container">
+				<div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
+					<div id="tabs-container" role="tablist">
 						${noteTabsHtml.join('\n')}
-						<div class="controls" style="height:${height}px;display:${displayControls};">
+						<div id="controls" style="height:${height}px;display:${displayControls};">
 							<a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${mainFg};"></a>
 							<a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${mainFg};"></a>
 						</div>
