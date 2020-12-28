@@ -51,7 +51,6 @@ document.addEventListener('click', event => {
 
 /* DRAG AND DROP */
 let sourceNoteId = "";
-let lastHoverId = "";
 
 function cancelDefault(event) {
 	event.preventDefault();
@@ -71,18 +70,18 @@ function dragEnd(event) {
 	const element = event.target;
 	element.classList.remove("dragging");
 	sourceNoteId = "";
-	lastHoverId = "";
 }
 
 function dragOver(event) {
 	cancelDefault(event);
 	const element = event.target;
 
-	if (element.dataset.id !== lastHoverId) {
-		document.querySelectorAll('#tab').forEach(tab => {
+	document.querySelectorAll('#tab').forEach(tab => {
+		if (tab.dataset.id !== element.dataset.id) {
 			tab.classList.remove("dragover");
-		});
-	}
+		}
+	});
+
 	if (element.dataset.id !== sourceNoteId) {
 		if (element.id === 'tab') {
 			element.classList.add("dragover");
@@ -95,13 +94,7 @@ function dragOver(event) {
 }
 
 function dragLeave(event) {
-	const element = event.target;
-	lastHoverId = element.dataset.id;
-	if (element.dataset.id !== sourceNoteId) {
-		if (element.id === 'tab') {
-			element.classList.remove("dragover");
-		}
-	}
+	cancelDefault(event);
 }
 
 function drop(event) {

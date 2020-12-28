@@ -113,7 +113,7 @@ span {
   -ms-user-select: none;
 }
 .dragging {
-  opacity: 0.5;
+  opacity: 0.4;
 }
 .dragover {
   background-color: var(--joplin-background-color-hover3) !important;
