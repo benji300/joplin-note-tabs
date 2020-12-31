@@ -1,4 +1,3 @@
-
 /**
  * Tab type definition.
  * Open state is currently not used.

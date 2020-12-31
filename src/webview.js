@@ -1,3 +1,4 @@
+/* DOUBLE CLICK EVENT */
 document.addEventListener('dblclick', event => {
 	const element = event.target;
 
@@ -9,6 +10,7 @@ document.addEventListener('dblclick', event => {
 	}
 })
 
+/* CLICK EVENTS */
 document.addEventListener('click', event => {
 	const element = event.target;
 

@@ -49,7 +49,7 @@ joplin.plugins.register({
 			label: 'Show checkboxes for to-dos on tabs',
 			description: 'If enabled, to-dos can be completed directly on the tabs.'
 		});
-		await SETTINGS.registerSetting('autoPinEditedNotes', {
+		await SETTINGS.registerSetting('pinEditedNotes', {
 			value: false,
 			type: SettingItemType.Bool,
 			section: 'com.benji300.joplin.tabs.settings',
@@ -170,18 +170,15 @@ joplin.plugins.register({
 
 			// get indexes of handled note ids
 			const noteTabs: any = await SETTINGS.value('noteTabs');
-			const droppedIndex: number = getIndexWithAttr(noteTabs, 'id', targetId);
-			const draggedIndex: number = getIndexWithAttr(noteTabs, 'id', sourceId);
-			if (droppedIndex < 0) return;
-			if (draggedIndex < 0) return;
-
-			// console.log(`dragged: ${draggedId} - index: ${draggedIndex}`);
-			// console.log(`dropped: ${droppedId} - index: ${droppedIndex}`);
+			const targetIdx: number = getIndexWithAttr(noteTabs, 'id', targetId);
+			const sourceIdx: number = getIndexWithAttr(noteTabs, 'id', sourceId);
+			if (targetIdx < 0) return;
+			if (sourceIdx < 0) return;
 
 			// change position of dragged tab
-			const tab: any = noteTabs[draggedIndex];
-			await noteTabs.splice(draggedIndex, 1);
-			await noteTabs.splice(droppedIndex == 0 ? 0 : droppedIndex, 0, tab);
+			const tab: any = noteTabs[sourceIdx];
+			await noteTabs.splice(sourceIdx, 1);
+			await noteTabs.splice(targetIdx == 0 ? 0 : targetIdx, 0, tab);
 			await SETTINGS.setValue('noteTabs', noteTabs);
 		}
 
@@ -191,6 +188,8 @@ joplin.plugins.register({
 
 			// if note has not already a tab
 			if (index < 0) {
+				// TODO consider if auto unpin is enabled - do not add completed todos
+
 				// add as new one at the end
 				await noteTabs.push({ id: noteId, type: NoteTabType.Pinned });
 			} else {
@@ -203,7 +202,6 @@ joplin.plugins.register({
 
 		// Remove note with handled id from pinned notes array
 		async function removeNote(noteId: string) {
-			// check if note has a tab, otherwise return
 			const noteTabs: any = await SETTINGS.value('noteTabs');
 			const index: number = getIndexWithAttr(noteTabs, 'id', noteId);
 			if (index < 0) return;
@@ -298,7 +296,7 @@ joplin.plugins.register({
 			iconName: 'fas fa-chevron-left',
 			enabledCondition: "oneNoteSelected",
 			execute: async () => {
-				const selectedNote: any = await joplin.workspace.selectedNote();
+				const selectedNote: any = await WORKSPACE.selectedNote();
 				if (!selectedNote) return;
 
 				// check if note is not already first, otherwise exit
@@ -323,7 +321,7 @@ joplin.plugins.register({
 			iconName: 'fas fa-chevron-right',
 			enabledCondition: "oneNoteSelected",
 			execute: async () => {
-				const selectedNote: any = await joplin.workspace.selectedNote();
+				const selectedNote: any = await WORKSPACE.selectedNote();
 				if (!selectedNote) return;
 
 				// check if note is not already last, otherwise exit
@@ -368,7 +366,7 @@ joplin.plugins.register({
 			iconName: 'fas fa-step-backward',
 			enabledCondition: "oneNoteSelected",
 			execute: async () => {
-				const selectedNote: any = await joplin.workspace.selectedNote();
+				const selectedNote: any = await WORKSPACE.selectedNote();
 				if (!selectedNote) return;
 
 				// check if note is not already first, otherwise exit
@@ -390,7 +388,7 @@ joplin.plugins.register({
 			iconName: 'fas fa-step-forward',
 			enabledCondition: "oneNoteSelected",
 			execute: async () => {
-				const selectedNote: any = await joplin.workspace.selectedNote();
+				const selectedNote: any = await WORKSPACE.selectedNote();
 				if (!selectedNote) return;
 
 				// check if note is not already last, otherwise exit
@@ -458,7 +456,7 @@ joplin.plugins.register({
 		// update HTML content
 		async function updateTabsPanel() {
 			const noteTabsHtml: any = [];
-			const selectedNote: any = await joplin.workspace.selectedNote();
+			const selectedNote: any = await WORKSPACE.selectedNote();
 
 			// update note tabs array
 			let selectedNoteIsNew: boolean = true;
@@ -555,7 +553,7 @@ joplin.plugins.register({
 				</div>
 			`);
 
-			// write note tabs back to settings
+			// write tabs back to settings
 			await SETTINGS.setValue('noteTabs', noteTabs);
 		}
 
@@ -597,7 +595,7 @@ joplin.plugins.register({
 				commandName: "tabsClear",
 				label: 'Clear all pinned tabs'
 			}
-		]
+		];
 		await joplin.views.menus.create('toolsTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
 
 		// add commands to note list context menu
@@ -614,29 +612,29 @@ joplin.plugins.register({
 			await updateTabsPanel();
 
 			// add selectd note id to last active queue
-			const selectedNote: any = await joplin.workspace.selectedNote();
+			const selectedNote: any = await WORKSPACE.selectedNote();
 			if (selectedNote) lastActiveNoteQueue.push(selectedNote.id);
 		});
 
-		WORKSPACE.onNoteContentChange(async () => {
-			const autoPinEditedNotes: boolean = await SETTINGS.value('autoPinEditedNotes');
-			if (autoPinEditedNotes) {
+		WORKSPACE.onNoteChange(async (ev: any) => {
+			const pinEditedNotes: boolean = await SETTINGS.value('pinEditedNotes');
+			if (pinEditedNotes) {
 				await COMMANDS.execute('tabsPinNote');
 			} else {
-				updateTabsPanel();
+				await updateTabsPanel();
 			}
 		});
 
-		WORKSPACE.onSyncComplete(() => {
-			updateTabsPanel();
+		WORKSPACE.onSyncComplete(async () => {
+			await updateTabsPanel();
 		});
 
 		//#endregion
 
-		updateTabsPanel();
+		await updateTabsPanel();
 
 		// initially add selectd note id to last active queue
-		const selectedNote: any = await joplin.workspace.selectedNote();
+		const selectedNote: any = await WORKSPACE.selectedNote();
 		if (selectedNote) lastActiveNoteQueue.push(selectedNote.id);
 	},
 });
