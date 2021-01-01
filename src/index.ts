@@ -164,6 +164,18 @@ joplin.plugins.register({
 			return -1;
 		}
 
+		async function insertAtIndex(array: any, index: number, value: any) {
+			if (index >= 0) await array.splice(index, 0, value);
+		}
+
+		async function replaceAtIndex(array: any, index: number, value: any) {
+			if (index >= 0) await array.splice(index, 1, value);
+		}
+
+		async function deleteWithIndex(array: any, index: number) {
+			if (index >= 0) await array.splice(index, 1);
+		}
+
 		async function dragNote(targetId: string, sourceId: string) {
 			// return if handled ids are empty
 			if (targetId == null || sourceId == null) return;
@@ -171,14 +183,14 @@ joplin.plugins.register({
 			// get indexes of handled note ids
 			const noteTabs: any = await SETTINGS.value('noteTabs');
 			const targetIdx: number = getIndexWithAttr(noteTabs, 'id', targetId);
-			const sourceIdx: number = getIndexWithAttr(noteTabs, 'id', sourceId);
 			if (targetIdx < 0) return;
+			const sourceIdx: number = getIndexWithAttr(noteTabs, 'id', sourceId);
 			if (sourceIdx < 0) return;
 
 			// change position of dragged tab
 			const tab: any = noteTabs[sourceIdx];
-			await noteTabs.splice(sourceIdx, 1);
-			await noteTabs.splice(targetIdx == 0 ? 0 : targetIdx, 0, tab);
+			await deleteWithIndex(noteTabs, sourceIdx);
+			await insertAtIndex(noteTabs, (targetIdx == 0 ? 0 : targetIdx), tab);
 			await SETTINGS.setValue('noteTabs', noteTabs);
 		}
 
@@ -194,7 +206,7 @@ joplin.plugins.register({
 				await noteTabs.push({ id: noteId, type: NoteTabType.Pinned });
 			} else {
 				// otherwise change type to pinned
-				await noteTabs.splice(index, 1, { id: noteId, type: NoteTabType.Pinned });
+				await noteTabs.splice(index, 1, { id: noteId, type: NoteTabType.Pinned });  // TODO changeAttrWithIndex
 			}
 
 			await SETTINGS.setValue('noteTabs', noteTabs);
@@ -207,7 +219,7 @@ joplin.plugins.register({
 			if (index < 0) return;
 
 			// remove note from tabs
-			await noteTabs.splice(index, 1);
+			await deleteWithIndex(noteTabs, index);
 			await SETTINGS.setValue('noteTabs', noteTabs);
 		}
 
@@ -306,8 +318,8 @@ joplin.plugins.register({
 
 				// change position of tab and update panel
 				const tab: any = noteTabs[index];
-				await noteTabs.splice(index, 1);
-				await noteTabs.splice(index - 1, 0, tab);
+				await deleteWithIndex(noteTabs, index);
+				await insertAtIndex(noteTabs, index - 1, tab);
 				await SETTINGS.setValue('noteTabs', noteTabs);
 				await updateTabsPanel();
 			}
@@ -332,8 +344,8 @@ joplin.plugins.register({
 
 				// change position of tab and update panel
 				const tab: any = noteTabs[index];
-				await noteTabs.splice(index, 1);
-				await noteTabs.splice(index + 1, 0, tab);
+				await deleteWithIndex(noteTabs, index);
+				await insertAtIndex(noteTabs, index + 1, tab);
 				await SETTINGS.setValue('noteTabs', noteTabs);
 				await updateTabsPanel();
 			}
@@ -374,7 +386,7 @@ joplin.plugins.register({
 				const index: number = getIndexWithAttr(noteTabs, 'id', selectedNote.id);
 				if (index <= 0) return;
 
-				// get id of left pinned note and select it
+				// get id of left note and select it
 				await COMMANDS.execute('openNote', noteTabs[index - 1].id);
 				// updateTabsPanel is triggered on onNoteSelectionChange event
 			}
@@ -397,7 +409,7 @@ joplin.plugins.register({
 				if (index == -1) return;
 				if (index == noteTabs.length - 1) return;
 
-				// get id of right pinned note and select it
+				// get id of right note and select it
 				await COMMANDS.execute('openNote', noteTabs[index + 1].id);
 				// updateTabsPanel is triggered on onNoteSelectionChange event
 			}
@@ -477,16 +489,18 @@ joplin.plugins.register({
 						tempTabIndex = index;
 					}
 				} catch (error) {
-					noteTabs.splice(index, 1);
+					deleteWithIndex(noteTabs, index);
 				}
 			}
 
 			// if selected note is not already a tab...
 			if (selectedNote) {
 				if (selectedNoteIsNew) {
+					const newTab = { id: selectedNote.id, type: NoteTabType.Temporary };
+
 					if (tempTabIndex >= 0) {
 						// replace existing temporary tab
-						noteTabs.splice(tempTabIndex, 1, { id: selectedNote.id, type: NoteTabType.Temporary });
+						replaceAtIndex(noteTabs, tempTabIndex, newTab);
 					} else {
 						// add as new temporary tab at the end
 						noteTabs.push({ id: selectedNote.id, type: NoteTabType.Temporary });
