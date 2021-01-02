@@ -1,6 +1,6 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
-import { NoteTabType, SettingDefaults, LastActiveNoteQueue } from './types';
+import { NoteTabType, SettingDefaults, NoteTabs, LastActiveNoteQueue } from './helpers';
 
 joplin.plugins.register({
 	onStart: async function () {
@@ -10,8 +10,6 @@ joplin.plugins.register({
 		const SETTINGS = joplin.settings;
 		const WORKSPACE = joplin.workspace;
 
-		let lastActiveNoteQueue = new LastActiveNoteQueue();
-
 		//#region REGISTER USER OPTIONS
 
 		await SETTINGS.registerSection('com.benji300.joplin.tabs.settings', {
@@ -19,12 +17,6 @@ joplin.plugins.register({
 			iconName: 'fas fa-window-maximize',
 		});
 
-		// [
-		//   {
-		//     "id": "note id",
-		//     "type": NoteTabType
-		//   }
-		// ]
 		await SETTINGS.registerSetting('noteTabs', {
 			value: [],
 			type: SettingItemType.Array,
@@ -144,6 +136,14 @@ joplin.plugins.register({
 
 		//#endregion
 
+		//#region INIT LOCAL VARIABLES
+
+		let lastActiveNoteQueue = new LastActiveNoteQueue();
+		let tabs = new NoteTabs();
+		await tabs.read();
+
+		//#endregion
+
 		//#region COMMAND HELPER FUNCTIONS
 
 		async function getSettingOrDefault(setting: string, defaultValue: string): Promise<string> {
@@ -155,72 +155,13 @@ joplin.plugins.register({
 			}
 		}
 
-		function getIndexWithAttr(array: any, attr: any, value: any): number {
-			for (let i: number = 0; i < array.length; i += 1) {
-				if (array[i][attr] === value) {
-					return i;
-				}
-			}
-			return -1;
-		}
-
-		async function insertAtIndex(array: any, index: number, value: any) {
-			if (index >= 0) await array.splice(index, 0, value);
-		}
-
-		async function replaceAtIndex(array: any, index: number, value: any) {
-			if (index >= 0) await array.splice(index, 1, value);
-		}
-
-		async function deleteWithIndex(array: any, index: number) {
-			if (index >= 0) await array.splice(index, 1);
-		}
-
-		async function dragNote(targetId: string, sourceId: string) {
-			// return if handled ids are empty
-			if (targetId == null || sourceId == null) return;
-
-			// get indexes of handled note ids
-			const noteTabs: any = await SETTINGS.value('noteTabs');
-			const targetIdx: number = getIndexWithAttr(noteTabs, 'id', targetId);
-			if (targetIdx < 0) return;
-			const sourceIdx: number = getIndexWithAttr(noteTabs, 'id', sourceId);
-			if (sourceIdx < 0) return;
-
-			// change position of dragged tab
-			const tab: any = noteTabs[sourceIdx];
-			await deleteWithIndex(noteTabs, sourceIdx);
-			await insertAtIndex(noteTabs, (targetIdx == 0 ? 0 : targetIdx), tab);
-			await SETTINGS.setValue('noteTabs', noteTabs);
-		}
-
-		async function pinNote(noteId: string) {
-			const noteTabs: any = await SETTINGS.value('noteTabs');
-			const index: number = getIndexWithAttr(noteTabs, 'id', noteId);
-
-			// if note has not already a tab
-			if (index < 0) {
-				// TODO consider if auto unpin is enabled - do not add completed todos
-
-				// add as new one at the end
-				await noteTabs.push({ id: noteId, type: NoteTabType.Pinned });
-			} else {
-				// otherwise change type to pinned
-				await noteTabs.splice(index, 1, { id: noteId, type: NoteTabType.Pinned });  // TODO changeAttrWithIndex
-			}
-
-			await SETTINGS.setValue('noteTabs', noteTabs);
-		}
-
 		// Remove note with handled id from pinned notes array
 		async function removeNote(noteId: string) {
-			const noteTabs: any = await SETTINGS.value('noteTabs');
-			const index: number = getIndexWithAttr(noteTabs, 'id', noteId);
+			const index: number = tabs.indexOf(noteId);
 			if (index < 0) return;
 
 			// remove note from tabs
-			await deleteWithIndex(noteTabs, index);
-			await SETTINGS.setValue('noteTabs', noteTabs);
+			await tabs.delete(index);
 		}
 
 		// try to get note from data and toggle their todo state
@@ -231,6 +172,7 @@ joplin.plugins.register({
 					await DATA.put(['notes', note.id], null, { todo_completed: Date.now() });
 
 					// if auto unpin is enabled, remove from noteTabs
+					// TODO remove here - should be handled in onNoteChange event
 					const removeCompleted: boolean = await SETTINGS.value('unpinCompletedTodos');
 					if (removeCompleted) {
 						await removeNote(noteId);
@@ -260,7 +202,7 @@ joplin.plugins.register({
 				if (!selectedNote) return;
 
 				// pin selected note and update panel
-				await pinNote(selectedNote.id);
+				await tabs.pin(selectedNote.id);
 				await updateTabsPanel();
 			}
 		});
@@ -273,11 +215,10 @@ joplin.plugins.register({
 			iconName: 'fas fa-thumbtack',
 			enabledCondition: "someNotesSelected",
 			execute: async (noteIds: string[]) => {
-				// pin all handled notes
+				// pin all handled notes and update panel
 				for (const noteId of noteIds) {
-					await pinNote(noteId);
+					await tabs.pin(noteId);
 				}
-				// update panel
 				await updateTabsPanel();
 			}
 		});
@@ -301,7 +242,7 @@ joplin.plugins.register({
 		});
 
 		// Command: tabsMoveLeft
-		// Desc: Move active (unpinned) tab to left
+		// Desc: Move active tab to left
 		await COMMANDS.register({
 			name: 'tabsMoveLeft',
 			label: 'Tabs: Move tab left',
@@ -311,22 +252,15 @@ joplin.plugins.register({
 				const selectedNote: any = await WORKSPACE.selectedNote();
 				if (!selectedNote) return;
 
-				// check if note is not already first, otherwise exit
-				const noteTabs: any = await SETTINGS.value('noteTabs');
-				const index: number = getIndexWithAttr(noteTabs, 'id', selectedNote.id);
-				if (index <= 0) return;
-
-				// change position of tab and update panel
-				const tab: any = noteTabs[index];
-				await deleteWithIndex(noteTabs, index);
-				await insertAtIndex(noteTabs, index - 1, tab);
-				await SETTINGS.setValue('noteTabs', noteTabs);
+				// change index of tab and update panel
+				const index: number = tabs.indexOf(selectedNote.id);
+				await tabs.moveWithIndex(index, index - 1);
 				await updateTabsPanel();
 			}
 		});
 
 		// Command: tabsMoveRight
-		// Desc: Move active (unpinned) tab to right
+		// Desc: Move active tab to right
 		await COMMANDS.register({
 			name: 'tabsMoveRight',
 			label: 'Tabs: Move tab right',
@@ -336,17 +270,9 @@ joplin.plugins.register({
 				const selectedNote: any = await WORKSPACE.selectedNote();
 				if (!selectedNote) return;
 
-				// check if note is not already last, otherwise exit
-				const noteTabs: any = await SETTINGS.value('noteTabs');
-				const index: number = getIndexWithAttr(noteTabs, 'id', selectedNote.id);
-				if (index == -1) return;
-				if (index == noteTabs.length - 1) return;
-
-				// change position of tab and update panel
-				const tab: any = noteTabs[index];
-				await deleteWithIndex(noteTabs, index);
-				await insertAtIndex(noteTabs, index + 1, tab);
-				await SETTINGS.setValue('noteTabs', noteTabs);
+				// change index of tab and update panel
+				const index: number = tabs.indexOf(selectedNote.id);
+				await tabs.moveWithIndex(index, index + 1);
 				await updateTabsPanel();
 			}
 		});
@@ -359,14 +285,14 @@ joplin.plugins.register({
 			iconName: 'fas fa-step-backward',
 			enabledCondition: "oneNoteSelected",
 			execute: async () => {
-				if (lastActiveNoteQueue.length() > 1) {
-					// get the last active note from the queue
-					const lastActiveNoteId = lastActiveNoteQueue.pop();
+				if (lastActiveNoteQueue.length() < 2) return;
 
-					// select note with stored id
-					await COMMANDS.execute('openNote', lastActiveNoteId);
-					// updateTabsPanel is triggered on onNoteSelectionChange event
-				}
+				// get the last active note from the queue
+				const lastActiveNoteId = lastActiveNoteQueue.pop();
+
+				// select note with stored id
+				await COMMANDS.execute('openNote', lastActiveNoteId);
+				// updateTabsPanel is triggered on onNoteSelectionChange event
 			}
 		});
 
@@ -382,12 +308,11 @@ joplin.plugins.register({
 				if (!selectedNote) return;
 
 				// check if note is not already first, otherwise exit
-				const noteTabs: any = await SETTINGS.value('noteTabs');
-				const index: number = getIndexWithAttr(noteTabs, 'id', selectedNote.id);
+				const index: number = tabs.indexOf(selectedNote.id);
 				if (index <= 0) return;
 
 				// get id of left note and select it
-				await COMMANDS.execute('openNote', noteTabs[index - 1].id);
+				await COMMANDS.execute('openNote', tabs.get(index - 1).id);
 				// updateTabsPanel is triggered on onNoteSelectionChange event
 			}
 		});
@@ -404,13 +329,12 @@ joplin.plugins.register({
 				if (!selectedNote) return;
 
 				// check if note is not already last, otherwise exit
-				const noteTabs: any = await SETTINGS.value('noteTabs');
-				const index: number = getIndexWithAttr(noteTabs, 'id', selectedNote.id);
-				if (index == -1) return;
-				if (index == noteTabs.length - 1) return;
+				const index: number = tabs.indexOf(selectedNote.id);
+				if (index < 0) return;
+				if (index == tabs.length() - 1) return;
 
 				// get id of right note and select it
-				await COMMANDS.execute('openNote', noteTabs[index + 1].id);
+				await COMMANDS.execute('openNote', tabs.get(index + 1).id);
 				// updateTabsPanel is triggered on onNoteSelectionChange event
 			}
 		});
@@ -422,8 +346,7 @@ joplin.plugins.register({
 			label: 'Tabs: Clear all pinned tabs',
 			iconName: 'fas fa-times',
 			execute: async () => {
-				const noteTabs: any = [];
-				await SETTINGS.setValue('noteTabs', noteTabs);
+				await tabs.clearAll();
 				await updateTabsPanel();
 			}
 		});
@@ -451,7 +374,7 @@ joplin.plugins.register({
 			}
 			if (message.name === 'tabsToggleTodo') {
 				await toggleTodo(message.id, message.checked);
-				await updateTabsPanel();
+				// updateTabsPanel is triggered on onNoteChange event
 			}
 			if (message.name === 'tabsMoveLeft') {
 				await COMMANDS.execute('tabsMoveLeft');
@@ -460,7 +383,7 @@ joplin.plugins.register({
 				await COMMANDS.execute('tabsMoveRight');
 			}
 			if (message.name === 'tabsDrag') {
-				await dragNote(message.targetId, message.sourceId);
+				await tabs.moveWithId(message.sourceId, message.targetId);
 				await updateTabsPanel();
 			}
 		});
@@ -473,9 +396,8 @@ joplin.plugins.register({
 			// update note tabs array
 			let selectedNoteIsNew: boolean = true;
 			let tempTabIndex: number = -1;
-			let noteTabs: any = await SETTINGS.value('noteTabs');
-			for (const noteTab of noteTabs) {
-				const index: number = getIndexWithAttr(noteTabs, 'id', noteTab.id);
+			for (const noteTab of tabs.getAll()) {
+				const index: number = tabs.indexOf(noteTab.id);
 
 				// check if note id still exists and remove tab if not
 				try {
@@ -489,7 +411,7 @@ joplin.plugins.register({
 						tempTabIndex = index;
 					}
 				} catch (error) {
-					deleteWithIndex(noteTabs, index);
+					tabs.delete(index);
 				}
 			}
 
@@ -500,10 +422,10 @@ joplin.plugins.register({
 
 					if (tempTabIndex >= 0) {
 						// replace existing temporary tab
-						replaceAtIndex(noteTabs, tempTabIndex, newTab);
+						tabs.replaceAtIndex(tempTabIndex, newTab);
 					} else {
 						// add as new temporary tab at the end
-						noteTabs.push({ id: selectedNote.id, type: NoteTabType.Temporary });
+						tabs.add(selectedNote.id, NoteTabType.Temporary);
 					}
 				}
 			}
@@ -522,7 +444,7 @@ joplin.plugins.register({
 			const dividerColor: string = await getSettingOrDefault('dividerColor', SettingDefaults.DividerColor);
 
 			// create HTML for each tab
-			for (const noteTab of noteTabs) {
+			for (const noteTab of tabs.getAll()) {
 				const note: any = await DATA.get(['notes', noteTab.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
 
 				if (note) {
@@ -566,9 +488,6 @@ joplin.plugins.register({
 					</div>
 				</div>
 			`);
-
-			// write tabs back to settings
-			await SETTINGS.setValue('noteTabs', noteTabs);
 		}
 
 		//#endregion
