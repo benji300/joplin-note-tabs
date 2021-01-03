@@ -608,10 +608,5 @@ joplin.plugins.register({
 		//#endregion
 
 		await updateTabsPanel();
-
-		// initially add selectd note id to last active queue
-		// TODO wirklich notwendig
-		const selectedNote: any = await WORKSPACE.selectedNote();
-		if (selectedNote) lastActiveNoteQueue.push(selectedNote.id);
 	},
 });
