@@ -382,8 +382,15 @@ joplin.plugins.register({
 			label: 'Tabs: Clear all pinned tabs',
 			iconName: 'fas fa-times',
 			execute: async () => {
+				const selectedNoteIds: string[] = await WORKSPACE.selectedNoteIds();
+
 				await tabs.clearAll();
-				await updateTabsPanel();
+				if (selectedNoteIds.length > 0) {
+					await COMMANDS.execute('openNote', selectedNoteIds[0]);
+					// updateTabsPanel() is called from onNoteSelectionChange event
+				} else {
+					await updateTabsPanel();
+				}
 			}
 		});
 
