@@ -109,17 +109,6 @@ export class NoteTabs {
     await this.store();
   }
 
-  async pin(noteId: string) {
-    if (this.hasTab(noteId)) {
-      // TODO consider if auto unpin is enabled - do not add completed todos
-      // if note has already a tab, change type to pinned
-      await this.changeType(noteId, NoteTabType.Pinned);
-    } else {
-      // otherwise add as new one at the end
-      await this.add(noteId, NoteTabType.Pinned);
-    }
-  }
-
   /**
    * Moves the tab on source index to the target index.
    */

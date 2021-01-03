@@ -155,31 +155,53 @@ joplin.plugins.register({
 			}
 		}
 
-		// Remove note with handled id from pinned notes array
-		async function removeNote(noteId: string) {
-			const index: number = tabs.indexOf(noteId);
-			if (index < 0) return;
+		/**
+		 * Add new or change type of tab for handled note.
+		 */
+		async function pinNote(note: any, addAsNew: boolean) {
+			// do not pin completed todos if auto unpin is enabled
+			const unpinCompletedTodos: boolean = await SETTINGS.value('unpinCompletedTodos');
+			if (unpinCompletedTodos && note.is_todo && note.todo_completed) return;
 
-			// remove note from tabs
-			await tabs.delete(index);
+			if (tabs.hasTab(note.id)) {
+				// if note has already a tab, change type to pinned
+				await tabs.changeType(note.id, NoteTabType.Pinned);
+			} else {
+				// otherwise add as new one at the end
+				if (addAsNew) await tabs.add(note.id, NoteTabType.Pinned);
+			}
 		}
 
-		// try to get note from data and toggle their todo state
+		/**
+		 * Remove or unpin note with handled id.
+		 */
+		async function removeNote(noteId: string) {
+			const selectedNote: any = await WORKSPACE.selectedNote();
+
+			if (selectedNote && selectedNote.id == noteId) {
+
+				// TODO consider already existing temporary tabs - remove it before
+
+				// unpin tab, if it is the selected note
+				await tabs.changeType(noteId, NoteTabType.Temporary);
+			} else {
+				// otherwise remove tab completely
+				await tabs.delete(tabs.indexOf(noteId));
+			}
+		}
+
+		/**
+		 * Toggle state of handled todo.
+		 */
 		async function toggleTodo(noteId: string, checked: any) {
 			try {
 				const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
 				if (note.is_todo && checked) {
 					await DATA.put(['notes', note.id], null, { todo_completed: Date.now() });
-
-					// if auto unpin is enabled, remove from noteTabs
-					// TODO remove here - should be handled in onNoteChange event
-					const removeCompleted: boolean = await SETTINGS.value('unpinCompletedTodos');
-					if (removeCompleted) {
-						await removeNote(noteId);
-					}
 				} else {
 					await DATA.put(['notes', note.id], null, { todo_completed: 0 });
 				}
+				// updateTabsPanel() is called from onNoteChange event
 			} catch (error) {
 				return;
 			}
@@ -202,7 +224,7 @@ joplin.plugins.register({
 				if (!selectedNote) return;
 
 				// pin selected note and update panel
-				await tabs.pin(selectedNote.id);
+				await pinNote(selectedNote, false);
 				await updateTabsPanel();
 			}
 		});
@@ -217,7 +239,8 @@ joplin.plugins.register({
 			execute: async (noteIds: string[]) => {
 				// pin all handled notes and update panel
 				for (const noteId of noteIds) {
-					await tabs.pin(noteId);
+					const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
+					await pinNote(note, true);
 				}
 				await updateTabsPanel();
 			}
@@ -292,7 +315,7 @@ joplin.plugins.register({
 
 				// select note with stored id
 				await COMMANDS.execute('openNote', lastActiveNoteId);
-				// updateTabsPanel is triggered on onNoteSelectionChange event
+				// updateTabsPanel() is called from onNoteSelectionChange event
 			}
 		});
 
@@ -313,7 +336,7 @@ joplin.plugins.register({
 
 				// get id of left note and select it
 				await COMMANDS.execute('openNote', tabs.get(index - 1).id);
-				// updateTabsPanel is triggered on onNoteSelectionChange event
+				// updateTabsPanel() is called from onNoteSelectionChange event
 			}
 		});
 
@@ -335,7 +358,7 @@ joplin.plugins.register({
 
 				// get id of right note and select it
 				await COMMANDS.execute('openNote', tabs.get(index + 1).id);
-				// updateTabsPanel is triggered on onNoteSelectionChange event
+				// updateTabsPanel() is called from onNoteSelectionChange event
 			}
 		});
 
@@ -374,7 +397,7 @@ joplin.plugins.register({
 			}
 			if (message.name === 'tabsToggleTodo') {
 				await toggleTodo(message.id, message.checked);
-				// updateTabsPanel is triggered on onNoteChange event
+				// updateTabsPanel() is called from onNoteChange event
 			}
 			if (message.name === 'tabsMoveLeft') {
 				await COMMANDS.execute('tabsMoveLeft');
@@ -411,7 +434,7 @@ joplin.plugins.register({
 						tempTabIndex = index;
 					}
 				} catch (error) {
-					tabs.delete(index);
+					await tabs.delete(index);
 				}
 			}
 
@@ -549,13 +572,40 @@ joplin.plugins.register({
 			if (selectedNote) lastActiveNoteQueue.push(selectedNote.id);
 		});
 
+		// ItemChangeEventType { Create = 1, Update = 2, Delete = 3 }
 		WORKSPACE.onNoteChange(async (ev: any) => {
-			const pinEditedNotes: boolean = await SETTINGS.value('pinEditedNotes');
-			if (pinEditedNotes) {
-				await COMMANDS.execute('tabsPinNote');
-			} else {
-				await updateTabsPanel();
+			if (ev) {
+				// get handled note and return if null
+				const note: any = await DATA.get(['notes', ev.id], { fields: ['id', 'is_todo', 'todo_completed'] });
+				if (!note) return;
+
+				// note was updated (ItemChangeEventType.Update)
+				if (ev.event === 2) {
+					console.log(`onNoteChange: note was updated`);
+
+					// if auto pin is enabled and handled, pin to tabs
+					const pinEditedNotes: boolean = await SETTINGS.value('pinEditedNotes');
+					if (pinEditedNotes) {
+						await pinNote(note, false);
+					}
+
+					// if auto unpin is enabled and handled note is a completed todo...
+					const unpinCompletedTodos: boolean = await SETTINGS.value('unpinCompletedTodos');
+					if (unpinCompletedTodos && note.is_todo && note.todo_completed) {
+						await removeNote(note.id);
+					}
+				}
+
+				// note was deleted (ItemChangeEventType.Delete)
+				if (ev.event === 3) {
+					console.log(`onNoteChange: note was deleted`);
+
+					// if note was deleted, remove tab
+					await tabs.delete(tabs.indexOf(note.id));
+				}
 			}
+
+			await updateTabsPanel();
 		});
 
 		WORKSPACE.onSyncComplete(async () => {
