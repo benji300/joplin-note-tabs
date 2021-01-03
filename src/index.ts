@@ -429,10 +429,9 @@ joplin.plugins.register({
 			const noteTabsHtml: any = [];
 			const selectedNote: any = await WORKSPACE.selectedNote();
 
-			// update note tabs array
-			// TODO check for removed notes here 
-			for (const noteTab of tabs.getAll()) {
-				// check if note id still exists and remove tab if not
+			// check note tabs array for deleted notes
+			const noteTabs: any[] = tabs.getAll();
+			for (const noteTab of noteTabs) {
 				try {
 					await DATA.get(['notes', noteTab.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
 				} catch (error) {
