@@ -440,7 +440,7 @@ joplin.plugins.register({
 			const noteTabs: any[] = tabs.getAll();
 			for (const noteTab of noteTabs) {
 				try {
-					await DATA.get(['notes', noteTab.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
+					await DATA.get(['notes', noteTab.id], { fields: ['id'] });
 				} catch (error) {
 					await tabs.delete(noteTab.id);
 				}

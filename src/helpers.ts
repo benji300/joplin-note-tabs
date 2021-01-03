@@ -149,7 +149,7 @@ export class NoteTabs {
     // console.log(`moveWithIndex: ${sourceIdx} to ${targetIdx} with length = ${this.length()}`);
 
     const tab: any = this._tabs[sourceIdx];
-    await this.delete(this.get(sourceIdx));
+    await this.delete(this.get(sourceIdx).id);
     await this.insertAtIndex((targetIdx == 0 ? 0 : targetIdx), tab);
     await this.store();
   }
