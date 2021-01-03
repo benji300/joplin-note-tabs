@@ -156,9 +156,24 @@ joplin.plugins.register({
 		}
 
 		/**
-		 * Add new or change type of tab for handled note.
+		 * Add note as temporary tab, if not already has one.
 		 */
-		async function pinNote(note: any, addAsNew: boolean) {
+		async function addTab(noteId: string) {
+			if (tabs.hasTab(noteId)) return;
+
+			if (tabs.indexOfTemp() >= 0) {
+				// replace existing temporary tab...
+				tabs.replaceTemp(noteId);
+			} else {
+				// or add as new temporary tab at the end
+				await tabs.add(noteId, NoteTabType.Temporary);
+			}
+		}
+
+		/**
+		 * Add new or pin tab for handled note.
+		 */
+		async function pinTab(note: any, addAsNew: boolean) {
 			// do not pin completed todos if auto unpin is enabled
 			const unpinCompletedTodos: boolean = await SETTINGS.value('unpinCompletedTodos');
 			if (unpinCompletedTodos && note.is_todo && note.todo_completed) return;
@@ -175,18 +190,16 @@ joplin.plugins.register({
 		/**
 		 * Remove or unpin note with handled id.
 		 */
-		async function removeNote(noteId: string) {
+		async function removeTab(noteId: string) {
 			const selectedNote: any = await WORKSPACE.selectedNote();
 
+			// remove tab completely
+			await tabs.delete(noteId);
+
+			// if note is the selected note
 			if (selectedNote && selectedNote.id == noteId) {
-
-				// TODO consider already existing temporary tabs - remove it before
-
-				// unpin tab, if it is the selected note
-				await tabs.changeType(noteId, NoteTabType.Temporary);
-			} else {
-				// otherwise remove tab completely
-				await tabs.delete(tabs.indexOf(noteId));
+				// add as temp tab or replace existing one
+				await addTab(noteId);
 			}
 		}
 
@@ -224,7 +237,7 @@ joplin.plugins.register({
 				if (!selectedNote) return;
 
 				// pin selected note and update panel
-				await pinNote(selectedNote, false);
+				await pinTab(selectedNote, false);
 				await updateTabsPanel();
 			}
 		});
@@ -240,7 +253,7 @@ joplin.plugins.register({
 				// pin all handled notes and update panel
 				for (const noteId of noteIds) {
 					const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
-					await pinNote(note, true);
+					await pinTab(note, true);
 				}
 				await updateTabsPanel();
 			}
@@ -259,7 +272,7 @@ joplin.plugins.register({
 				if (!selectedNote) return;
 
 				// unpin selected note and update panel
-				await removeNote(selectedNote.id);
+				await removeTab(selectedNote.id);
 				await updateTabsPanel();
 			}
 		});
@@ -392,7 +405,7 @@ joplin.plugins.register({
 				await COMMANDS.execute('tabsPinToTabs', id);
 			}
 			if (message.name === 'tabsUnpinNote') {
-				await removeNote(message.id);
+				await removeTab(message.id);
 				await updateTabsPanel();
 			}
 			if (message.name === 'tabsToggleTodo') {
@@ -417,39 +430,13 @@ joplin.plugins.register({
 			const selectedNote: any = await WORKSPACE.selectedNote();
 
 			// update note tabs array
-			let selectedNoteIsNew: boolean = true;
-			let tempTabIndex: number = -1;
+			// TODO check for removed notes here 
 			for (const noteTab of tabs.getAll()) {
-				const index: number = tabs.indexOf(noteTab.id);
-
 				// check if note id still exists and remove tab if not
 				try {
 					await DATA.get(['notes', noteTab.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
-
-					if (selectedNote && noteTab.id == selectedNote.id) {
-						selectedNoteIsNew = false;
-					}
-
-					if (noteTab.type == NoteTabType.Temporary) {
-						tempTabIndex = index;
-					}
 				} catch (error) {
-					await tabs.delete(index);
-				}
-			}
-
-			// if selected note is not already a tab...
-			if (selectedNote) {
-				if (selectedNoteIsNew) {
-					const newTab = { id: selectedNote.id, type: NoteTabType.Temporary };
-
-					if (tempTabIndex >= 0) {
-						// replace existing temporary tab
-						tabs.replaceAtIndex(tempTabIndex, newTab);
-					} else {
-						// add as new temporary tab at the end
-						tabs.add(selectedNote.id, NoteTabType.Temporary);
-					}
+					await tabs.delete(noteTab.id);
 				}
 			}
 
@@ -565,11 +552,17 @@ joplin.plugins.register({
 		//#region MAP INTERNAL EVENTS
 
 		WORKSPACE.onNoteSelectionChange(async () => {
-			await updateTabsPanel();
-
-			// add selectd note id to last active queue
+			// get the selected note and return if none is currently selected
 			const selectedNote: any = await WORKSPACE.selectedNote();
-			if (selectedNote) lastActiveNoteQueue.push(selectedNote.id);
+			if (!selectedNote) return;
+
+			// add tab for selected note
+			await addTab(selectedNote.id);
+
+			// add selected note id to last active queue
+			lastActiveNoteQueue.push(selectedNote.id);
+
+			await updateTabsPanel();
 		});
 
 		// ItemChangeEventType { Create = 1, Update = 2, Delete = 3 }
@@ -586,13 +579,13 @@ joplin.plugins.register({
 					// if auto pin is enabled and handled, pin to tabs
 					const pinEditedNotes: boolean = await SETTINGS.value('pinEditedNotes');
 					if (pinEditedNotes) {
-						await pinNote(note, false);
+						await pinTab(note, false);
 					}
 
 					// if auto unpin is enabled and handled note is a completed todo...
 					const unpinCompletedTodos: boolean = await SETTINGS.value('unpinCompletedTodos');
 					if (unpinCompletedTodos && note.is_todo && note.todo_completed) {
-						await removeNote(note.id);
+						await removeTab(note.id);
 					}
 				}
 
@@ -601,7 +594,7 @@ joplin.plugins.register({
 					console.log(`onNoteChange: note was deleted`);
 
 					// if note was deleted, remove tab
-					await tabs.delete(tabs.indexOf(note.id));
+					await tabs.delete(note.id);
 				}
 			}
 
@@ -617,6 +610,7 @@ joplin.plugins.register({
 		await updateTabsPanel();
 
 		// initially add selectd note id to last active queue
+		// TODO wirklich notwendig
 		const selectedNote: any = await WORKSPACE.selectedNote();
 		if (selectedNote) lastActiveNoteQueue.push(selectedNote.id);
 	},

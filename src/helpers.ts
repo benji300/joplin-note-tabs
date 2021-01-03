@@ -56,6 +56,26 @@ export class NoteTabs {
   }
 
   /**
+   * Inserts handled tab at specified index.
+   */
+  private async insertAtIndex(index: number, tab: any) {
+    if (index < 0 || tab == null) return;
+
+    this._tabs.splice(index, 0, tab);
+    await this.store();
+  }
+
+  /**
+   * Replaces tab at specified index with handled one.
+   */
+  private async replaceAtIndex(index: number, tab: any) {
+    if (index < 0 || tab == null) return;
+
+    this._tabs.splice(index, 1, tab);
+    await this.store();
+  }
+
+  /**
    * Gets the number of tabs.
    */
   length(): number {
@@ -79,13 +99,23 @@ export class NoteTabs {
   }
 
   /**
-   * Gets index of tab for note with handled id.
+   * Gets index of tab for note with handled id. -1 if not exist.
    */
   indexOf(noteId: string): number {
     if (noteId == null) return;
 
-    for (let i: number = 0; i < this.length(); i += 1) {
+    for (let i: number = 0; i < this.length(); i++) {
       if (this._tabs[i]['id'] === noteId) return i;
+    }
+    return -1;
+  }
+
+  /**
+   * Gets index of the temporary tab. -1 if not exist.
+   */
+  indexOfTemp(): number {
+    for (let i: number = 0; i < this.length(); i++) {
+      if (this._tabs[i]['type'] === NoteTabType.Temporary) return i;
     }
     return -1;
   }
@@ -119,7 +149,7 @@ export class NoteTabs {
     // console.log(`moveWithIndex: ${sourceIdx} to ${targetIdx} with length = ${this.length()}`);
 
     const tab: any = this._tabs[sourceIdx];
-    await this.delete(sourceIdx);
+    await this.delete(this.get(sourceIdx));
     await this.insertAtIndex((targetIdx == 0 ? 0 : targetIdx), tab);
     await this.store();
   }
@@ -144,33 +174,27 @@ export class NoteTabs {
   }
 
   /**
-   * Removes tab on handled index.
-   */
-  async delete(index: number) {
-    // TODO rework to get noteId instead of index
-    if (index < 0) return;
-
-    this._tabs.splice(index, 1);
-    await this.store();
-  }
-
-  /**
-   * Inserts handled tab at specified index.
-   */
-  async insertAtIndex(index: number, tab: any) {
-    if (index < 0 || tab == null) return;
-
-    this._tabs.splice(index, 0, tab);
-    await this.store();
-  }
-
-  /**
    * Replaces tab at specified index with handled one.
    */
-  async replaceAtIndex(index: number, tab: any) {
-    if (index < 0 || tab == null) return;
+  async replaceTemp(noteId: string) {
+    if (noteId == null) return;
 
-    this._tabs.splice(index, 1, tab);
+    const tempIdx: number = this.indexOfTemp();
+    if (tempIdx >= 0) {
+      this._tabs[tempIdx].id = noteId;
+      await this.store();
+    }
+  }
+
+  /**
+   * Removes tab on handled index.
+   */
+  async delete(noteId: string) {
+    if (noteId == null) return;
+
+    if (this.hasTab(noteId)) {
+      this._tabs.splice(this.indexOf(noteId), 1);
+    }
     await this.store();
   }
 
