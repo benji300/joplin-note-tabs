@@ -568,8 +568,13 @@ joplin.plugins.register({
 		WORKSPACE.onNoteChange(async (ev: any) => {
 			if (ev) {
 				// get handled note and return if null
-				const note: any = await DATA.get(['notes', ev.id], { fields: ['id', 'is_todo', 'todo_completed'] });
-				if (!note) return;
+				let note: any;
+				try {
+					note = await DATA.get(['notes', ev.id], { fields: ['id', 'is_todo', 'todo_completed'] });
+				} catch (error) {
+					await tabs.delete(ev.id);
+				}
+				if (note == null) return;
 
 				// note was updated (ItemChangeEventType.Update)
 				if (ev.event === 2) {
