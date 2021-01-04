@@ -12,7 +12,7 @@ joplin.plugins.register({
 
 		//#region REGISTER USER OPTIONS
 
-		await SETTINGS.registerSection('com.benji300.joplin.tabs.settings', {
+		await SETTINGS.registerSection('note.tabs.settings', {
 			label: 'Note Tabs',
 			iconName: 'fas fa-window-maximize',
 			description: 'Changes are applied only after selecting another note.'
@@ -21,7 +21,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('noteTabs', {
 			value: [],
 			type: SettingItemType.Array,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: false,
 			label: 'Note tabs'
 		});
@@ -30,7 +30,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('enableDragAndDrop', {
 			value: true,
 			type: SettingItemType.Bool,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			label: 'Enable drag & drop of tabs',
 			description: 'If disabled, position of tabs can be change via commands or move buttons.'
@@ -38,7 +38,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('showTodoCheckboxes', {
 			value: true,
 			type: SettingItemType.Bool,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			label: 'Show checkboxes for to-dos on tabs',
 			description: 'If enabled, to-dos can be completed directly on the tabs.'
@@ -46,7 +46,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('pinEditedNotes', {
 			value: false,
 			type: SettingItemType.Bool,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			label: 'Automatically pin notes when edited',
 			description: 'Pin notes automatically as soon as the title, content or any other attribute changes.'
@@ -54,7 +54,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('unpinCompletedTodos', {
 			value: false,
 			type: SettingItemType.Bool,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			label: 'Automatically unpin completed to-dos',
 			description: 'Unpin notes automatically as soon as the to-do status changes to completed. Removes the tab completely unless it is the selected note.'
@@ -62,7 +62,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('tabHeight', {
 			value: "40",
 			type: SettingItemType.Int,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			label: 'Note Tabs height (px)',
 			description: "Height of the tabs. Row height in vertical layout."
@@ -70,14 +70,14 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('minTabWidth', {
 			value: "50",
 			type: SettingItemType.Int,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			label: 'Minimum Tab width (px)'
 		});
 		await SETTINGS.registerSetting('maxTabWidth', {
 			value: "150",
 			type: SettingItemType.Int,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			label: 'Maximum Tab width (px)'
 		});
@@ -86,7 +86,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('fontFamily', {
 			value: SettingDefaults.Default,
 			type: SettingItemType.String,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			advanced: true,
 			label: 'Font family',
@@ -95,7 +95,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('mainBackground', {
 			value: SettingDefaults.Default,
 			type: SettingItemType.String,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			advanced: true,
 			label: 'Background color',
@@ -104,7 +104,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('activeBackground', {
 			value: SettingDefaults.Default,
 			type: SettingItemType.String,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			advanced: true,
 			label: 'Active background color',
@@ -113,7 +113,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('mainForeground', {
 			value: SettingDefaults.Default,
 			type: SettingItemType.String,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			advanced: true,
 			label: 'Foreground color',
@@ -122,7 +122,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('activeForeground', {
 			value: SettingDefaults.Default,
 			type: SettingItemType.String,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			advanced: true,
 			label: 'Active foreground color',
@@ -131,7 +131,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSetting('dividerColor', {
 			value: SettingDefaults.Default,
 			type: SettingItemType.String,
-			section: 'com.benji300.joplin.tabs.settings',
+			section: 'note.tabs.settings',
 			public: true,
 			advanced: true,
 			label: 'Divider color',
@@ -411,7 +411,7 @@ joplin.plugins.register({
 		//#region SETUP PANEL
 
 		// prepare panel object
-		const panel = await PANELS.create("com.benji300.joplin.tabs.panel");
+		const panel = await PANELS.create("note.tabs.panel");
 		await PANELS.addScript(panel, './assets/fontawesome/css/all.min.css');
 		await PANELS.addScript(panel, './webview.css');
 		await PANELS.addScript(panel, './webview.js');
