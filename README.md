@@ -82,13 +82,13 @@ Pin the selected note to the tabs.
 
 Unpin the selected note from the tabs.
 
-#### Switch to last active note
+#### Switch to last active tab
 
-| Command Label                    | Command ID             | Default Key | Menu           |
-| -------------------------------- | ---------------------- | ----------- | -------------- |
-| Tabs: Switch to last active note | `tabsSwitchToLastNote` | -           | `Tools > Tabs` |
+| Command Label                   | Command ID             | Default Key | Menu           |
+| ------------------------------- | ---------------------- | ----------- | -------------- |
+| Tabs: Switch to last active tab | `tabsSwitchLastActive` | -           | `Tools > Tabs` |
 
-Switch to the last active note, i.e. select previous selected note.
+Switch to the last active tab, i.e. to previous selected note.
 
 #### Switch tab left
 

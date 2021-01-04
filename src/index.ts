@@ -313,11 +313,11 @@ joplin.plugins.register({
 			}
 		});
 
-		// Command: tabsSwitchToLastNote
-		// Desc: Switch to last active note
+		// Command: tabsSwitchLastActive
+		// Desc: Switch to last active tab
 		await COMMANDS.register({
-			name: 'tabsSwitchToLastNote',
-			label: 'Tabs: Switch to last active note',
+			name: 'tabsSwitchLastActive',
+			label: 'Tabs: Switch to last active tab',
 			iconName: 'fas fa-step-backward',
 			enabledCondition: "oneNoteSelected",
 			execute: async () => {
@@ -521,8 +521,8 @@ joplin.plugins.register({
 				label: 'Unpin note'
 			},
 			{
-				commandName: "tabsSwitchToLastNote",
-				label: 'Switcht to last active note'
+				commandName: "tabsSwitchLastActive",
+				label: 'Switch to last active tab'
 			},
 			{
 				commandName: "tabsSwitchLeft",

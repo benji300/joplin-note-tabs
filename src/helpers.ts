@@ -1,5 +1,4 @@
 import joplin from 'api';
-import { target } from 'webpack.config';
 
 /**
  * Advanced style setting default values.
