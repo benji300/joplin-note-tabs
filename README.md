@@ -4,9 +4,7 @@ Joplin Note Tabs is a plugin to extend the UX and UI of [Joplin's](https://jopli
 
 It displays the selected note in a tab panel and allows to pin/unpin notes as tabs.
 
-> :warning: **CAUTION** - Requires Joplin **v1.4.16** or newer
-
-> :construction: **BETA** - This is a development version at a very early stage. Please make a backup copy of the user data (especially from the database) before using this plugin. I don't think that the plugin causes any damage to the database, but unfortunately I can't rule it out completely. I neither have the time nor the possibilities to test all possible use cases.
+> :warning: **CAUTION** - Requires Joplin **v1.5.7** or newer
 
 ## Table of contents
 
