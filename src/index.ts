@@ -208,6 +208,21 @@ joplin.plugins.register({
 		}
 
 		/**
+		 * Open the first of the selected notes in order to update the tabs panel.
+		 * If none is selected the panel is also updated.
+		 */
+		async function openNoteOrUpdate() {
+			const selectedNoteIds: string[] = await WORKSPACE.selectedNoteIds();
+
+			if (selectedNoteIds.length > 0) {
+				await COMMANDS.execute('openNote', selectedNoteIds[0]);
+				// updateTabsPanel() is called from onNoteSelectionChange event
+			} else {
+				await updateTabsPanel();
+			}
+		}
+
+		/**
 		 * Toggle state of handled todo.
 		 */
 		async function toggleTodo(noteId: string, checked: any) {
@@ -259,7 +274,7 @@ joplin.plugins.register({
 					const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
 					await pinTab(note, true);
 				}
-				await updateTabsPanel();
+				await openNoteOrUpdate();
 			}
 		});
 
@@ -386,15 +401,8 @@ joplin.plugins.register({
 			label: 'Tabs: Clear all pinned tabs',
 			iconName: 'fas fa-times',
 			execute: async () => {
-				const selectedNoteIds: string[] = await WORKSPACE.selectedNoteIds();
-
 				await tabs.clearAll();
-				if (selectedNoteIds.length > 0) {
-					await COMMANDS.execute('openNote', selectedNoteIds[0]);
-					// updateTabsPanel() is called from onNoteSelectionChange event
-				} else {
-					await updateTabsPanel();
-				}
+				await openNoteOrUpdate();
 			}
 		});
 
