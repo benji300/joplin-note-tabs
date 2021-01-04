@@ -1,10 +1,9 @@
 {
   "name": "com.benji300.joplin.tabs",
   "version": "1.0.0",
-  "description": "Displays selected note in a tab panel and allows to pin/unpin notes as tabs.",
+  "description": "Allows to open several notes at once in tabs and pin them.",
   "keywords": [
-    "joplin",
-    "plugin"
+    "joplin-plugin"
   ],
   "author": "Benji300",
   "license": "MIT",

@@ -2,7 +2,7 @@
 
 Joplin Note Tabs is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
 
-It displays the selected note in a tab panel and allows to pin/unpin notes as tabs.
+It allows to open several notes at once in tabs and pin them to be kept open.
 
 > :warning: **CAUTION** - Requires Joplin **v1.5.7** or newer
 
@@ -22,8 +22,10 @@ It displays the selected note in a tab panel and allows to pin/unpin notes as ta
 ## Features
 
 - Display selected note as tab
+- Pin note(s) to the tabs
+- Save pinned tabs permanently
+  - Stored in database (not synced with other devices!)
 - Remember last opened and unpinned note
-- Pin/Unpin note(s) to/from the tabs
 - Change position of tabs within the panel
   - Either via drag & drop or keyboard shortcuts (which have been assigned to the corresponding commands)
 - Toggle to-do state from tabs
@@ -60,73 +62,73 @@ This plugin provides the commands as described in the following chapters.
 
 #### Pin to tabs
 
-| Command Label     | Command ID      | Default Key | Menu                |
-| ----------------- | --------------- | ----------- | ------------------- |
-| Tabs: Pin to tabs | `tabsPinToTabs` | -           | `Note list context` |
+| Command Label     | Command ID      | Menu                |
+| ----------------- | --------------- | ------------------- |
+| Tabs: Pin to tabs | `tabsPinToTabs` | `Note list context` |
 
 Pin note(s) to the tabs. Works with multiple selected notes.
 
 #### Pin note
 
-| Command Label  | Command ID    | Default Key | Menu                               |
-| -------------- | ------------- | ----------- | ---------------------------------- |
-| Tabs: Pin note | `tabsPinNote` | -           | `Tools > Tabs`<br>`Editor context` |
+| Command Label  | Command ID    | Menu                               |
+| -------------- | ------------- | ---------------------------------- |
+| Tabs: Pin note | `tabsPinNote` | `Tools > Tabs`<br>`Editor context` |
 
 Pin the selected note to the tabs.
 
 #### Unpin note
 
-| Command Label    | Command ID      | Default Key | Menu           |
-| ---------------- | --------------- | ----------- | -------------- |
-| Tabs: Unpin note | `tabsUnpinNote` | -           | `Tools > Tabs` |
+| Command Label    | Command ID      | Menu           |
+| ---------------- | --------------- | -------------- |
+| Tabs: Unpin note | `tabsUnpinNote` | `Tools > Tabs` |
 
 Unpin the selected note from the tabs.
 
 #### Switch to last active tab
 
-| Command Label                   | Command ID             | Default Key | Menu           |
-| ------------------------------- | ---------------------- | ----------- | -------------- |
-| Tabs: Switch to last active tab | `tabsSwitchLastActive` | -           | `Tools > Tabs` |
+| Command Label                   | Command ID             | Menu           |
+| ------------------------------- | ---------------------- | -------------- |
+| Tabs: Switch to last active tab | `tabsSwitchLastActive` | `Tools > Tabs` |
 
 Switch to the last active tab, i.e. to previous selected note.
 
 #### Switch tab left
 
-| Command Label            | Command ID       | Default Key | Menu           |
-| ------------------------ | ---------------- | ----------- | -------------- |
-| Tabs: Switch to left tab | `tabsSwitchLeft` | -           | `Tools > Tabs` |
+| Command Label            | Command ID       | Menu           |
+| ------------------------ | ---------------- | -------------- |
+| Tabs: Switch to left tab | `tabsSwitchLeft` | `Tools > Tabs` |
 
 Switch to the left tab next to the active, i.e. select the left note.
 
 #### Switch tab right
 
-| Command Label             | Command ID        | Default Key | Menu           |
-| ------------------------- | ----------------- | ----------- | -------------- |
-| Tabs: Switch to right tab | `tabsSwitchRight` | -           | `Tools > Tabs` |
+| Command Label             | Command ID        | Menu           |
+| ------------------------- | ----------------- | -------------- |
+| Tabs: Switch to right tab | `tabsSwitchRight` | `Tools > Tabs` |
 
 Switch to the right tab next to the active, i.e. select the right note.
 
 #### Move tab left
 
-| Command Label       | Command ID     | Default Key | Menu           |
-| ------------------- | -------------- | ----------- | -------------- |
-| Tabs: Move tab left | `tabsMoveLeft` | -           | `Tools > Tabs` |
+| Command Label       | Command ID     | Menu           |
+| ------------------- | -------------- | -------------- |
+| Tabs: Move tab left | `tabsMoveLeft` | `Tools > Tabs` |
 
 Move active tab one position to the left.
 
 #### Move tab right
 
-| Command Label        | Command ID      | Default Key | Menu           |
-| -------------------- | --------------- | ----------- | -------------- |
-| Tabs: Move tab right | `tabsMoveRight` | -           | `Tools > Tabs` |
+| Command Label        | Command ID      | Menu           |
+| -------------------- | --------------- | -------------- |
+| Tabs: Move tab right | `tabsMoveRight` | `Tools > Tabs` |
 
 Move active tab one position to the right.
 
 #### Clear all pinned tabs
 
-| Command Label               | Command ID  | Default Key | Menu           |
-| --------------------------- | ----------- | ----------- | -------------- |
-| Tabs: Clear all pinned tabs | `tabsClear` | -           | `Tools > Tabs` |
+| Command Label               | Command ID  | Menu           |
+| --------------------------- | ----------- | -------------- |
+| Tabs: Clear all pinned tabs | `tabsClear` | `Tools > Tabs` |
 
 Clear all pinned tabs. In case no note is selected, the tabs list might be empty afterwards.
 
