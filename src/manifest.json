@@ -2,7 +2,7 @@
 	"manifest_version": 1,
 	"id": "com.benji300.joplin.tabs",
 	"app_min_version": "1.5",
-	"version": "0.2.0",
+	"version": "1.0.0",
 	"name": "Note Tabs",
 	"description": "Displays selected note in a tab panel and allows to pin/unpin notes as tabs. (v1.0.0)",
 	"author": "Benji300",
