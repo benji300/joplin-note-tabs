@@ -15,6 +15,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSection('com.benji300.joplin.tabs.settings', {
 			label: 'Note Tabs',
 			iconName: 'fas fa-window-maximize',
+			description: 'Changes are applied only after selecting another note.'
 		});
 
 		await SETTINGS.registerSetting('noteTabs', {
@@ -31,7 +32,8 @@ joplin.plugins.register({
 			type: SettingItemType.Bool,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
-			label: 'Enable drag & drop of tabs'
+			label: 'Enable drag & drop of tabs',
+			description: 'If disabled, position of tabs can be change via commands or move buttons.'
 		});
 		await SETTINGS.registerSetting('showTodoCheckboxes', {
 			value: true,
@@ -46,14 +48,16 @@ joplin.plugins.register({
 			type: SettingItemType.Bool,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
-			label: 'Automatically pin notes when edited'
+			label: 'Automatically pin notes when edited',
+			description: 'Pin notes automatically as soon as the title, content or any other attribute changes.'
 		});
 		await SETTINGS.registerSetting('unpinCompletedTodos', {
 			value: false,
 			type: SettingItemType.Bool,
 			section: 'com.benji300.joplin.tabs.settings',
 			public: true,
-			label: 'Automatically unpin completed to-dos'
+			label: 'Automatically unpin completed to-dos',
+			description: 'Unpin notes automatically as soon as the to-do status changes to completed. Removes the tab completely unless it is the selected note.'
 		});
 		await SETTINGS.registerSetting('tabHeight', {
 			value: "40",
@@ -86,7 +90,7 @@ joplin.plugins.register({
 			public: true,
 			advanced: true,
 			label: 'Font family',
-			description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font."
+			description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: Roboto)"
 		});
 		await SETTINGS.registerSetting('mainBackground', {
 			value: SettingDefaults.Default,
@@ -95,7 +99,7 @@ joplin.plugins.register({
 			public: true,
 			advanced: true,
 			label: 'Background color',
-			description: "Main background color of the panel."
+			description: "Main background color of the panel. (default: Note list background color)"
 		});
 		await SETTINGS.registerSetting('activeBackground', {
 			value: SettingDefaults.Default,
@@ -104,7 +108,7 @@ joplin.plugins.register({
 			public: true,
 			advanced: true,
 			label: 'Active background color',
-			description: "Background color of the current active tab."
+			description: "Background color of the current active tab. (default: Editor background color)"
 		});
 		await SETTINGS.registerSetting('mainForeground', {
 			value: SettingDefaults.Default,
@@ -113,7 +117,7 @@ joplin.plugins.register({
 			public: true,
 			advanced: true,
 			label: 'Foreground color',
-			description: "Default foreground color used for text and icons."
+			description: "Default foreground color used for text and icons. (default: App faded color)"
 		});
 		await SETTINGS.registerSetting('activeForeground', {
 			value: SettingDefaults.Default,
@@ -122,7 +126,7 @@ joplin.plugins.register({
 			public: true,
 			advanced: true,
 			label: 'Active foreground color',
-			description: "Foreground color of the current active tab."
+			description: "Foreground color of the current active tab. (default: Editor font color)"
 		});
 		await SETTINGS.registerSetting('dividerColor', {
 			value: SettingDefaults.Default,
@@ -131,7 +135,7 @@ joplin.plugins.register({
 			public: true,
 			advanced: true,
 			label: 'Divider color',
-			description: "Color of the divider between the tabs."
+			description: "Color of the divider between the tabs. (default: App divider/border color)"
 		});
 
 		//#endregion
