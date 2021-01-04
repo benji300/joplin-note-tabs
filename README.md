@@ -196,6 +196,6 @@ See [CHANGELOG](./CHANGELOG.md) for details.
 
 ## License
 
-Copyright (c) 2020 Benjamin Seifert
+Copyright (c) 2021 Benjamin Seifert
 
 MIT License. See [LICENSE](./LICENSE) for more information.
