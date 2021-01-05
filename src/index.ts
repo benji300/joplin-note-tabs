@@ -219,7 +219,7 @@ joplin.plugins.register({
 				await COMMANDS.execute('openNote', selectedNoteIds[0]);
 				// updatePanel() is called from onNoteSelectionChange event
 			} else {
-				await updatePanel();
+				await updatePanelView();
 			}
 		}
 
@@ -258,7 +258,7 @@ joplin.plugins.register({
 
 				// pin selected note and update panel
 				await pinTab(selectedNote, false);
-				await updatePanel();
+				await updatePanelView();
 			}
 		});
 
@@ -293,7 +293,7 @@ joplin.plugins.register({
 
 				// unpin selected note and update panel
 				await removeTab(selectedNote.id);
-				await updatePanel();
+				await updatePanelView();
 			}
 		});
 
@@ -311,7 +311,7 @@ joplin.plugins.register({
 				// change index of tab and update panel
 				const index: number = tabs.indexOf(selectedNote.id);
 				await tabs.moveWithIndex(index, index - 1);
-				await updatePanel();
+				await updatePanelView();
 			}
 		});
 
@@ -329,7 +329,7 @@ joplin.plugins.register({
 				// change index of tab and update panel
 				const index: number = tabs.indexOf(selectedNote.id);
 				await tabs.moveWithIndex(index, index + 1);
-				await updatePanel();
+				await updatePanelView();
 			}
 		});
 
@@ -430,7 +430,7 @@ joplin.plugins.register({
 			}
 			if (message.name === 'tabsUnpinNote') {
 				await removeTab(message.id);
-				await updatePanel();
+				await updatePanelView();
 			}
 			if (message.name === 'tabsToggleTodo') {
 				await toggleTodo(message.id, message.checked);
@@ -444,24 +444,14 @@ joplin.plugins.register({
 			}
 			if (message.name === 'tabsDrag') {
 				await tabs.moveWithId(message.sourceId, message.targetId);
-				await updatePanel();
+				await updatePanelView();
 			}
 		});
 
 		// update HTML content
-		async function updatePanel() {
+		async function updatePanelView() {
 			const noteTabsHtml: any = [];
 			const selectedNote: any = await WORKSPACE.selectedNote();
-
-			// check note tabs array for deleted notes
-			const noteTabs: any[] = tabs.getAll();
-			for (const noteTab of noteTabs) {
-				try {
-					await DATA.get(['notes', noteTab.id], { fields: ['id'] });
-				} catch (error) {
-					await tabs.delete(noteTab.id);
-				}
-			}
 
 			// get style values from settings
 			const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
@@ -478,7 +468,15 @@ joplin.plugins.register({
 
 			// create HTML for each tab
 			for (const noteTab of tabs.getAll()) {
-				const note: any = await DATA.get(['notes', noteTab.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
+				let note: any = null;
+
+				// get real note from database, if no longer exists remove tab and continue with next one
+				try {
+					note = await DATA.get(['notes', noteTab.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
+				} catch (error) {
+					await tabs.delete(noteTab.id);
+					continue;
+				}
 
 				if (note) {
 					// prepare tab style attributes
@@ -575,69 +573,69 @@ joplin.plugins.register({
 		//#region MAP INTERNAL EVENTS
 
 		WORKSPACE.onNoteSelectionChange(async () => {
-			const selectedNote: any = await WORKSPACE.selectedNote();
+			try {
+				const selectedNote: any = await WORKSPACE.selectedNote();
 
-			if (selectedNote) {
-				console.log(`onNoteSelectionChange: selected note`);
+				if (selectedNote) {
+					// add tab for selected note
+					await addTab(selectedNote.id);
 
-				// add tab for selected note
-				await addTab(selectedNote.id);
+					// add selected note id to last active queue
+					lastActiveNoteQueue.push(selectedNote.id);
+				}
 
-				// add selected note id to last active queue
-				lastActiveNoteQueue.push(selectedNote.id);
+				await updatePanelView();
+			} catch (error) {
+				console.error(`onNoteSelectionChange: ${error}`);
 			}
-
-			console.log(`onNoteSelectionChange: update panel`);
-			await updatePanel();
 		});
 
 		// ItemChangeEventType { Create = 1, Update = 2, Delete = 3 }
 		WORKSPACE.onNoteChange(async (ev: any) => {
-			if (ev) {
-				// get handled note and return if null
-				let note: any;
-				try {
-					note = await DATA.get(['notes', ev.id], { fields: ['id', 'is_todo', 'todo_completed'] });
-				} catch (error) {
-					await tabs.delete(ev.id);
-				}
-				if (note == null) return;
+			try {
+				if (ev) {
+					// note was updated (ItemChangeEventType.Update)
+					if (ev.event == 2) {
+						// console.log(`onNoteChange: note '${ev.id}' was updated`);
 
-				// note was updated (ItemChangeEventType.Update)
-				if (ev.event === 2) {
-					console.log(`onNoteChange: note was updated`);
+						// get handled note and return if null
+						const note: any = await DATA.get(['notes', ev.id], { fields: ['id', 'is_todo', 'todo_completed'] });
+						if (note == null) return;
 
-					// if auto pin is enabled and handled, pin to tabs
-					const pinEditedNotes: boolean = await SETTINGS.value('pinEditedNotes');
-					if (pinEditedNotes) {
-						await pinTab(note, false);
+						// if auto pin is enabled and handled, pin to tabs
+						const pinEditedNotes: boolean = await SETTINGS.value('pinEditedNotes');
+						if (pinEditedNotes) {
+							await pinTab(note, false);
+						}
+
+						// if auto unpin is enabled and handled note is a completed todo...
+						const unpinCompletedTodos: boolean = await SETTINGS.value('unpinCompletedTodos');
+						if (unpinCompletedTodos && note.is_todo && note.todo_completed) {
+							await removeTab(note.id);
+						}
 					}
 
-					// if auto unpin is enabled and handled note is a completed todo...
-					const unpinCompletedTodos: boolean = await SETTINGS.value('unpinCompletedTodos');
-					if (unpinCompletedTodos && note.is_todo && note.todo_completed) {
-						await removeTab(note.id);
+					// note was deleted (ItemChangeEventType.Delete)
+					if (ev.event == 3) {
+						// console.log(`onNoteChange: note '${ev.id}' was deleted`);
+
+						// if note was deleted, remove tab
+						await tabs.delete(ev.id);
 					}
 				}
 
-				// note was deleted (ItemChangeEventType.Delete)
-				if (ev.event === 3) {
-					console.log(`onNoteChange: note was deleted`);
-
-					// if note was deleted, remove tab
-					await tabs.delete(note.id);
-				}
+				await updatePanelView();
+			} catch (error) {
+				console.error(`onNoteChange: ${error}`);
 			}
-
-			await updatePanel();
 		});
 
 		WORKSPACE.onSyncComplete(async () => {
-			await updatePanel();
+			await updatePanelView();
 		});
 
 		//#endregion
 
-		await updatePanel();
+		await updatePanelView();
 	},
 });
