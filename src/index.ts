@@ -16,7 +16,7 @@ joplin.plugins.register({
 		await SETTINGS.registerSection('note.tabs.settings', {
 			label: 'Note Tabs',
 			iconName: 'fas fa-window-maximize',
-			description: 'Changes are applied only after selecting another note.'
+			description: 'Changes are applied after selecting another note.'
 		});
 
 		await SETTINGS.registerSetting('noteTabs', {
@@ -217,7 +217,7 @@ joplin.plugins.register({
 
 			if (selectedNoteIds.length > 0) {
 				await COMMANDS.execute('openNote', selectedNoteIds[0]);
-				// updatePanel() is called from onNoteSelectionChange event
+				// updatePanelView() is called from onNoteSelectionChange event
 			} else {
 				await updatePanelView();
 			}
@@ -234,7 +234,7 @@ joplin.plugins.register({
 				} else {
 					await DATA.put(['notes', note.id], null, { todo_completed: 0 });
 				}
-				// updatePanel() is called from onNoteChange event
+				// updatePanelView() is called from onNoteChange event
 			} catch (error) {
 				return;
 			}
@@ -348,7 +348,7 @@ joplin.plugins.register({
 
 				// select note with stored id
 				await COMMANDS.execute('openNote', lastActiveNoteId);
-				// updatePanel() is called from onNoteSelectionChange event
+				// updatePanelView() is called from onNoteSelectionChange event
 			}
 		});
 
@@ -369,7 +369,7 @@ joplin.plugins.register({
 
 				// get id of left note and select it
 				await COMMANDS.execute('openNote', tabs.get(index - 1).id);
-				// updatePanel() is called from onNoteSelectionChange event
+				// updatePanelView() is called from onNoteSelectionChange event
 			}
 		});
 
@@ -391,7 +391,7 @@ joplin.plugins.register({
 
 				// get id of right note and select it
 				await COMMANDS.execute('openNote', tabs.get(index + 1).id);
-				// updatePanel() is called from onNoteSelectionChange event
+				// updatePanelView() is called from onNoteSelectionChange event
 			}
 		});
 
@@ -434,7 +434,7 @@ joplin.plugins.register({
 			}
 			if (message.name === 'tabsToggleTodo') {
 				await toggleTodo(message.id, message.checked);
-				// updatePanel() is called from onNoteChange event
+				// updatePanelView() is called from onNoteChange event
 			}
 			if (message.name === 'tabsMoveLeft') {
 				await COMMANDS.execute('tabsMoveLeft');
