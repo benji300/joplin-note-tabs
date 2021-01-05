@@ -217,9 +217,9 @@ joplin.plugins.register({
 
 			if (selectedNoteIds.length > 0) {
 				await COMMANDS.execute('openNote', selectedNoteIds[0]);
-				// updateTabsPanel() is called from onNoteSelectionChange event
+				// updatePanel() is called from onNoteSelectionChange event
 			} else {
-				await updateTabsPanel();
+				await updatePanel();
 			}
 		}
 
@@ -234,7 +234,7 @@ joplin.plugins.register({
 				} else {
 					await DATA.put(['notes', note.id], null, { todo_completed: 0 });
 				}
-				// updateTabsPanel() is called from onNoteChange event
+				// updatePanel() is called from onNoteChange event
 			} catch (error) {
 				return;
 			}
@@ -258,7 +258,7 @@ joplin.plugins.register({
 
 				// pin selected note and update panel
 				await pinTab(selectedNote, false);
-				await updateTabsPanel();
+				await updatePanel();
 			}
 		});
 
@@ -293,7 +293,7 @@ joplin.plugins.register({
 
 				// unpin selected note and update panel
 				await removeTab(selectedNote.id);
-				await updateTabsPanel();
+				await updatePanel();
 			}
 		});
 
@@ -311,7 +311,7 @@ joplin.plugins.register({
 				// change index of tab and update panel
 				const index: number = tabs.indexOf(selectedNote.id);
 				await tabs.moveWithIndex(index, index - 1);
-				await updateTabsPanel();
+				await updatePanel();
 			}
 		});
 
@@ -329,7 +329,7 @@ joplin.plugins.register({
 				// change index of tab and update panel
 				const index: number = tabs.indexOf(selectedNote.id);
 				await tabs.moveWithIndex(index, index + 1);
-				await updateTabsPanel();
+				await updatePanel();
 			}
 		});
 
@@ -348,7 +348,7 @@ joplin.plugins.register({
 
 				// select note with stored id
 				await COMMANDS.execute('openNote', lastActiveNoteId);
-				// updateTabsPanel() is called from onNoteSelectionChange event
+				// updatePanel() is called from onNoteSelectionChange event
 			}
 		});
 
@@ -369,7 +369,7 @@ joplin.plugins.register({
 
 				// get id of left note and select it
 				await COMMANDS.execute('openNote', tabs.get(index - 1).id);
-				// updateTabsPanel() is called from onNoteSelectionChange event
+				// updatePanel() is called from onNoteSelectionChange event
 			}
 		});
 
@@ -391,7 +391,7 @@ joplin.plugins.register({
 
 				// get id of right note and select it
 				await COMMANDS.execute('openNote', tabs.get(index + 1).id);
-				// updateTabsPanel() is called from onNoteSelectionChange event
+				// updatePanel() is called from onNoteSelectionChange event
 			}
 		});
 
@@ -430,11 +430,11 @@ joplin.plugins.register({
 			}
 			if (message.name === 'tabsUnpinNote') {
 				await removeTab(message.id);
-				await updateTabsPanel();
+				await updatePanel();
 			}
 			if (message.name === 'tabsToggleTodo') {
 				await toggleTodo(message.id, message.checked);
-				// updateTabsPanel() is called from onNoteChange event
+				// updatePanel() is called from onNoteChange event
 			}
 			if (message.name === 'tabsMoveLeft') {
 				await COMMANDS.execute('tabsMoveLeft');
@@ -444,12 +444,12 @@ joplin.plugins.register({
 			}
 			if (message.name === 'tabsDrag') {
 				await tabs.moveWithId(message.sourceId, message.targetId);
-				await updateTabsPanel();
+				await updatePanel();
 			}
 		});
 
 		// update HTML content
-		async function updateTabsPanel() {
+		async function updatePanel() {
 			const noteTabsHtml: any = [];
 			const selectedNote: any = await WORKSPACE.selectedNote();
 
@@ -588,7 +588,7 @@ joplin.plugins.register({
 			}
 
 			console.log(`onNoteSelectionChange: update panel`);
-			await updateTabsPanel();
+			await updatePanel();
 		});
 
 		// ItemChangeEventType { Create = 1, Update = 2, Delete = 3 }
@@ -629,15 +629,15 @@ joplin.plugins.register({
 				}
 			}
 
-			await updateTabsPanel();
+			await updatePanel();
 		});
 
 		WORKSPACE.onSyncComplete(async () => {
-			await updateTabsPanel();
+			await updatePanel();
 		});
 
 		//#endregion
 
-		await updateTabsPanel();
+		await updatePanel();
 	},
 });
