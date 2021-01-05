@@ -396,14 +396,14 @@ joplin.plugins.register({
 		});
 
 		// Command: tabsClear
-		// Desc: Clear all pinned tabs
+		// Desc: Remove all pinned tabs
 		await COMMANDS.register({
 			name: 'tabsClear',
-			label: 'Tabs: Clear all pinned tabs',
+			label: 'Tabs: Remove all pinned tabs',
 			iconName: 'fas fa-times',
 			execute: async () => {
-				// ask user before clearing tabs
-				const result: number = await DIALOGS.showMessageBox(`Clear all pinned tabs?`);
+				// ask user before removing tabs
+				const result: number = await DIALOGS.showMessageBox(`Remove all pinned tabs?`);
 				if (result) return;
 
 				await tabs.clearAll();
@@ -559,7 +559,7 @@ joplin.plugins.register({
 			},
 			{
 				commandName: "tabsClear",
-				label: 'Clear all pinned tabs'
+				label: 'Remove all pinned tabs'
 			}
 		];
 		await joplin.views.menus.create('toolsTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);

@@ -124,13 +124,13 @@ Move active tab one position to the left.
 
 Move active tab one position to the right.
 
-#### Clear all pinned tabs
+#### Remove all pinned tabs
 
-| Command Label               | Command ID  | Menu           |
-| --------------------------- | ----------- | -------------- |
-| Tabs: Clear all pinned tabs | `tabsClear` | `Tools > Tabs` |
+| Command Label                | Command ID  | Menu           |
+| ---------------------------- | ----------- | -------------- |
+| Tabs: Remove all pinned tabs | `tabsClear` | `Tools > Tabs` |
 
-Clear all pinned tabs. In case no note is selected, the tabs list might be empty afterwards.
+Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards.
 
 ### User options
 
