@@ -6,6 +6,7 @@ joplin.plugins.register({
 	onStart: async function () {
 		const COMMANDS = joplin.commands;
 		const DATA = joplin.data;
+		const DIALOGS = joplin.views.dialogs;
 		const PANELS = joplin.views.panels;
 		const SETTINGS = joplin.settings;
 		const WORKSPACE = joplin.workspace;
@@ -401,6 +402,10 @@ joplin.plugins.register({
 			label: 'Tabs: Clear all pinned tabs',
 			iconName: 'fas fa-times',
 			execute: async () => {
+				// ask user before clearing tabs
+				const result: number = await DIALOGS.showMessageBox(`Clear all pinned tabs?`);
+				if (result) return;
+
 				await tabs.clearAll();
 				await openNoteOrUpdate();
 			}
@@ -570,16 +575,19 @@ joplin.plugins.register({
 		//#region MAP INTERNAL EVENTS
 
 		WORKSPACE.onNoteSelectionChange(async () => {
-			// get the selected note and return if none is currently selected
 			const selectedNote: any = await WORKSPACE.selectedNote();
-			if (!selectedNote) return;
 
-			// add tab for selected note
-			await addTab(selectedNote.id);
+			if (selectedNote) {
+				console.log(`onNoteSelectionChange: selected note`);
 
-			// add selected note id to last active queue
-			lastActiveNoteQueue.push(selectedNote.id);
+				// add tab for selected note
+				await addTab(selectedNote.id);
 
+				// add selected note id to last active queue
+				lastActiveNoteQueue.push(selectedNote.id);
+			}
+
+			console.log(`onNoteSelectionChange: update panel`);
 			await updateTabsPanel();
 		});
 
