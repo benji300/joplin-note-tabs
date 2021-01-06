@@ -179,12 +179,9 @@ By default the tabs will be on the right side of the screen, this can be adjuste
 
 ## Support
 
-<form action="https://www.paypal.com/donate" method="post" target="_top">
-<input type="hidden" name="hosted_button_id" value="6FHDGK3PTNU22" />
-<input type="image" src="https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-<img alt="" border="0" src="https://www.paypal.com/en_DE/i/scr/pixel.gif" width="1" height="1" />
-</form>
+You like this plugin as much as I do and it helps you in your daily work with Joplin?
 
+Then I would be very happy if you would buy me a beer via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink::beer:
 
 ## Development
 
