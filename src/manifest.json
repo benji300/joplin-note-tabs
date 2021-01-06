@@ -1,12 +1,13 @@
 {
 	"manifest_version": 1,
-	"id": "com.benji300.joplin.tabs",
+	"id": "joplin-plugin-benji300-tabs",
 	"app_min_version": "1.5",
 	"version": "1.0.0",
 	"name": "Note Tabs",
 	"description": "Allows to open several notes at once in tabs and pin them. (v1.0.0)",
 	"author": "Benji300",
-	"homepage_url": "https://github.com/benji300/joplin-note-tabs",
+	"homepage_url": "https://github.com/benji300",
+	"repository_url": "https://github.com/benji300/joplin-note-tabs",
 	"content_scripts": [
 		"helpers",
 		"webview"

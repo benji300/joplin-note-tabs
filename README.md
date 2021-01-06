@@ -142,7 +142,7 @@ This plugin adds several user options which can be changed via `Tools > Options 
 
 ## Installation
 
-- Download the latest released JPL package (`com.benji300.joplin.tabs.jpl`) from [here](https://github.com/benji300/joplin-note-tabs/releases)
+- Download the latest released JPL package (`joplin-plugin-benji300-tabs.jpl`) from [here](https://github.com/benji300/joplin-note-tabs/releases)
 - Open Joplin
 - Navigate to `Tools > Options > Plugins`
 - Press `Install plugin` and select the previously downloaded `jpl` file
