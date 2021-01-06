@@ -15,6 +15,7 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 - [Installation](#installation)
 - [Uninstallation](#uninstallation)
 - [Feedback](#feedback)
+- [Support](#support)
 - [Development](#development)
 - [Changes](#changes)
 - [License](#license)
@@ -176,6 +177,15 @@ By default the tabs will be on the right side of the screen, this can be adjuste
 - :bug: Found a bug?
   - File an issue on [GitHub](https://github.com/benji300/joplin-note-tabs/issues)
 
+## Support
+
+<form action="https://www.paypal.com/donate" method="post" target="_top">
+<input type="hidden" name="hosted_button_id" value="6FHDGK3PTNU22" />
+<input type="image" src="https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+<img alt="" border="0" src="https://www.paypal.com/en_DE/i/scr/pixel.gif" width="1" height="1" />
+</form>
+
+
 ## Development
 
 ### Building the plugin
@@ -184,12 +194,6 @@ If you want to build the plugin by your own simply run:
 
 ```
 npm run dist
-```
-
-Or run the following to create an additional ZIP and TAR archive:
-
-```
-npm run release
 ```
 
 ## Changes
