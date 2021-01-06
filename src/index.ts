@@ -456,6 +456,7 @@ joplin.plugins.register({
 			// get style values from settings
 			const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
 			const showCheckboxes: boolean = await SETTINGS.value('showTodoCheckboxes');
+			const showCompletedTodos: boolean = await SETTINGS.globalValue('showCompletedTodos');
 			const height: number = await SETTINGS.value('tabHeight');
 			const minWidth: number = await SETTINGS.value('minTabWidth');
 			const maxWidth: number = await SETTINGS.value('maxTabWidth');
@@ -479,6 +480,10 @@ joplin.plugins.register({
 				}
 
 				if (note) {
+
+					// continue with next tab if completed todos shall not be shown
+					if ((!showCompletedTodos) && note.todo_completed) continue;
+
 					// prepare tab style attributes
 					const background: string = (selectedNote && note.id == selectedNote.id) ? activeBg : mainBg;
 					const foreground: string = (selectedNote && note.id == selectedNote.id) ? activeFg : mainFg;
