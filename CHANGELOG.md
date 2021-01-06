@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- None
+
+## [1.0.0] - 2021-01-06
+
 ### Added
 
 - User option to specify the font family for the plugin
@@ -25,10 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Change package name to `joplin-plugin-benji300-tabs` to follow new naming conventions for plugins
-  - Which allows to find published plugins on npm
 - Decreased jpl size
 - Default value of advanced style settings is now `default` for all
+- Change package name to `joplin-plugin-benji300-tabs` to follow new naming conventions for plugins
+  - Which allows to find published plugins on npm
 
 ## [0.1.0] - 2020-11-28
 
