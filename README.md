@@ -10,8 +10,8 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 
 - [Features](#features)
   - [Screenshots](#screenshots)
-  - [Commands](#Commands)
-  - [User options](#user-options)
+- [Commands](#Commands)
+- [User options](#user-options)
 - [Installation](#installation)
 - [Uninstallation](#uninstallation)
 - [Feedback](#feedback)
@@ -36,25 +36,25 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 
 ![screencast](./assets/screencast.gif)
 
-## Screenshots
+### Screenshots
 
-### Tabs above note content
+#### Tabs above note content
 
 ![tabs-top-horizontal](./assets/tabs-top-horizontal.png)
 
-### Tabs below note content
+#### Tabs below note content
 
 ![tabs-bottom-horizontal](./assets/tabs-bottom-horizontal.png)
 
 > **NOTE** - The used UI theme on this screenshot can be downloaded [here](https://github.com/benji300/joplin-wanaka-ui).
 
-### Tabs beside note content (vertical layout)
+#### Tabs beside note content (vertical layout)
 
 ![tabs-right-vertical](./assets/tabs-right-vertical.png)
 
 > **NOTE** - The used UI theme on this screenshot can be downloaded [here](https://github.com/benji300/joplin-milford-ui).
 
-### Commands
+## Commands
 
 This plugin provides additional commands as described in the following table.
 
@@ -72,7 +72,7 @@ This plugin provides additional commands as described in the following table.
 | Tabs: Move tab right            | `tabsMoveRight`        | Move active tab one position to the right.                                                    | `Tools > Tabs`                   |
 | Tabs: Remove all pinned tabs    | `tabsClear`            | Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards. | `Tools > Tabs`                   |
 
-### User options
+## User options
 
 This plugin adds provides user options which can be changed via `Tools > Options > Note Tabs`.
 
