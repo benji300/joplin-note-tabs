@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
 - Consider Option `View > Show completed to-dos` to display completed to-dos on tabs only if enabled ([#15](https://github.com/benji300/joplin-note-tabs/issues/15))
+- Removed `tabsPinToTabs` command. `tabsPinNote` can now be used from context menu and command palette
+- `tabsUnpinNote` command to work also with multiple selected notes
 
 ## [1.0.0] - 2021-01-06
 

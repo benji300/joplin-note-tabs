@@ -209,21 +209,6 @@ joplin.plugins.register({
     }
 
 		/**
-		 * Open the first of the selected notes in order to update the tabs panel.
-		 * If none is selected the panel is also updated.
-		 */
-    async function openNoteOrUpdate() {
-      const selectedNoteIds: string[] = await WORKSPACE.selectedNoteIds();
-
-      if (selectedNoteIds.length > 0) {
-        await COMMANDS.execute('openNote', selectedNoteIds[0]);
-        // updatePanelView() is called from onNoteSelectionChange event
-      } else {
-        await updatePanelView();
-      }
-    }
-
-		/**
 		 * Toggle state of handled todo.
 		 */
     async function toggleTodo(noteId: string, checked: any) {
@@ -245,34 +230,16 @@ joplin.plugins.register({
     //#region REGISTER COMMANDS
 
     // Command: tabsPinNote
-    // Desc: Pin the selected note to the tabs
+    // Desc: Pin the selected note(s) to the tabs
     await COMMANDS.register({
       name: 'tabsPinNote',
       label: 'Tabs: Pin note',
       iconName: 'fas fa-thumbtack',
-      enabledCondition: "oneNoteSelected",
-      execute: async () => {
-        // get the selected note and exit if none is currently selected
-        const selectedNote: any = await WORKSPACE.selectedNote();
-        if (!selectedNote) return;
-
-        // pin selected note and update panel
-        await pinTab(selectedNote, false);
-        await updatePanelView();
-      }
-    });
-
-    // Command: tabsPinToTabs
-    // Desc: Pin all handled notes to the tabs
-    await COMMANDS.register({
-      name: 'tabsPinToTabs',
-      label: 'Tabs: Pin to tabs',
-      iconName: 'fas fa-thumbtack',
       enabledCondition: "someNotesSelected",
       execute: async (noteIds: string[]) => {
         // get selected note ids and return if empty
-        let selectedNoteIds = await WORKSPACE.selectedNoteIds();
-        if (!selectedNoteIds && noteIds) selectedNoteIds = noteIds;
+        let selectedNoteIds = noteIds;
+        if (!selectedNoteIds) selectedNoteIds = await WORKSPACE.selectedNoteIds();
         if (!selectedNoteIds) return;
 
         // pin all handled notes and update panel
@@ -285,19 +252,22 @@ joplin.plugins.register({
     });
 
     // Command: tabsUnpinNote
-    // Desc: Unpin the selected note from the tabs
+    // Desc: Unpin the selected note(s) from the tabs
     await COMMANDS.register({
       name: 'tabsUnpinNote',
       label: 'Tabs: Unpin note',
       iconName: 'fas fa-times',
-      enabledCondition: "oneNoteSelected",
-      execute: async () => {
-        // get the selected note and exit if none is currently selected
-        const selectedNote: any = await WORKSPACE.selectedNote();
-        if (!selectedNote) return;
+      enabledCondition: "someNotesSelected",
+      execute: async (noteIds: string[]) => {
+        // get selected note ids and return if empty
+        let selectedNoteIds = noteIds;
+        if (!selectedNoteIds) selectedNoteIds = await WORKSPACE.selectedNoteIds();
+        if (!selectedNoteIds) return;
 
-        // unpin selected note and update panel
-        await removeTab(selectedNote.id);
+        // unpin selected notes and update panel
+        for (const noteId of selectedNoteIds) {
+          await removeTab(noteId);
+        }
         await updatePanelView();
       }
     });
@@ -412,7 +382,15 @@ joplin.plugins.register({
         if (result) return;
 
         await tabs.clearAll();
-        await openNoteOrUpdate();
+
+        // open selected note to update the panel or just update it
+        const selectedNoteIds: string[] = await WORKSPACE.selectedNoteIds();
+        if (selectedNoteIds.length > 0) {
+          await COMMANDS.execute('openNote', selectedNoteIds[0]);
+          // updatePanelView() is called from onNoteSelectionChange event
+        } else {
+          await updatePanelView();
+        }
       }
     });
 
@@ -431,11 +409,11 @@ joplin.plugins.register({
       }
       if (message.name === 'tabsPinNote') {
         let id: string[] = [message.id];
-        await COMMANDS.execute('tabsPinToTabs', id);
+        await COMMANDS.execute('tabsPinNote', id);
       }
       if (message.name === 'tabsUnpinNote') {
-        await removeTab(message.id);
-        await updatePanelView();
+        let id: string[] = [message.id];
+        await COMMANDS.execute('tabsUnpinNote', id);
       }
       if (message.name === 'tabsToggleTodo') {
         await toggleTodo(message.id, message.checked);
@@ -573,7 +551,7 @@ joplin.plugins.register({
     await joplin.views.menus.create('toolsTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
 
     // add commands to note list context menu
-    await joplin.views.menuItems.create('noteListContextMenuPinToTabs', 'tabsPinToTabs', MenuItemLocation.NoteListContextMenu);
+    await joplin.views.menuItems.create('noteListContextMenuPinToTabs', 'tabsPinNote', MenuItemLocation.NoteListContextMenu);
 
     // add commands to editor context menu
     await joplin.views.menuItems.create('editorContextMenuPinNote', 'tabsPinNote', MenuItemLocation.EditorContextMenu);
