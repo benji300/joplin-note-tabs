@@ -58,8 +58,6 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 
 This plugin provides additional commands as described in the following table.
 
-> **NOTE** - Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts`. Search for the command label where shortcuts shall be added.
-
 | Command Label                   | Command ID             | Description                                                                                   | Menu contexts                 |
 | ------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- | ----------------------------- |
 | Tabs: Pin to tabs               | `tabsPinToTabs`        | Pin all selected note(s) to the tabs.                                                         | `NoteListContext`             |
@@ -71,6 +69,10 @@ This plugin provides additional commands as described in the following table.
 | Tabs: Move tab left             | `tabsMoveLeft`         | Move active tab one position to the left.                                                     | `Tools>Tabs`                  |
 | Tabs: Move tab right            | `tabsMoveRight`        | Move active tab one position to the right.                                                    | `Tools>Tabs`                  |
 | Tabs: Remove all pinned tabs    | `tabsClear`            | Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards. | `Tools>Tabs`                  |
+
+> **NOTE** - Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts`. Search for the command label where shortcuts shall be added.
+
+> **NOTE** - All commands can also be accessed via the `Command palette`.
 
 ## User options
 
