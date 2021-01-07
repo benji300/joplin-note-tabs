@@ -84,6 +84,7 @@ span {
 
 #controls {
   align-items: center;
+  display: flex;
   float: right;
   padding: 0 5px;
   margin-left: auto;

@@ -41,7 +41,7 @@ joplin.plugins.register({
       type: SettingItemType.Bool,
       section: 'note.tabs.settings',
       public: true,
-      label: 'Show checkboxes for to-dos on tabs',
+      label: 'Show to-do checkboxes on tabs',
       description: 'If enabled, to-dos can be completed directly on the tabs.'
     });
     await SETTINGS.registerSetting('pinEditedNotes', {
@@ -439,8 +439,9 @@ joplin.plugins.register({
       // get style values from settings
       const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
       const showCheckboxes: boolean = await SETTINGS.value('showTodoCheckboxes');
+      const showBreadcrumbs: boolean = await SETTINGS.value('showBreadcrumbs');
       const showCompletedTodos: boolean = await SETTINGS.globalValue('showCompletedTodos');
-      const height: number = await SETTINGS.value('tabHeight');
+      const tabHeight: number = await SETTINGS.value('tabHeight');
       const minWidth: number = await SETTINGS.value('minTabWidth');
       const maxWidth: number = await SETTINGS.value('maxTabWidth');
       const font: string = await getSettingOrDefault('fontFamily', SettingDefaults.Font);
@@ -463,7 +464,6 @@ joplin.plugins.register({
         }
 
         if (note) {
-
           // continue with next tab if completed todos shall not be shown
           if ((!showCompletedTodos) && note.todo_completed) continue;
 
@@ -473,13 +473,18 @@ joplin.plugins.register({
           const newTab: string = (noteTab.type == NoteTabType.Temporary) ? " new" : "";
           const icon: string = (noteTab.type == NoteTabType.Pinned) ? "fa-times" : "fa-thumbtack";
           const iconTitle: string = (noteTab.type == NoteTabType.Pinned) ? "Unpin" : "Pin";
-          const checkbox: string = (showCheckboxes && note.is_todo) ? `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">` : '';
           const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
+
+          // prepare checkbox for todo
+          let checkbox: string = '';
+          if (showCheckboxes && note.is_todo) {
+            checkbox = `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">`;
+          }
 
           noteTabsHtml.push(`
             <div id="tab" class="${newTab}" data-id="${note.id}" role="tab"
               draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
-              style="height:${height}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
+              style="height:${tabHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
               <div class="tab-inner" data-id="${note.id}">
                 ${checkbox}
                 <span class="title" data-id="${note.id}" style="color:${foreground};text-decoration: ${textDecoration};">
@@ -492,18 +497,23 @@ joplin.plugins.register({
         }
       }
 
-      // prepare style attributes
-      const displayControls: string = (enableDragAndDrop) ? "none" : "flex";
+      // prepare control buttons, if drag&drop is disabled
+      let controls: string = '';
+      if (!enableDragAndDrop) {
+        controls = `
+          <div id="controls" style="height:${tabHeight}px;">
+            <a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${mainFg};"></a>
+            <a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${mainFg};"></a>
+          </div>
+        `;
+      }
 
       // add tabs to container and push to panel
       await PANELS.setHtml(panel, `
         <div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
           <div id="tabs-container" role="tablist">
             ${noteTabsHtml.join('\n')}
-            <div id="controls" style="height:${height}px;display:${displayControls};">
-              <a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${mainFg};"></a>
-              <a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${mainFg};"></a>
-            </div>
+            ${controls}
           </div>
         </div>
       `);
