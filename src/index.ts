@@ -83,7 +83,7 @@ joplin.plugins.register({
       label: 'Maximum Tab width (px)'
     });
 
-    // Advanced styles
+    // Advanced settings
     await SETTINGS.registerSetting('fontFamily', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -270,12 +270,17 @@ joplin.plugins.register({
       iconName: 'fas fa-thumbtack',
       enabledCondition: "someNotesSelected",
       execute: async (noteIds: string[]) => {
+        // get selected note ids and return if empty
+        let selectedNoteIds = await WORKSPACE.selectedNoteIds();
+        if (!selectedNoteIds && noteIds) selectedNoteIds = noteIds;
+        if (!selectedNoteIds) return;
+
         // pin all handled notes and update panel
-        for (const noteId of noteIds) {
+        for (const noteId of selectedNoteIds) {
           const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
           await pinTab(note, true);
         }
-        await openNoteOrUpdate();
+        await updatePanelView();
       }
     });
 
