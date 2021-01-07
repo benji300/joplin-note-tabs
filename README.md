@@ -60,17 +60,17 @@ This plugin provides additional commands as described in the following table.
 
 > **NOTE** - Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts`. Search for the command label where shortcuts shall be added.
 
-| Command Label                   | Command ID             | Description                                                                                   | Menu contexts                    |
-| ------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- | -------------------------------- |
-| Tabs: Pin to tabs               | `tabsPinToTabs`        | Pin all selected note(s) to the tabs.                                                         | `Note list context`              |
-| Tabs: Pin note                  | `tabsPinNote`          | Pin the selected note to the tabs.                                                            | `Tools > Tabs`, `Editor context` |
-| Tabs: Unpin note                | `tabsUnpinNote`        | Unpin the selected note from the tabs.                                                        | `Tools > Tabs`                   |
-| Tabs: Switch to last active tab | `tabsSwitchLastActive` | Switch to the last active tab, i.e. to previous selected note.                                | `Tools > Tabs`                   |
-| Tabs: Switch to left tab        | `tabsSwitchLeft`       | Switch to the left tab next to the active, i.e. select the left note.                         | `Tools > Tabs`                   |
-| Tabs: Switch to right tab       | `tabsSwitchRight`      | Switch to the right tab next to the active, i.e. select the right note.                       | `Tools > Tabs`                   |
-| Tabs: Move tab left             | `tabsMoveLeft`         | Move active tab one position to the left.                                                     | `Tools > Tabs`                   |
-| Tabs: Move tab right            | `tabsMoveRight`        | Move active tab one position to the right.                                                    | `Tools > Tabs`                   |
-| Tabs: Remove all pinned tabs    | `tabsClear`            | Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards. | `Tools > Tabs`                   |
+| Command Label                   | Command ID             | Description                                                                                   | Menu contexts                 |
+| ------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- | ----------------------------- |
+| Tabs: Pin to tabs               | `tabsPinToTabs`        | Pin all selected note(s) to the tabs.                                                         | `NoteListContext`             |
+| Tabs: Pin note                  | `tabsPinNote`          | Pin the selected note to the tabs.                                                            | `Tools>Tabs`, `EditorContext` |
+| Tabs: Unpin note                | `tabsUnpinNote`        | Unpin the selected note from the tabs.                                                        | `Tools>Tabs`                  |
+| Tabs: Switch to last active tab | `tabsSwitchLastActive` | Switch to the last active tab, i.e. to previous selected note.                                | `Tools>Tabs`                  |
+| Tabs: Switch to left tab        | `tabsSwitchLeft`       | Switch to the left tab next to the active, i.e. select the left note.                         | `Tools>Tabs`                  |
+| Tabs: Switch to right tab       | `tabsSwitchRight`      | Switch to the right tab next to the active, i.e. select the right note.                       | `Tools>Tabs`                  |
+| Tabs: Move tab left             | `tabsMoveLeft`         | Move active tab one position to the left.                                                     | `Tools>Tabs`                  |
+| Tabs: Move tab right            | `tabsMoveRight`        | Move active tab one position to the right.                                                    | `Tools>Tabs`                  |
+| Tabs: Remove all pinned tabs    | `tabsClear`            | Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards. | `Tools>Tabs`                  |
 
 ## User options
 
