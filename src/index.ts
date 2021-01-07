@@ -36,6 +36,14 @@ joplin.plugins.register({
       label: 'Enable drag & drop of tabs',
       description: 'If disabled, position of tabs can be change via commands or move buttons.'
     });
+    await SETTINGS.registerSetting('showBreadcrumbs', {
+      value: true,
+      type: SettingItemType.Bool,
+      section: 'note.tabs.settings',
+      public: true,
+      label: 'Show breadcrumbs below tabs',
+      description: 'Display full breadcrumbs for the selected note below the tabs. Only available for horizontal layout.'
+    });
     await SETTINGS.registerSetting('showTodoCheckboxes', {
       value: true,
       type: SettingItemType.Bool,
@@ -110,6 +118,15 @@ joplin.plugins.register({
       advanced: true,
       label: 'Active background color',
       description: "Background color of the current active tab. (default: Editor background color)"
+    });
+    await SETTINGS.registerSetting('breadcrumbsBackground', {
+      value: SettingDefaults.Default,
+      type: SettingItemType.String,
+      section: 'note.tabs.settings',
+      public: true,
+      advanced: true,
+      label: 'Breadcrumbs background color',
+      description: "Background color of the breadcrumbs. (default: Editor background color)"
     });
     await SETTINGS.registerSetting('mainForeground', {
       value: SettingDefaults.Default,
@@ -508,6 +525,43 @@ joplin.plugins.register({
         `;
       }
 
+      // prepare breadcrumbs, if enabled
+      let breadcrumbs: string = '';
+      if (showBreadcrumbs && selectedNote) {
+        const breadcrumbsBg: string = await getSettingOrDefault('breadcrumbsBackground', SettingDefaults.ActiveBackground);
+
+        const parents: any = [];
+        let parent_id: string = selectedNote.parent_id;
+        // TODO add first parent not as link
+        while (parent_id) {
+          const parent: any = await DATA.get(['folders', parent_id], { fields: ['id', 'title', 'parent_id'] });
+          if (!parent) break;
+
+          parent_id = parent.parent_id;
+          parents.push(`
+              <a href="#" id="openFolder" class="" data-id="${parent.id}" title="Open ${parent.title}">${parent.title}</a>
+            `);
+        }
+        // TODO reverse parents order
+        // TODO add message to webview
+        // TODO receive message here and trigger openFolder command
+        // TODO make parent notebooks clickable
+        // TODO use chevron icon between notebooks
+        // TODO show notebook icon prior the breadcrumbs
+        // TODO provide stylesheet
+        //  - a color = default app link color
+        //  - font size = small
+        // TODO disable in vertical layout
+        // TODO add dropdown options to show: NONE, TOP, BOTTOM
+        breadcrumbs = `
+          <div id="breadcrumbs-container" style="background:${breadcrumbsBg};">
+            <div id="breadcrumbs">
+              <p style="color:${mainFg};">${parents.join(' > ')}</p>
+            </div>
+          </div>
+        `;
+      }
+
       // add tabs to container and push to panel
       await PANELS.setHtml(panel, `
         <div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
@@ -515,6 +569,7 @@ joplin.plugins.register({
             ${noteTabsHtml.join('\n')}
             ${controls}
           </div>
+          ${breadcrumbs}
         </div>
       `);
     }

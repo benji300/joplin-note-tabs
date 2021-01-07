@@ -105,6 +105,14 @@ span {
   opacity: 1;
 }
 
+#breadcrumbs-container {
+  display: flex;
+  float: left;
+  width: 100%;
+}
+#breadcrumbs {
+}
+
 /* DRAG AND DROP */
 [draggable="true"] {
   /* To prevent user selecting inside the drag source */
