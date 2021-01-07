@@ -56,86 +56,25 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 
 ### Commands
 
-This plugin provides the commands as described in the following chapters.
+This plugin provides additional commands as described in the following table.
 
-- Default keyboard shortcuts can be changed in user options
-  - Navigate to `Tools > Options > Keyboard Shortcuts` and search for the command label to be changed
+> **NOTE** - Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts`. Search for the command label where shortcuts shall be added.
 
-#### Pin to tabs
-
-| Command Label     | Command ID      | Menu                |
-| ----------------- | --------------- | ------------------- |
-| Tabs: Pin to tabs | `tabsPinToTabs` | `Note list context` |
-
-Pin note(s) to the tabs. Works with multiple selected notes.
-
-#### Pin note
-
-| Command Label  | Command ID    | Menu                               |
-| -------------- | ------------- | ---------------------------------- |
-| Tabs: Pin note | `tabsPinNote` | `Tools > Tabs`<br>`Editor context` |
-
-Pin the selected note to the tabs.
-
-#### Unpin note
-
-| Command Label    | Command ID      | Menu           |
-| ---------------- | --------------- | -------------- |
-| Tabs: Unpin note | `tabsUnpinNote` | `Tools > Tabs` |
-
-Unpin the selected note from the tabs.
-
-#### Switch to last active tab
-
-| Command Label                   | Command ID             | Menu           |
-| ------------------------------- | ---------------------- | -------------- |
-| Tabs: Switch to last active tab | `tabsSwitchLastActive` | `Tools > Tabs` |
-
-Switch to the last active tab, i.e. to previous selected note.
-
-#### Switch tab left
-
-| Command Label            | Command ID       | Menu           |
-| ------------------------ | ---------------- | -------------- |
-| Tabs: Switch to left tab | `tabsSwitchLeft` | `Tools > Tabs` |
-
-Switch to the left tab next to the active, i.e. select the left note.
-
-#### Switch tab right
-
-| Command Label             | Command ID        | Menu           |
-| ------------------------- | ----------------- | -------------- |
-| Tabs: Switch to right tab | `tabsSwitchRight` | `Tools > Tabs` |
-
-Switch to the right tab next to the active, i.e. select the right note.
-
-#### Move tab left
-
-| Command Label       | Command ID     | Menu           |
-| ------------------- | -------------- | -------------- |
-| Tabs: Move tab left | `tabsMoveLeft` | `Tools > Tabs` |
-
-Move active tab one position to the left.
-
-#### Move tab right
-
-| Command Label        | Command ID      | Menu           |
-| -------------------- | --------------- | -------------- |
-| Tabs: Move tab right | `tabsMoveRight` | `Tools > Tabs` |
-
-Move active tab one position to the right.
-
-#### Remove all pinned tabs
-
-| Command Label                | Command ID  | Menu           |
-| ---------------------------- | ----------- | -------------- |
-| Tabs: Remove all pinned tabs | `tabsClear` | `Tools > Tabs` |
-
-Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards.
+| Command Label                   | Command ID             | Description                                                                                   | Menu contexts                    |
+| ------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- | -------------------------------- |
+| Tabs: Pin to tabs               | `tabsPinToTabs`        | Pin all selected note(s) to the tabs.                                                         | `Note list context`              |
+| Tabs: Pin note                  | `tabsPinNote`          | Pin the selected note to the tabs.                                                            | `Tools > Tabs`, `Editor context` |
+| Tabs: Unpin note                | `tabsUnpinNote`        | Unpin the selected note from the tabs.                                                        | `Tools > Tabs`                   |
+| Tabs: Switch to last active tab | `tabsSwitchLastActive` | Switch to the last active tab, i.e. to previous selected note.                                | `Tools > Tabs`                   |
+| Tabs: Switch to left tab        | `tabsSwitchLeft`       | Switch to the left tab next to the active, i.e. select the left note.                         | `Tools > Tabs`                   |
+| Tabs: Switch to right tab       | `tabsSwitchRight`      | Switch to the right tab next to the active, i.e. select the right note.                       | `Tools > Tabs`                   |
+| Tabs: Move tab left             | `tabsMoveLeft`         | Move active tab one position to the left.                                                     | `Tools > Tabs`                   |
+| Tabs: Move tab right            | `tabsMoveRight`        | Move active tab one position to the right.                                                    | `Tools > Tabs`                   |
+| Tabs: Remove all pinned tabs    | `tabsClear`            | Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards. | `Tools > Tabs`                   |
 
 ### User options
 
-This plugin adds several user options which can be changed via `Tools > Options > Note Tabs`.
+This plugin adds provides user options which can be changed via `Tools > Options > Note Tabs`.
 
 > **NOTE** - If `default` is set for an advanced style setting, the corresponding default color, font family, etc. will be used to match the common App look.
 
