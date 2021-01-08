@@ -111,6 +111,13 @@ span {
   width: 100%;
 }
 #breadcrumbs {
+  padding: 4px;
+}
+#breadcrumbs > p {
+  margin: 0;
+}
+.breadcrumb {
+  padding: 4px;
 }
 
 /* DRAG AND DROP */

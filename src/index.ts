@@ -532,14 +532,14 @@ joplin.plugins.register({
 
         const parents: any = [];
         let parent_id: string = selectedNote.parent_id;
-        // TODO add first parent not as link
+        // TODO create helper method "getParents():any[]" und hier nur um HTML kümmern (gibt auch letzten Parent zurück!)
         while (parent_id) {
           const parent: any = await DATA.get(['folders', parent_id], { fields: ['id', 'title', 'parent_id'] });
           if (!parent) break;
 
           parent_id = parent.parent_id;
           parents.push(`
-              <a href="#" id="openFolder" class="" data-id="${parent.id}" title="Open ${parent.title}">${parent.title}</a>
+              <a href="#" id="openFolder" class="breadcrumb" data-id="${parent.id}" title="Open ${parent.title}">${parent.title}</a>
             `);
         }
         // TODO reverse parents order
@@ -556,7 +556,7 @@ joplin.plugins.register({
         breadcrumbs = `
           <div id="breadcrumbs-container" style="background:${breadcrumbsBg};">
             <div id="breadcrumbs">
-              <p style="color:${mainFg};">${parents.join(' > ')}</p>
+              <p style="color:${mainFg};">${parents.join('>')}</p>
             </div>
           </div>
         `;
