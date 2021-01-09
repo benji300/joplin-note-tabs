@@ -555,22 +555,25 @@ joplin.plugins.register({
           if (!parent) break;
 
           parentsHtml.push(`
-              <a href="#" id="openFolder" class="breadcrumb" style="color:${mainFg};" data-id="${parent.id}" title="Open ${parent.title}">${parent.title}</a>
+              <p>
+                <a href="#" id="openFolder" style="color:${mainFg};" data-id="${parent.id}" title="Open ${parent.title}">${parent.title}</a>
+              </p>
             `);
         }
         // TODO add message to webview
         // TODO receive message here and trigger openFolder command
-        // TODO use chevron icon between notebooks
-        // TODO disable in vertical layout
         // TODO cleanup stylesheet (sort)
         // TODO test mit wanaka ui
-        // TODO test bei overflow
+        // TODO test bei overflow (ellipse)
+        // TODO ordner mit emojis sind außer mittig
         // TODO disable default breadcrumb + readme
         breadcrumbsHtml = `
           <div id="breadcrumbs-container" style="background:${breadcrumbsBg};">
             <div id="breadcrumbs">
               <p class="fas fa-book" style="color:${mainFg};"></p>
-              <p style="color:${mainFg};">${parentsHtml.join('>')}</p>
+              <p style="color:${mainFg};">
+                ${parentsHtml.join(`<p class="fas fa-chevron-right" style="color:${mainFg};"></p>`)}
+              </p>
             </div>
           </div>
         `;

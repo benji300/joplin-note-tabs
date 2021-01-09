@@ -123,10 +123,7 @@ span {
   margin: 0;
   padding-left: 4px;
 }
-.breadcrumb {
-  padding: 0px 4px;
-}
-.breadcrumb:hover {
+#breadcrumbs > p > a:hover {
   text-decoration: underline;
 }
 
@@ -161,5 +158,9 @@ span {
     border-right-width: 0;
     border-bottom-width: 1px;
     max-width: 100% !important;
+  }
+
+  #breadcrumbs-container {
+    display: none !important;
   }
 }
