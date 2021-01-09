@@ -42,7 +42,7 @@ joplin.plugins.register({
       section: 'note.tabs.settings',
       public: true,
       label: 'Show breadcrumbs below tabs',
-      description: 'Display full breadcrumbs for the selected note below the tabs. Only available for horizontal layout.'
+      description: 'Display full breadcrumbs for selected note below tabs. Only available in horizontal layout.'
     });
     await SETTINGS.registerSetting('showTodoCheckboxes', {
       value: true,
@@ -563,11 +563,11 @@ joplin.plugins.register({
               </p>
             `);
         }
+        // TODO test bei overflow (ellipse)
+        // TODO disable default breadcrumb 
         // TODO cleanup stylesheet (sort)
         // TODO test mit wanaka ui
-        // TODO test bei overflow (ellipse)
         // TODO ordner mit emojis sind außer mittig
-        // TODO disable default breadcrumb + readme
         breadcrumbsHtml = `
           <div id="breadcrumbs-container" style="background:${breadcrumbsBg};">
             <div id="breadcrumbs">

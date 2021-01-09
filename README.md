@@ -12,6 +12,7 @@ It allows to open several notes at once in tabs and pin them to be kept open.
   - [Screenshots](#screenshots)
 - [Commands](#Commands)
 - [User options](#user-options)
+- [UI Tweaks](#ui-tweaks)
 - [Installation](#installation)
 - [Uninstallation](#uninstallation)
 - [Feedback](#feedback)
@@ -23,6 +24,7 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 ## Features
 
 - Display selected note as tab
+- Display full breadcrumbs for selected note below tabs
 - Pin note(s) to the tabs
 - Save pinned tabs permanently
   - Stored in database (not synced with other devices!)
@@ -80,6 +82,30 @@ This plugin adds provides user options which can be changed via `Tools > Options
 > **NOTE** - If `default` is set for an advanced style setting, the corresponding default color, font family, etc. will be used to match the common App look.
 
 > **NOTE** - In case color settings shall be overwritten, they must be specified as valid CSS attribute values, e.g. `#ffffff`, `rgb(255,255,255)`, etc.
+
+## UI Tweaks
+
+If option `Show breadcrumbs below tabs` is enabled in the settings it might be useful to disable the default breadcrumbs below the note title.
+Follow these steps to hide it via the `userchrome.css` stylesheet:
+
+- Open Joplin
+- Navigate to `Tools > Options > Appearance` and open `Show Advanced Settings`
+- Click `Edit` below `Custom stylesheet for Joplin-wide app styles` to open `userchrome.css` in a text editor
+- Paste the following snippet into the file
+- Save your changes and restart Joplin to see the changes
+
+```css
+.rli-editor
+  > div
+  > div
+  > div
+  > div[style="padding-top: 10px; padding-bottom: 10px;"]
+  > button {
+  display: none !important;
+}
+```
+
+> **NOTE** - Since there is currently no unique attribute for the breadcrumbs, this can only be done using the workaround from above. However, the behavior may change with each version and it may happen that it no longer works.
 
 ## Installation
 
