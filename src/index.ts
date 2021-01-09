@@ -439,6 +439,9 @@ joplin.plugins.register({
     await PANELS.addScript(panel, './webview.css');
     await PANELS.addScript(panel, './webview.js');
     await PANELS.onMessage(panel, async (message: any) => {
+      if (message.name === 'tabsOpenFolder') {
+        await COMMANDS.execute('openFolder', message.id);
+      }
       if (message.name === 'tabsOpen') {
         await COMMANDS.execute('openNote', message.id);
       }
@@ -556,12 +559,10 @@ joplin.plugins.register({
 
           parentsHtml.push(`
               <p>
-                <a href="#" id="openFolder" style="color:${mainFg};" data-id="${parent.id}" title="Open ${parent.title}">${parent.title}</a>
+                <a href="#" id="openFolder" style="color:${mainFg};" data-id="${parent.id}" title="Open notebook ${parent.title}">${parent.title}</a>
               </p>
             `);
         }
-        // TODO add message to webview
-        // TODO receive message here and trigger openFolder command
         // TODO cleanup stylesheet (sort)
         // TODO test mit wanaka ui
         // TODO test bei overflow (ellipse)
