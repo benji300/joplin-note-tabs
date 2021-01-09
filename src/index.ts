@@ -242,6 +242,24 @@ joplin.plugins.register({
       }
     }
 
+    /**
+     * Gets an array of all parents starting from the handled parent_id.
+     * Consider first entry is handled parent.
+     */
+    async function getNoteParents(parent_id: string): Promise<any[]> {
+      const parents: any[] = new Array();
+      let last_id: string = parent_id;
+
+      while (last_id) {
+        const parent: any = await DATA.get(['folders', last_id], { fields: ['id', 'title', 'parent_id'] });
+        if (!parent) break;
+
+        last_id = parent.parent_id;
+        parents.push(parent);
+      }
+      return parents;
+    }
+
     //#endregion
 
     //#region REGISTER COMMANDS
@@ -493,9 +511,9 @@ joplin.plugins.register({
           const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
 
           // prepare checkbox for todo
-          let checkbox: string = '';
+          let checkboxHtml: string = '';
           if (showCheckboxes && note.is_todo) {
-            checkbox = `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">`;
+            checkboxHtml = `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">`;
           }
 
           noteTabsHtml.push(`
@@ -503,7 +521,7 @@ joplin.plugins.register({
               draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
               style="height:${tabHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
               <div class="tab-inner" data-id="${note.id}">
-                ${checkbox}
+                ${checkboxHtml}
                 <span class="title" data-id="${note.id}" style="color:${foreground};text-decoration: ${textDecoration};">
                   ${note.title}
                 </span>
@@ -515,9 +533,9 @@ joplin.plugins.register({
       }
 
       // prepare control buttons, if drag&drop is disabled
-      let controls: string = '';
+      let controlsHtml: string = '';
       if (!enableDragAndDrop) {
-        controls = `
+        controlsHtml = `
           <div id="controls" style="height:${tabHeight}px;">
             <a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${mainFg};"></a>
             <a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${mainFg};"></a>
@@ -526,37 +544,33 @@ joplin.plugins.register({
       }
 
       // prepare breadcrumbs, if enabled
-      let breadcrumbs: string = '';
+      let breadcrumbsHtml: string = '';
       if (showBreadcrumbs && selectedNote) {
         const breadcrumbsBg: string = await getSettingOrDefault('breadcrumbsBackground', SettingDefaults.ActiveBackground);
 
-        const parents: any = [];
-        let parent_id: string = selectedNote.parent_id;
-        // TODO create helper method "getParents():any[]" und hier nur um HTML kümmern (gibt auch letzten Parent zurück!)
-        while (parent_id) {
-          const parent: any = await DATA.get(['folders', parent_id], { fields: ['id', 'title', 'parent_id'] });
+        let parents: any[] = await getNoteParents(selectedNote.parent_id);
+        let parentsHtml: any[] = new Array();
+        while (parents) {
+          const parent: any = parents.pop();
           if (!parent) break;
 
-          parent_id = parent.parent_id;
-          parents.push(`
-              <a href="#" id="openFolder" class="breadcrumb" data-id="${parent.id}" title="Open ${parent.title}">${parent.title}</a>
+          parentsHtml.push(`
+              <a href="#" id="openFolder" class="breadcrumb" style="color:${mainFg};" data-id="${parent.id}" title="Open ${parent.title}">${parent.title}</a>
             `);
         }
-        // TODO reverse parents order
         // TODO add message to webview
         // TODO receive message here and trigger openFolder command
-        // TODO make parent notebooks clickable
         // TODO use chevron icon between notebooks
-        // TODO show notebook icon prior the breadcrumbs
-        // TODO provide stylesheet
-        //  - a color = default app link color
-        //  - font size = small
         // TODO disable in vertical layout
-        // TODO add dropdown options to show: NONE, TOP, BOTTOM
-        breadcrumbs = `
+        // TODO cleanup stylesheet (sort)
+        // TODO test mit wanaka ui
+        // TODO test bei overflow
+        // TODO disable default breadcrumb + readme
+        breadcrumbsHtml = `
           <div id="breadcrumbs-container" style="background:${breadcrumbsBg};">
             <div id="breadcrumbs">
-              <p style="color:${mainFg};">${parents.join('>')}</p>
+              <p class="fas fa-book" style="color:${mainFg};"></p>
+              <p style="color:${mainFg};">${parentsHtml.join('>')}</p>
             </div>
           </div>
         `;
@@ -567,9 +581,9 @@ joplin.plugins.register({
         <div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
           <div id="tabs-container" role="tablist">
             ${noteTabsHtml.join('\n')}
-            ${controls}
+            ${controlsHtml}
           </div>
-          ${breadcrumbs}
+          ${breadcrumbsHtml}
         </div>
       `);
     }
