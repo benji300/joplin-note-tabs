@@ -2,7 +2,7 @@
 document.addEventListener('dblclick', event => {
   const element = event.target;
 
-  if (element.id === 'tab' || element.className === 'tab-inner' || element.className === 'title') {
+  if (element.id === 'tab' || element.className === 'tab-inner' || element.className === 'tab-title') {
     webviewApi.postMessage({
       name: 'tabsPinNote',
       id: element.dataset.id,
@@ -14,13 +14,13 @@ document.addEventListener('dblclick', event => {
 document.addEventListener('click', event => {
   const element = event.target;
 
-  if (element.id === 'openFolder') {
+  if (element.className === 'breadcrumb-title') {
     webviewApi.postMessage({
       name: 'tabsOpenFolder',
       id: element.dataset.id,
     });
   }
-  if (element.id === 'tab' || element.className === 'tab-inner' || element.className === 'title') {
+  if (element.id === 'tab' || element.className === 'tab-inner' || element.className === 'tab-title') {
     webviewApi.postMessage({
       name: 'tabsOpen',
       id: element.dataset.id,

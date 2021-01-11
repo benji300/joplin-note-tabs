@@ -36,14 +36,6 @@ joplin.plugins.register({
       label: 'Enable drag & drop of tabs',
       description: 'If disabled, position of tabs can be change via commands or move buttons.'
     });
-    await SETTINGS.registerSetting('showBreadcrumbs', {
-      value: true,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Show breadcrumbs below tabs',
-      description: 'Display full breadcrumbs for selected note below tabs. Only available in horizontal layout.'
-    });
     await SETTINGS.registerSetting('showTodoCheckboxes', {
       value: true,
       type: SettingItemType.Bool,
@@ -51,6 +43,14 @@ joplin.plugins.register({
       public: true,
       label: 'Show to-do checkboxes on tabs',
       description: 'If enabled, to-dos can be completed directly on the tabs.'
+    });
+    await SETTINGS.registerSetting('showBreadcrumbs', {
+      value: false,
+      type: SettingItemType.Bool,
+      section: 'note.tabs.settings',
+      public: true,
+      label: 'Show breadcrumbs below tabs',
+      description: 'Display full breadcrumbs for selected note below tabs. Only available in horizontal layout.'
     });
     await SETTINGS.registerSetting('pinEditedNotes', {
       value: false,
@@ -525,7 +525,7 @@ joplin.plugins.register({
               style="height:${tabHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
               <div class="tab-inner" data-id="${note.id}">
                 ${checkboxHtml}
-                <span class="title" data-id="${note.id}" style="color:${foreground};text-decoration: ${textDecoration};">
+                <span class="tab-title" data-id="${note.id}" style="color:${foreground};text-decoration: ${textDecoration};" title="${note.title}">
                   ${note.title}
                 </span>
                 <a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};"></a>
@@ -551,31 +551,27 @@ joplin.plugins.register({
       if (showBreadcrumbs && selectedNote) {
         const breadcrumbsBg: string = await getSettingOrDefault('breadcrumbsBackground', SettingDefaults.ActiveBackground);
 
-        let parents: any[] = await getNoteParents(selectedNote.parent_id);
         let parentsHtml: any[] = new Array();
+        let parents: any[] = await getNoteParents(selectedNote.parent_id);
         while (parents) {
           const parent: any = parents.pop();
           if (!parent) break;
 
           parentsHtml.push(`
-              <p>
-                <a href="#" id="openFolder" style="color:${mainFg};" data-id="${parent.id}" title="Open notebook ${parent.title}">${parent.title}</a>
-              </p>
-            `);
+            <div class="breadcrumb">
+              <div class="breadcrumb-inner">
+                <a href="#" class="breadcrumb-title" style="color:${mainFg};" data-id="${parent.id}" title="${parent.title}">${parent.title}</a>
+                <span class="fas fa-chevron-right" style="color:${mainFg};"></span>
+              </div>
+            </div>
+          `);
         }
-        // TODO test bei overflow (ellipse)
-        // TODO disable default breadcrumb 
-        // TODO cleanup stylesheet (sort)
-        // TODO test mit wanaka ui
-        // TODO ordner mit emojis sind außer mittig
         breadcrumbsHtml = `
           <div id="breadcrumbs-container" style="background:${breadcrumbsBg};">
-            <div id="breadcrumbs">
-              <p class="fas fa-book" style="color:${mainFg};"></p>
-              <p style="color:${mainFg};">
-                ${parentsHtml.join(`<p class="fas fa-chevron-right" style="color:${mainFg};"></p>`)}
-              </p>
+            <div class="breadcrumbs-icon">
+              <span class="fas fa-book" style="color:${mainFg};"></span>
             </div>
+            ${parentsHtml.join(`\n`)}
           </div>
         `;
       }
