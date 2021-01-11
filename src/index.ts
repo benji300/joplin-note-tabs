@@ -11,7 +11,7 @@ joplin.plugins.register({
     const SETTINGS = joplin.settings;
     const WORKSPACE = joplin.workspace;
 
-    //#region REGISTER USER OPTIONS
+    //#region USER OPTIONS
 
     await SETTINGS.registerSection('note.tabs.settings', {
       label: 'Note Tabs',
@@ -158,7 +158,7 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region INIT LOCAL VARIABLES
+    //#region INITIALIZATION
 
     let lastActiveNoteQueue = new LastActiveNoteQueue();
     let tabs = new NoteTabs();
@@ -166,7 +166,7 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region COMMAND HELPER FUNCTIONS
+    //#region COMMANDS
 
     async function getSettingOrDefault(setting: string, defaultValue: string): Promise<string> {
       const value: string = await SETTINGS.value(setting);
@@ -259,10 +259,6 @@ joplin.plugins.register({
       }
       return parents;
     }
-
-    //#endregion
-
-    //#region REGISTER COMMANDS
 
     // Command: tabsPinNote
     // Desc: Pin the selected note(s) to the tabs
@@ -429,9 +425,52 @@ joplin.plugins.register({
       }
     });
 
+    // prepare Tools > Tabs menu
+    const tabsCommandsSubMenu: MenuItem[] = [
+      {
+        commandName: "tabsPinNote",
+        label: 'Pin note'
+      },
+      {
+        commandName: "tabsUnpinNote",
+        label: 'Unpin note'
+      },
+      {
+        commandName: "tabsSwitchLastActive",
+        label: 'Switch to last active tab'
+      },
+      {
+        commandName: "tabsSwitchLeft",
+        label: 'Switch to left tab'
+      },
+      {
+        commandName: "tabsSwitchRight",
+        label: 'Switch to right tab'
+      },
+      {
+        commandName: "tabsMoveLeft",
+        label: 'Move tab left'
+      },
+      {
+        commandName: "tabsMoveRight",
+        label: 'Move tab right'
+      },
+      {
+        commandName: "tabsClear",
+        label: 'Remove all pinned tabs'
+      }
+    ];
+    await joplin.views.menus.create('toolsTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
+
+    // add commands to note list context menu
+    await joplin.views.menuItems.create('noteListContextMenuPinToTabs', 'tabsPinNote', MenuItemLocation.NoteListContextMenu);
+
+    // add commands to editor context menu
+    await joplin.views.menuItems.create('editorContextMenuPinNote', 'tabsPinNote', MenuItemLocation.EditorContextMenu);
+
     //#endregion
 
-    //#region SETUP PANEL
+    //#region PANEL VIEW
 
     // prepare panel object
     const panel = await PANELS.create("note.tabs.panel");
@@ -468,6 +507,17 @@ joplin.plugins.register({
         await updatePanelView();
       }
     });
+
+    // set init message
+    const font: string = await getSettingOrDefault('fontFamily', SettingDefaults.Font);
+    const mainBg: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
+    await PANELS.setHtml(panel, `
+      <div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
+        <div id="tabs-container" role="tablist">
+          <p style="padding-left:8px;">Loading tabs...</p>
+        </div>
+      </div>
+    `);
 
     // update HTML content
     async function updatePanelView() {
@@ -590,54 +640,7 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region MAP COMMANDS TO MENUS
-
-    // prepare Tools > Tabs menu
-    const tabsCommandsSubMenu: MenuItem[] = [
-      {
-        commandName: "tabsPinNote",
-        label: 'Pin note'
-      },
-      {
-        commandName: "tabsUnpinNote",
-        label: 'Unpin note'
-      },
-      {
-        commandName: "tabsSwitchLastActive",
-        label: 'Switch to last active tab'
-      },
-      {
-        commandName: "tabsSwitchLeft",
-        label: 'Switch to left tab'
-      },
-      {
-        commandName: "tabsSwitchRight",
-        label: 'Switch to right tab'
-      },
-      {
-        commandName: "tabsMoveLeft",
-        label: 'Move tab left'
-      },
-      {
-        commandName: "tabsMoveRight",
-        label: 'Move tab right'
-      },
-      {
-        commandName: "tabsClear",
-        label: 'Remove all pinned tabs'
-      }
-    ];
-    await joplin.views.menus.create('toolsTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
-
-    // add commands to note list context menu
-    await joplin.views.menuItems.create('noteListContextMenuPinToTabs', 'tabsPinNote', MenuItemLocation.NoteListContextMenu);
-
-    // add commands to editor context menu
-    await joplin.views.menuItems.create('editorContextMenuPinNote', 'tabsPinNote', MenuItemLocation.EditorContextMenu);
-
-    //#endregion
-
-    //#region MAP INTERNAL EVENTS
+    //#region MAP EVENTS
 
     WORKSPACE.onNoteSelectionChange(async () => {
       try {
