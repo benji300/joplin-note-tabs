@@ -99,7 +99,7 @@ Follow these steps to hide it via the `userchrome.css` stylesheet:
   > div
   > div
   > div
-  > div[style="padding-top: 10px; padding-bottom: 10px;"]
+  > div[style^="padding-top: 10px; padding-bottom: 10px;"]
   > button {
   display: none !important;
 }
