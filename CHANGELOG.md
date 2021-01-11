@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- None
+
+## [1.1.0] - 2021-01-12
+
 ### Added
 
-- Option to show full breadcrumbs for selected note below tabs ([#17](https://github.com/benji300/joplin-note-tabs/issues/17))
+- Option `Show breadcrumbs below tabs` to show full breadcrumbs for selected note below tabs ([#17](https://github.com/benji300/joplin-note-tabs/issues/17))
 
 ### Changed
 
