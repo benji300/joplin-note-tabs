@@ -143,9 +143,16 @@ This plugin adds several user options which can be changed via `Tools > Options 
 
 ## Installation
 
+### Joplin v1.6.4 and newer
+
+- Open Joplin and navigate to `Tools > Options > Plugins`
+- Search for `tabs` and press install
+- Restart Joplin to enable the plugin
+
+### Joplin v1.6.2 and previous
+
 - Download the latest released JPL package (`joplin-plugin-benji300-tabs.jpl`) from [here](https://github.com/benji300/joplin-note-tabs/releases)
-- Open Joplin
-- Navigate to `Tools > Options > Plugins`
+- Open Joplin and navigate to `Tools > Options > Plugins`
 - Press `Install plugin` and select the previously downloaded `jpl` file
 - Confirm selection
 - Restart Joplin to enable the plugin
