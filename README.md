@@ -117,7 +117,7 @@ Follow these steps to hide it via the `userchrome.css` stylesheet:
 
 ### Joplin v1.6.2 and previous
 
-- Download the latest released JPL package (`joplin-plugin-benji300-tabs.jpl`) from [here](https://github.com/benji300/joplin-note-tabs/releases)
+- Download the latest released JPL package (`joplin.plugin.note.tabs.jpl`) from [here](https://github.com/benji300/joplin-note-tabs/releases)
 - Open Joplin and navigate to `Tools > Options > Plugins`
 - Press `Install plugin` and select the previously downloaded `jpl` file
 - Confirm selection
