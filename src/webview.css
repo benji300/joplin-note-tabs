@@ -44,34 +44,13 @@ span {
   float: left;
   width: 100%;
 }
-
 #tab {
   border-style: solid;
   border-width: 0;
   border-right-width: 1px;
   display: flex;
   padding: 0 8px;
-  text-overflow: ellipsis;
 }
-
-.new {
-  font-style: italic;
-}
-
-.tab-inner {
-  align-items: center;
-  display: flex;
-  height: 100%;
-  width: 100%;
-}
-
-.title {
-  overflow: hidden;
-  padding-right: 3px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 #tab .fas {
   margin-left: auto;
   margin-right: 0;
@@ -81,9 +60,29 @@ span {
 #tab:hover .fas {
   visibility: visible;
 }
+.new {
+  font-style: italic;
+}
+.tab-inner {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+.tab-inner > input {
+  margin: 0;
+  margin-right: 3px;
+}
+.tab-title {
+  overflow: hidden;
+  padding-right: 3px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 #controls {
   align-items: center;
+  display: flex;
   float: right;
   padding: 0 5px;
   margin-left: auto;
@@ -102,6 +101,40 @@ span {
 }
 #controls .fas:hover {
   opacity: 1;
+}
+
+#breadcrumbs-container {
+  display: flex;
+  float: left;
+  width: 100%;
+}
+.breadcrumbs-icon {
+  height: 100%;
+  margin: auto 0;
+  padding-left: 8px;
+}
+.breadcrumb {
+  display: flex;
+  height: 25px;
+  min-width: 50px;
+}
+.breadcrumb:last-of-type .fas {
+  display: none;
+}
+.breadcrumb-inner {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+.breadcrumb-inner a:hover {
+  text-decoration: underline;
+}
+.breadcrumb-title {
+  overflow: hidden;
+  padding: 0 4px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* DRAG AND DROP */
@@ -135,5 +168,9 @@ span {
     border-right-width: 0;
     border-bottom-width: 1px;
     max-width: 100% !important;
+  }
+
+  #breadcrumbs-container {
+    display: none !important;
   }
 }

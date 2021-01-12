@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - None
 
+## [1.1.0] - 2021-01-12
+
+### Added
+
+- Option `Show breadcrumbs below tabs` to show full breadcrumbs for selected note below tabs ([#17](https://github.com/benji300/joplin-note-tabs/issues/17))
+
+### Changed
+
+- Consider Option `View > Show completed to-dos` to display completed to-dos on tabs only if enabled ([#15](https://github.com/benji300/joplin-note-tabs/issues/15))
+- Removed `tabsPinToTabs` command. `tabsPinNote` can now be used from context menu and command palette
+- `tabsUnpinNote` command to work also with multiple selected notes
+
 ## [1.0.0] - 2021-01-06
 
 ### Added
@@ -19,10 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - User option to automatically pin notes when edited ([#11](https://github.com/benji300/joplin-note-tabs/issues/11))
 - Commands to switch between tabs ([#5](https://github.com/benji300/joplin-note-tabs/issues/5))
 - Command to switch to last active tab ([#8](https://github.com/benji300/joplin-note-tabs/issues/8))
-- Ability to pin note(s) from note list context menu ([#12](https://github.com/benji300/joplin-note-tabs/pull/12)
+- Ability to pin note(s) from note list context menu ([#12](https://github.com/benji300/joplin-note-tabs/pull/12))
 - Ability to pin note from editor context menu ([#9](https://github.com/benji300/joplin-note-tabs/pull/9) by [@ambrt](https://github.com/ambrt))
 - Ability to pin note with double click on tab
-- Ability to rearrange tabs by drag & drop ([#3](https://github.com/benji300/joplin-note-tabs/pull/3)
+- Ability to rearrange tabs by drag & drop ([#3](https://github.com/benji300/joplin-note-tabs/pull/3))
   - Can be deactivated via user option
 - Ability to move unpinned tabs
 - Description to place tabs to README ([#4](https://github.com/benji300/joplin-note-tabs/pull/4) by [@amandamcg](https://github.com/amandamcg))
