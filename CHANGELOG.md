@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Renamed package to `joplin.plugin.note-tabs` respectively `joplin-plugin-note-tabs` for npm
+- Renamed `jpl` package to `joplin.plugin.note.tabs` respectively `joplin-plugin-note-tabs` for npm
   - Neccessary due to npmjs package naming restrictions
 
 ## [1.1.0] - 2021-01-12
