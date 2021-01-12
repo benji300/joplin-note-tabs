@@ -116,7 +116,6 @@ span {
 .breadcrumb {
   display: flex;
   height: 25px;
-  max-width: 100px;
   min-width: 50px;
 }
 .breadcrumb:last-of-type .fas {

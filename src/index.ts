@@ -90,6 +90,13 @@ joplin.plugins.register({
       public: true,
       label: 'Maximum Tab width (px)'
     });
+    await SETTINGS.registerSetting('breadcrumbsMaxWidth', {
+      value: "100",
+      type: SettingItemType.Int,
+      section: 'note.tabs.settings',
+      public: true,
+      label: 'Maximum breadcrumb width (px)'
+    });
 
     // Advanced settings
     await SETTINGS.registerSetting('fontFamily', {
@@ -538,6 +545,8 @@ joplin.plugins.register({
       const activeBg: string = await getSettingOrDefault('activeBackground', SettingDefaults.ActiveBackground);
       const activeFg: string = await getSettingOrDefault('activeForeground', SettingDefaults.ActiveForeground);
       const dividerColor: string = await getSettingOrDefault('dividerColor', SettingDefaults.DividerColor);
+      const breadcrumbsBg: string = await getSettingOrDefault('breadcrumbsBackground', SettingDefaults.ActiveBackground);
+      const breadcrumbsMaxWidth: number = await SETTINGS.value('breadcrumbsMaxWidth');
 
       // create HTML for each tab
       for (const noteTab of tabs.getAll()) {
@@ -599,16 +608,16 @@ joplin.plugins.register({
       // prepare breadcrumbs, if enabled
       let breadcrumbsHtml: string = '';
       if (showBreadcrumbs && selectedNote) {
-        const breadcrumbsBg: string = await getSettingOrDefault('breadcrumbsBackground', SettingDefaults.ActiveBackground);
-
         let parentsHtml: any[] = new Array();
         let parents: any[] = await getNoteParents(selectedNote.parent_id);
+
+        // collect all parent folders and prepare html container for each
         while (parents) {
           const parent: any = parents.pop();
           if (!parent) break;
 
           parentsHtml.push(`
-            <div class="breadcrumb">
+            <div class="breadcrumb" style="max-width:${breadcrumbsMaxWidth}px;">
               <div class="breadcrumb-inner">
                 <a href="#" class="breadcrumb-title" style="color:${mainFg};" data-id="${parent.id}" title="${parent.title}">${parent.title}</a>
                 <span class="fas fa-chevron-right" style="color:${mainFg};"></span>
@@ -616,6 +625,8 @@ joplin.plugins.register({
             </div>
           `);
         }
+
+        // setup breadcrumbs container html
         breadcrumbsHtml = `
           <div id="breadcrumbs-container" style="background:${breadcrumbsBg};">
             <div class="breadcrumbs-icon">
