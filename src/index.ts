@@ -184,9 +184,9 @@ joplin.plugins.register({
       }
     }
 
-		/**
-		 * Add note as temporary tab, if not already has one.
-		 */
+    /**
+     * Add note as temporary tab, if not already has one.
+     */
     async function addTab(noteId: string) {
       if (tabs.hasTab(noteId)) return;
 
@@ -199,9 +199,9 @@ joplin.plugins.register({
       }
     }
 
-		/**
-		 * Add new or pin tab for handled note.
-		 */
+    /**
+     * Add new or pin tab for handled note.
+     */
     async function pinTab(note: any, addAsNew: boolean) {
       // do not pin completed todos if auto unpin is enabled
       const unpinCompletedTodos: boolean = await SETTINGS.value('unpinCompletedTodos');
@@ -216,9 +216,9 @@ joplin.plugins.register({
       }
     }
 
-		/**
-		 * Remove or unpin note with handled id.
-		 */
+    /**
+     * Remove or unpin note with handled id.
+     */
     async function removeTab(noteId: string) {
       const selectedNote: any = await WORKSPACE.selectedNote();
 
@@ -232,9 +232,9 @@ joplin.plugins.register({
       }
     }
 
-		/**
-		 * Toggle state of handled todo.
-		 */
+    /**
+     * Toggle state of handled todo.
+     */
     async function toggleTodo(noteId: string, checked: any) {
       try {
         const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
@@ -433,7 +433,7 @@ joplin.plugins.register({
     });
 
     // prepare Tools > Tabs menu
-    const tabsCommandsSubMenu: MenuItem[] = [
+    const commandsSubMenu: MenuItem[] = [
       {
         commandName: "tabsPinNote",
         label: 'Pin note'
@@ -467,7 +467,7 @@ joplin.plugins.register({
         label: 'Remove all pinned tabs'
       }
     ];
-    await joplin.views.menus.create('toolsTabs', 'Tabs', tabsCommandsSubMenu, MenuItemLocation.Tools);
+    await joplin.views.menus.create('toolsTabs', 'Tabs', commandsSubMenu, MenuItemLocation.Tools);
 
     // add commands to note list context menu
     await joplin.views.menuItems.create('noteListContextMenuPinToTabs', 'tabsPinNote', MenuItemLocation.NoteListContextMenu);
@@ -520,8 +520,8 @@ joplin.plugins.register({
     const mainBg: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
     await PANELS.setHtml(panel, `
       <div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
-        <div id="tabs-container" role="tablist">
-          <p style="padding-left:8px;">Loading tabs...</p>
+        <div id="container-inner">
+          <p style="padding-left:8px;">Loading panel...</p>
         </div>
       </div>
     `);
@@ -637,10 +637,10 @@ joplin.plugins.register({
         `;
       }
 
-      // add tabs to container and push to panel
+      // add entries to container and push to panel
       await PANELS.setHtml(panel, `
         <div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
-          <div id="tabs-container" role="tablist">
+          <div id="container-inner" role="tablist">
             ${noteTabsHtml.join('\n')}
             ${controlsHtml}
           </div>

@@ -25,7 +25,7 @@ export enum NoteTabType {
 }
 
 /**
- * Storage of note tabs.
+ * Helper class to work with note tabs array.
  */
 export class NoteTabs {
   // [

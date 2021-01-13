@@ -38,12 +38,12 @@ span {
   overflow-y: hidden;
   width: 100%;
 }
-
-#tabs-container {
+#container-inner {
   display: flex;
   float: left;
   width: 100%;
 }
+
 #tab {
   border-style: solid;
   border-width: 0;
@@ -159,7 +159,7 @@ span {
     overflow-y: auto;
   }
 
-  #tabs-container {
+  #container-inner {
     display: block;
     width: 100%;
   }
