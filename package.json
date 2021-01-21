@@ -1,7 +1,7 @@
 {
   "name": "joplin-plugin-note-tabs",
   "version": "1.2.0",
-  "description": "Plugin for Joplin which allows to open several notes at once in tabs and pin them.",
+  "description": "Allows to open several notes at once in tabs and pin them.",
   "author": "Benji300",
   "homepage": "https://github.com/benji300/joplin-note-tabs",
   "bugs": {
@@ -12,7 +12,7 @@
     "url": "git+https://github.com/benji300/joplin-note-tabs.git"
   },
   "scripts": {
-    "dist": "webpack",
+    "dist": "webpack --joplin-plugin-config buildMain && webpack --joplin-plugin-config buildExtraScripts && webpack --joplin-plugin-config createArchive",
     "prepare": "npm run dist",
     "update": "npm install -g generator-joplin && yo joplin --update"
   },
@@ -31,6 +31,7 @@
     "ts-loader": "^7.0.5",
     "typescript": "^3.9.3",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.11",
+    "yargs": "^16.2.0"
   }
 }
