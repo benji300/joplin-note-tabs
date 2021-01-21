@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Option `Minimum breadcrumb width (px)` to specify minimum width for a single breadcrumb entry ([#30](https://github.com/benji300/joplin-note-tabs/issues/30))
+- User option to specify minimum width for a single breadcrumb entry ([#30](https://github.com/benji300/joplin-note-tabs/issues/30))
+- Command to toggle panel visibility ([#16](https://github.com/benji300/joplin-note-tabs/issues/16))
 
 ### Changed
 

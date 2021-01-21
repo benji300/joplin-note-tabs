@@ -109,6 +109,7 @@ This plugin provides additional commands as described in the following table.
 | Tabs: Move tab left             | `tabsMoveLeft`         | Move active tab one position to the left.                                                     | `Tools>Tabs`, `Command palette`                                     |
 | Tabs: Move tab right            | `tabsMoveRight`        | Move active tab one position to the right.                                                    | `Tools>Tabs`, `Command palette`                                     |
 | Tabs: Remove all pinned tabs    | `tabsClear`            | Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards. | `Tools>Tabs`, `Command palette`                                     |
+| Tabs: Toggle visibility         | `tabsToggleVisibility` | Toggle panel visibility                                                                       | `Tools>Tabs`, `Command palette`                                     |
 
 ### Keyboard shortcuts
 

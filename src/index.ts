@@ -444,6 +444,18 @@ joplin.plugins.register({
       }
     });
 
+    // Command: tabsToggleVisibility
+    // Desc: Toggle panel visibility
+    await COMMANDS.register({
+      name: 'tabsToggleVisibility',
+      label: 'Tabs: Toggle visibility',
+      iconName: 'fas fa-eye-slash',
+      execute: async () => {
+        const isVisible: boolean = await PANELS.visible(panel);
+        await PANELS.show(panel, (!isVisible));
+      }
+    });
+
     // prepare Tools > Tabs menu
     const commandsSubMenu: MenuItem[] = [
       {
@@ -477,12 +489,16 @@ joplin.plugins.register({
       {
         commandName: "tabsClear",
         label: 'Remove all pinned tabs'
+      },
+      {
+        commandName: "tabsToggleVisibility",
+        label: 'Toggle panel visibility'
       }
     ];
     await joplin.views.menus.create('toolsTabs', 'Tabs', commandsSubMenu, MenuItemLocation.Tools);
 
-    // add commands to note list context menu
-    await joplin.views.menuItems.create('noteListContextMenuPinToTabs', 'tabsPinNote', MenuItemLocation.NoteListContextMenu);
+    // add commands to notes context menu
+    await joplin.views.menuItems.create('notesContextMenuPinToTabs', 'tabsPinNote', MenuItemLocation.NoteListContextMenu);
 
     // add commands to editor context menu
     await joplin.views.menuItems.create('editorContextMenuPinNote', 'tabsPinNote', MenuItemLocation.EditorContextMenu);
@@ -492,7 +508,7 @@ joplin.plugins.register({
     //#region PANEL VIEW
 
     // prepare panel object
-    const panel = await PANELS.create("note.tabs.panel");
+    const panel = await PANELS.create('note.tabs.panel');
     await PANELS.addScript(panel, './assets/fontawesome/css/all.min.css');
     await PANELS.addScript(panel, './webview.css');
     await PANELS.addScript(panel, './webview.js');
