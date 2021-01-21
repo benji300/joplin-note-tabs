@@ -23,8 +23,8 @@ span {
 }
 
 ::-webkit-scrollbar {
-  height: 4px;
-  width: 4px;
+  height: 2px;
+  width: 2px;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
@@ -34,13 +34,13 @@ span {
 /* HORIZONTAL LAYOUT */
 #container {
   height: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
   width: 100%;
 }
 #container-inner {
   display: flex;
   float: left;
+  overflow-x: auto;
+  overflow-y: hidden;
   width: 100%;
 }
 
@@ -104,8 +104,10 @@ span {
 }
 
 #breadcrumbs-container {
+  bottom: 0;
   display: flex;
   float: left;
+  position: fixed;
   width: 100%;
 }
 .breadcrumbs-icon {
@@ -116,7 +118,6 @@ span {
 .breadcrumb {
   display: flex;
   height: 25px;
-  min-width: 50px;
 }
 .breadcrumb:last-of-type .fas {
   display: none;
@@ -133,8 +134,14 @@ span {
 .breadcrumb-title {
   overflow: hidden;
   padding: 0 4px;
+  text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
+  width: 100%;
+}
+.breadcrumb-inner .fas {
+  margin-left: auto;
+  margin-right: 0px;
 }
 
 /* DRAG AND DROP */

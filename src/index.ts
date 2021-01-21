@@ -19,6 +19,7 @@ joplin.plugins.register({
       description: 'Changes are applied after selecting another note.'
     });
 
+    // private settings
     await SETTINGS.registerSetting('noteTabs', {
       value: [],
       type: SettingItemType.Array,
@@ -27,7 +28,7 @@ joplin.plugins.register({
       label: 'Note tabs'
     });
 
-    // General settings
+    // general settings
     await SETTINGS.registerSetting('enableDragAndDrop', {
       value: true,
       type: SettingItemType.Bool,
@@ -81,21 +82,32 @@ joplin.plugins.register({
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
-      label: 'Minimum Tab width (px)'
+      label: 'Minimum Tab width (px)',
+      description: 'Minimum width of one tab in pixel.'
     });
     await SETTINGS.registerSetting('maxTabWidth', {
       value: "150",
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
-      label: 'Maximum Tab width (px)'
+      label: 'Maximum Tab width (px)',
+      description: 'Maximum width of one tab in pixel.'
+    });
+    await SETTINGS.registerSetting('breadcrumbsMinWidth', {
+      value: "50",
+      type: SettingItemType.Int,
+      section: 'note.tabs.settings',
+      public: true,
+      label: 'Minimum breadcrumb width (px)',
+      description: 'Minimum width of one breadcrumb entry in pixel.'
     });
     await SETTINGS.registerSetting('breadcrumbsMaxWidth', {
       value: "100",
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
-      label: 'Maximum breadcrumb width (px)'
+      label: 'Maximum breadcrumb width (px)',
+      description: 'Maximum width of one breadcrumb entry in pixel.'
     });
 
     // Advanced settings
@@ -546,6 +558,7 @@ joplin.plugins.register({
       const activeFg: string = await getSettingOrDefault('activeForeground', SettingDefaults.ActiveForeground);
       const dividerColor: string = await getSettingOrDefault('dividerColor', SettingDefaults.DividerColor);
       const breadcrumbsBg: string = await getSettingOrDefault('breadcrumbsBackground', SettingDefaults.ActiveBackground);
+      const breadcrumbsMinWidth: number = await SETTINGS.value('breadcrumbsMinWidth');
       const breadcrumbsMaxWidth: number = await SETTINGS.value('breadcrumbsMaxWidth');
 
       // create HTML for each tab
@@ -617,7 +630,7 @@ joplin.plugins.register({
           if (!parent) break;
 
           parentsHtml.push(`
-            <div class="breadcrumb" style="max-width:${breadcrumbsMaxWidth}px;">
+            <div class="breadcrumb" style="min-width:${breadcrumbsMinWidth}px;max-width:${breadcrumbsMaxWidth}px;">
               <div class="breadcrumb-inner">
                 <a href="#" class="breadcrumb-title" style="color:${mainFg};" data-id="${parent.id}" title="${parent.title}">${parent.title}</a>
                 <span class="fas fa-chevron-right" style="color:${mainFg};"></span>
