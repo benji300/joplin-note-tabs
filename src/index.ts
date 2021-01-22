@@ -612,7 +612,7 @@ joplin.plugins.register({
     // set init message
     await PANELS.setHtml(panel, `
       <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;">
-        <div id="container-inner">
+        <div id="tabs-container">
           <p style="padding-left:8px;">Loading panel...</p>
         </div>
       </div>
@@ -718,7 +718,7 @@ joplin.plugins.register({
       // add entries to container and push to panel
       await PANELS.setHtml(panel, `
         <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;">
-          <div id="container-inner" role="tablist">
+          <div id="tabs-container" role="tablist">
             ${noteTabsHtml.join('\n')}
             ${controlsHtml}
           </div>

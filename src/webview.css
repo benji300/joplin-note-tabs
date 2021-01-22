@@ -25,16 +25,17 @@ span {
 /* HORIZONTAL LAYOUT */
 #container {
   height: 100%;
-  width: 100%;
-}
-#container-inner {
-  display: flex;
-  float: left;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow-x: hidden;
+  overflow-y: overlay;
   width: 100%;
 }
 
+#tabs-container {
+  display: flex;
+  float: left;
+  overflow-x: overlay;
+  width: 100%;
+}
 #tab {
   border-style: solid;
   border-width: 0;
@@ -95,10 +96,9 @@ span {
 }
 
 #breadcrumbs-container {
-  bottom: 0;
   display: flex;
   float: left;
-  position: fixed;
+  overflow: overlay;
   width: 100%;
 }
 .breadcrumbs-icon {
@@ -152,6 +152,7 @@ span {
 
 ::-webkit-scrollbar {
   height: 4px;
+  width: 7px;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
@@ -160,12 +161,7 @@ span {
 
 /* VERCTICAL LAYOUT OVERWRITES */
 @media screen and (max-width: 400px) {
-  #container {
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-
-  #container-inner {
+  #tabs-container {
     display: block;
     width: 100%;
   }
@@ -178,9 +174,5 @@ span {
 
   #breadcrumbs-container {
     display: none !important;
-  }
-
-  ::-webkit-scrollbar {
-    width: 7px;
   }
 }
