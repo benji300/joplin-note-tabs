@@ -146,6 +146,17 @@ joplin.plugins.register({
       description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: Roboto)"
     });
 
+    let fontSize: string;
+    await SETTINGS.registerSetting('fontSize', {
+      value: SettingDefaults.Default,
+      type: SettingItemType.String,
+      section: 'note.tabs.settings',
+      public: true,
+      advanced: true,
+      label: 'Font size',
+      description: "Font size used in the panel. Values other than 'default' must be specified in valid CSS syntax, e.g. '13px'. (default: App default font size)"
+    });
+
     let background: string;
     await SETTINGS.registerSetting('mainBackground', {
       value: SettingDefaults.Default,
@@ -238,6 +249,7 @@ joplin.plugins.register({
       breadcrumbsMinWidth = await getSettingOrDefault(event, breadcrumbsMinWidth, 'breadcrumbsMinWidth');
       breadcrumbsMaxWidth = await getSettingOrDefault(event, breadcrumbsMaxWidth, 'breadcrumbsMaxWidth');
       fontFamily = await getSettingOrDefault(event, fontFamily, 'fontFamily', SettingDefaults.FontFamily);
+      fontSize = await getSettingOrDefault(event, fontSize, 'fontSize', SettingDefaults.FontSize);
       background = await getSettingOrDefault(event, background, 'mainBackground', SettingDefaults.Background);
       actBackground = await getSettingOrDefault(event, actBackground, 'activeBackground', SettingDefaults.ActiveBackground);
       breadcrumbsBackground = await getSettingOrDefault(event, breadcrumbsBackground, 'breadcrumbsBackground', SettingDefaults.ActiveBackground);
@@ -611,7 +623,7 @@ joplin.plugins.register({
 
     // set init message
     await PANELS.setHtml(panel, `
-      <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;">
+      <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;font-size:${fontSize};">
         <div id="tabs-container">
           <p style="padding-left:8px;">Loading panel...</p>
         </div>
@@ -717,7 +729,7 @@ joplin.plugins.register({
 
       // add entries to container and push to panel
       await PANELS.setHtml(panel, `
-        <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;">
+        <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;font-size:${fontSize};">
           <div id="tabs-container" role="tablist">
             ${noteTabsHtml.join('\n')}
             ${controlsHtml}

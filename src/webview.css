@@ -12,7 +12,6 @@ html,
 body,
 body > div,
 div#joplin-plugin-content {
-  font-size: var(--joplin-font-size);
   height: 100%;
 }
 a {
