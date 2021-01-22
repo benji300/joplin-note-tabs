@@ -22,15 +22,6 @@ span {
   cursor: default;
 }
 
-::-webkit-scrollbar {
-  height: 2px;
-  width: 2px;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-}
-
 /* HORIZONTAL LAYOUT */
 #container {
   height: 100%;
@@ -159,6 +150,14 @@ span {
   background-color: var(--joplin-background-color-hover3) !important;
 }
 
+::-webkit-scrollbar {
+  height: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
 /* VERCTICAL LAYOUT OVERWRITES */
 @media screen and (max-width: 400px) {
   #container {
@@ -179,5 +178,9 @@ span {
 
   #breadcrumbs-container {
     display: none !important;
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px;
   }
 }
