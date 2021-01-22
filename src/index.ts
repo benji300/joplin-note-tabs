@@ -1,5 +1,6 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
+import { ChangeEvent } from 'api/JoplinSettings';
 import { NoteTabType, NoteTabs, LastActiveNoteQueue } from './helpers';
 import { SettingDefaults, } from './helpers';
 
@@ -18,8 +19,7 @@ joplin.plugins.register({
 
     await SETTINGS.registerSection('note.tabs.settings', {
       label: 'Note Tabs',
-      iconName: 'fas fa-window-maximize',
-      description: 'Changes are applied after selecting another note.'
+      iconName: 'fas fa-window-maximize'
     });
 
     // private settings
@@ -34,6 +34,7 @@ joplin.plugins.register({
     await tabs.read();
 
     // general settings
+    let enableDragAndDrop: boolean;
     await SETTINGS.registerSetting('enableDragAndDrop', {
       value: true,
       type: SettingItemType.Bool,
@@ -42,6 +43,8 @@ joplin.plugins.register({
       label: 'Enable drag & drop of tabs',
       description: 'If disabled, position of tabs can be change via commands or move buttons.'
     });
+
+    let showTodoCheckboxes: boolean;
     await SETTINGS.registerSetting('showTodoCheckboxes', {
       value: true,
       type: SettingItemType.Bool,
@@ -50,6 +53,8 @@ joplin.plugins.register({
       label: 'Show to-do checkboxes on tabs',
       description: 'If enabled, to-dos can be completed directly on the tabs.'
     });
+
+    let showBreadcrumbs: boolean;
     await SETTINGS.registerSetting('showBreadcrumbs', {
       value: false,
       type: SettingItemType.Bool,
@@ -58,6 +63,8 @@ joplin.plugins.register({
       label: 'Show breadcrumbs below tabs',
       description: 'Display full breadcrumbs for selected note below tabs. Only available in horizontal layout.'
     });
+
+    let pinEditedNotes: boolean;
     await SETTINGS.registerSetting('pinEditedNotes', {
       value: false,
       type: SettingItemType.Bool,
@@ -66,6 +73,8 @@ joplin.plugins.register({
       label: 'Automatically pin notes when edited',
       description: 'Pin notes automatically as soon as the title, content or any other attribute changes.'
     });
+
+    let unpinCompletedTodos: boolean;
     await SETTINGS.registerSetting('unpinCompletedTodos', {
       value: false,
       type: SettingItemType.Bool,
@@ -74,14 +83,18 @@ joplin.plugins.register({
       label: 'Automatically unpin completed to-dos',
       description: 'Unpin notes automatically as soon as the to-do status changes to completed. Removes the tab completely unless it is the selected note.'
     });
+
+    let tabHeight: number;
     await SETTINGS.registerSetting('tabHeight', {
       value: "40",
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
       label: 'Note Tabs height (px)',
-      description: "Height of the tabs. Row height in vertical layout."
+      description: 'Height of the tabs. Row height in vertical layout.'
     });
+
+    let minTabWidth: number;
     await SETTINGS.registerSetting('minTabWidth', {
       value: "50",
       type: SettingItemType.Int,
@@ -90,6 +103,8 @@ joplin.plugins.register({
       label: 'Minimum Tab width (px)',
       description: 'Minimum width of one tab in pixel.'
     });
+
+    let maxTabWidth: number;
     await SETTINGS.registerSetting('maxTabWidth', {
       value: "150",
       type: SettingItemType.Int,
@@ -98,24 +113,29 @@ joplin.plugins.register({
       label: 'Maximum Tab width (px)',
       description: 'Maximum width of one tab in pixel.'
     });
+
+    let breadcrumbsMinWidth: number;
     await SETTINGS.registerSetting('breadcrumbsMinWidth', {
-      value: "50",
+      value: "25",
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
       label: 'Minimum breadcrumb width (px)',
-      description: 'Minimum width of one breadcrumb entry in pixel.'
+      description: 'Minimum width of one breadcrumb in pixel.'
     });
+
+    let breadcrumbsMaxWidth: number;
     await SETTINGS.registerSetting('breadcrumbsMaxWidth', {
       value: "100",
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
       label: 'Maximum breadcrumb width (px)',
-      description: 'Maximum width of one breadcrumb entry in pixel.'
+      description: 'Maximum width of one breadcrumb in pixel.'
     });
 
     // advanced settings
+    let fontFamily: string;
     await SETTINGS.registerSetting('fontFamily', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -125,6 +145,8 @@ joplin.plugins.register({
       label: 'Font family',
       description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: Roboto)"
     });
+
+    let background: string;
     await SETTINGS.registerSetting('mainBackground', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -132,8 +154,10 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Background color',
-      description: "Main background color of the panel. (default: Note list background color)"
+      description: 'Main background color of the panel. (default: Note list background color)'
     });
+
+    let actBackground: string;
     await SETTINGS.registerSetting('activeBackground', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -141,8 +165,10 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Active background color',
-      description: "Background color of the current active tab. (default: Editor background color)"
+      description: 'Background color of the current active tab. (default: Editor background color)'
     });
+
+    let breadcrumbsBackground: string;
     await SETTINGS.registerSetting('breadcrumbsBackground', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -150,8 +176,10 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Breadcrumbs background color',
-      description: "Background color of the breadcrumbs. (default: Editor background color)"
+      description: 'Background color of the breadcrumbs. (default: Editor background color)'
     });
+
+    let foreground: string;
     await SETTINGS.registerSetting('mainForeground', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -159,8 +187,10 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Foreground color',
-      description: "Default foreground color used for text and icons. (default: App faded color)"
+      description: 'Foreground color used for text and icons. (default: App faded color)'
     });
+
+    let actForeground: string;
     await SETTINGS.registerSetting('activeForeground', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -168,8 +198,10 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Active foreground color',
-      description: "Foreground color of the current active tab. (default: Editor font color)"
+      description: 'Foreground color of the current active tab. (default: Editor font color)'
     });
+
+    let dividerColor: string;
     await SETTINGS.registerSetting('dividerColor', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -177,17 +209,47 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Divider color',
-      description: "Color of the divider between the tabs. (default: App default border color)"
+      description: 'Color of the divider between the tabs. (default: App default border color)'
     });
 
-    async function getSettingOrDefault(setting: string, defaultValue: string): Promise<string> {
-      const value: string = await SETTINGS.value(setting);
-      if (value.match(new RegExp(SettingDefaults.Default, "i"))) {
-        return defaultValue;
-      } else {
-        return value;
+    const regexp: RegExp = new RegExp(SettingDefaults.Default, "i");
+    async function getSettingOrDefault(event: ChangeEvent, localVar: any, setting: string, defaultValue?: string): Promise<any> {
+      const read: boolean = (!event || event.keys.includes(setting));
+      if (read) {
+        const value: string = await SETTINGS.value(setting);
+        if (defaultValue && value.match(regexp)) {
+          return defaultValue;
+        } else {
+          return value;
+        }
       }
+      return localVar;
     }
+
+    async function readSettingsAndUpdate(event?: ChangeEvent) {
+      enableDragAndDrop = await getSettingOrDefault(event, enableDragAndDrop, 'enableDragAndDrop');
+      showTodoCheckboxes = await getSettingOrDefault(event, showTodoCheckboxes, 'showTodoCheckboxes');
+      showBreadcrumbs = await getSettingOrDefault(event, showBreadcrumbs, 'showBreadcrumbs');
+      pinEditedNotes = await getSettingOrDefault(event, pinEditedNotes, 'pinEditedNotes');
+      unpinCompletedTodos = await getSettingOrDefault(event, unpinCompletedTodos, 'unpinCompletedTodos');
+      tabHeight = await getSettingOrDefault(event, tabHeight, 'tabHeight');
+      minTabWidth = await getSettingOrDefault(event, minTabWidth, 'minTabWidth');
+      maxTabWidth = await getSettingOrDefault(event, maxTabWidth, 'maxTabWidth');
+      breadcrumbsMinWidth = await getSettingOrDefault(event, breadcrumbsMinWidth, 'breadcrumbsMinWidth');
+      breadcrumbsMaxWidth = await getSettingOrDefault(event, breadcrumbsMaxWidth, 'breadcrumbsMaxWidth');
+      fontFamily = await getSettingOrDefault(event, fontFamily, 'fontFamily', SettingDefaults.FontFamily);
+      background = await getSettingOrDefault(event, background, 'mainBackground', SettingDefaults.Background);
+      actBackground = await getSettingOrDefault(event, actBackground, 'activeBackground', SettingDefaults.ActiveBackground);
+      breadcrumbsBackground = await getSettingOrDefault(event, breadcrumbsBackground, 'breadcrumbsBackground', SettingDefaults.ActiveBackground);
+      foreground = await getSettingOrDefault(event, foreground, 'mainForeground', SettingDefaults.Foreground);
+      actForeground = await getSettingOrDefault(event, actForeground, 'activeForeground', SettingDefaults.ActiveForeground);
+      dividerColor = await getSettingOrDefault(event, dividerColor, 'dividerColor', SettingDefaults.DividerColor);
+      await updatePanelView();
+    }
+
+    SETTINGS.onChange(async (event: ChangeEvent) => {
+      await readSettingsAndUpdate(event);
+    });
 
     //#endregion
 
@@ -213,7 +275,6 @@ joplin.plugins.register({
      */
     async function pinTab(note: any, addAsNew: boolean) {
       // do not pin completed todos if auto unpin is enabled
-      const unpinCompletedTodos: boolean = await SETTINGS.value('unpinCompletedTodos');
       if (unpinCompletedTodos && note.is_todo && note.todo_completed) return;
 
       if (tabs.hasTab(note.id)) {
@@ -549,8 +610,6 @@ joplin.plugins.register({
     });
 
     // set init message
-    const fontFamily: string = await getSettingOrDefault('fontFamily', SettingDefaults.FontFamily);
-    const background: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
     await PANELS.setHtml(panel, `
       <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;">
         <div id="container-inner">
@@ -564,23 +623,8 @@ joplin.plugins.register({
       const noteTabsHtml: any = [];
       const selectedNote: any = await WORKSPACE.selectedNote();
 
-      // get style values from settings
-      const enableDragAndDrop: boolean = await SETTINGS.value('enableDragAndDrop');
-      const showCheckboxes: boolean = await SETTINGS.value('showTodoCheckboxes');
-      const showBreadcrumbs: boolean = await SETTINGS.value('showBreadcrumbs');
+      // get global settings
       const showCompletedTodos: boolean = await SETTINGS.globalValue('showCompletedTodos');
-      const tabHeight: number = await SETTINGS.value('tabHeight');
-      const minWidth: number = await SETTINGS.value('minTabWidth');
-      const maxWidth: number = await SETTINGS.value('maxTabWidth');
-      const fontFamily: string = await getSettingOrDefault('fontFamily', SettingDefaults.FontFamily);
-      const background: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
-      const foreground: string = await getSettingOrDefault('mainForeground', SettingDefaults.Foreground);
-      const activeBg: string = await getSettingOrDefault('activeBackground', SettingDefaults.ActiveBackground);
-      const activeFg: string = await getSettingOrDefault('activeForeground', SettingDefaults.ActiveForeground);
-      const dividerColor: string = await getSettingOrDefault('dividerColor', SettingDefaults.DividerColor);
-      const breadcrumbsBg: string = await getSettingOrDefault('breadcrumbsBackground', SettingDefaults.ActiveBackground);
-      const breadcrumbsMinWidth: number = await SETTINGS.value('breadcrumbsMinWidth');
-      const breadcrumbsMaxWidth: number = await SETTINGS.value('breadcrumbsMaxWidth');
 
       // create HTML for each tab
       for (const noteTab of tabs.getAll()) {
@@ -599,8 +643,8 @@ joplin.plugins.register({
           if ((!showCompletedTodos) && note.todo_completed) continue;
 
           // prepare tab style attributes
-          const background: string = (selectedNote && note.id == selectedNote.id) ? activeBg : background;
-          const foreground: string = (selectedNote && note.id == selectedNote.id) ? activeFg : foreground;
+          const bg: string = (selectedNote && note.id == selectedNote.id) ? actBackground : background;
+          const fg: string = (selectedNote && note.id == selectedNote.id) ? actForeground : foreground;
           const newTab: string = (noteTab.type == NoteTabType.Temporary) ? " new" : "";
           const icon: string = (noteTab.type == NoteTabType.Pinned) ? "fa-times" : "fa-thumbtack";
           const iconTitle: string = (noteTab.type == NoteTabType.Pinned) ? "Unpin" : "Pin";
@@ -608,20 +652,20 @@ joplin.plugins.register({
 
           // prepare checkbox for todo
           let checkboxHtml: string = '';
-          if (showCheckboxes && note.is_todo) {
+          if (showTodoCheckboxes && note.is_todo) {
             checkboxHtml = `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">`;
           }
 
           noteTabsHtml.push(`
             <div id="tab" class="${newTab}" data-id="${note.id}" role="tab"
               draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
-              style="height:${tabHeight}px;min-width:${minWidth}px;max-width:${maxWidth}px;border-color:${dividerColor};background:${background};">
+              style="height:${tabHeight}px;min-width:${minTabWidth}px;max-width:${maxTabWidth}px;border-color:${dividerColor};background:${bg};">
               <div class="tab-inner" data-id="${note.id}">
                 ${checkboxHtml}
-                <span class="tab-title" data-id="${note.id}" style="color:${foreground};text-decoration: ${textDecoration};" title="${note.title}">
+                <span class="tab-title" data-id="${note.id}" style="color:${fg};text-decoration: ${textDecoration};" title="${note.title}">
                   ${note.title}
                 </span>
-                <a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${foreground};"></a>
+                <a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${fg};"></a>
               </div>
             </div>
           `);
@@ -662,7 +706,7 @@ joplin.plugins.register({
 
         // setup breadcrumbs container html
         breadcrumbsHtml = `
-          <div id="breadcrumbs-container" style="background:${breadcrumbsBg};">
+          <div id="breadcrumbs-container" style="background:${breadcrumbsBackground};">
             <div class="breadcrumbs-icon">
               <span class="fas fa-book" style="color:${foreground};"></span>
             </div>
@@ -718,13 +762,11 @@ joplin.plugins.register({
             if (note == null) return;
 
             // if auto pin is enabled and handled, pin to tabs
-            const pinEditedNotes: boolean = await SETTINGS.value('pinEditedNotes');
             if (pinEditedNotes) {
               await pinTab(note, false);
             }
 
             // if auto unpin is enabled and handled note is a completed todo...
-            const unpinCompletedTodos: boolean = await SETTINGS.value('unpinCompletedTodos');
             if (unpinCompletedTodos && note.is_todo && note.todo_completed) {
               await removeTab(note.id);
             }
@@ -751,6 +793,6 @@ joplin.plugins.register({
 
     //#endregion
 
-    await updatePanelView();
+    await readSettingsAndUpdate();
   },
 });
