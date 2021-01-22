@@ -1,6 +1,7 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
-import { NoteTabType, SettingDefaults, NoteTabs, LastActiveNoteQueue } from './helpers';
+import { NoteTabType, NoteTabs, LastActiveNoteQueue } from './helpers';
+import { SettingDefaults, } from './helpers';
 
 joplin.plugins.register({
   onStart: async function () {
@@ -11,7 +12,9 @@ joplin.plugins.register({
     const SETTINGS = joplin.settings;
     const WORKSPACE = joplin.workspace;
 
-    //#region USER OPTIONS
+    let lastActiveNoteQueue = new LastActiveNoteQueue();
+
+    //#region SETTINGS
 
     await SETTINGS.registerSection('note.tabs.settings', {
       label: 'Note Tabs',
@@ -20,6 +23,7 @@ joplin.plugins.register({
     });
 
     // private settings
+    let tabs = new NoteTabs();
     await SETTINGS.registerSetting('noteTabs', {
       value: [],
       type: SettingItemType.Array,
@@ -27,6 +31,7 @@ joplin.plugins.register({
       public: false,
       label: 'Note tabs'
     });
+    await tabs.read();
 
     // general settings
     await SETTINGS.registerSetting('enableDragAndDrop', {
@@ -110,7 +115,7 @@ joplin.plugins.register({
       description: 'Maximum width of one breadcrumb entry in pixel.'
     });
 
-    // Advanced settings
+    // advanced settings
     await SETTINGS.registerSetting('fontFamily', {
       value: SettingDefaults.Default,
       type: SettingItemType.String,
@@ -172,20 +177,8 @@ joplin.plugins.register({
       public: true,
       advanced: true,
       label: 'Divider color',
-      description: "Color of the divider between the tabs. (default: App divider/border color)"
+      description: "Color of the divider between the tabs. (default: App default border color)"
     });
-
-    //#endregion
-
-    //#region INITIALIZATION
-
-    let lastActiveNoteQueue = new LastActiveNoteQueue();
-    let tabs = new NoteTabs();
-    await tabs.read();
-
-    //#endregion
-
-    //#region COMMANDS
 
     async function getSettingOrDefault(setting: string, defaultValue: string): Promise<string> {
       const value: string = await SETTINGS.value(setting);
@@ -195,6 +188,10 @@ joplin.plugins.register({
         return value;
       }
     }
+
+    //#endregion
+
+    //#region HELPERS
 
     /**
      * Add note as temporary tab, if not already has one.
@@ -278,6 +275,10 @@ joplin.plugins.register({
       }
       return parents;
     }
+
+    //#endregion
+
+    //#region COMMANDS
 
     // Command: tabsPinNote
     // Desc: Pin the selected note(s) to the tabs
@@ -456,7 +457,7 @@ joplin.plugins.register({
       }
     });
 
-    // prepare Tools > Tabs menu
+    // prepare commands menu
     const commandsSubMenu: MenuItem[] = [
       {
         commandName: "tabsPinNote",
@@ -505,7 +506,11 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region PANEL VIEW
+    //#region DIALOGS
+
+    //#endregion
+
+    //#region PANELS
 
     // prepare panel object
     const panel = await PANELS.create('note.tabs.panel');
@@ -544,10 +549,10 @@ joplin.plugins.register({
     });
 
     // set init message
-    const font: string = await getSettingOrDefault('fontFamily', SettingDefaults.Font);
-    const mainBg: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
+    const fontFamily: string = await getSettingOrDefault('fontFamily', SettingDefaults.FontFamily);
+    const background: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
     await PANELS.setHtml(panel, `
-      <div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
+      <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;">
         <div id="container-inner">
           <p style="padding-left:8px;">Loading panel...</p>
         </div>
@@ -567,9 +572,9 @@ joplin.plugins.register({
       const tabHeight: number = await SETTINGS.value('tabHeight');
       const minWidth: number = await SETTINGS.value('minTabWidth');
       const maxWidth: number = await SETTINGS.value('maxTabWidth');
-      const font: string = await getSettingOrDefault('fontFamily', SettingDefaults.Font);
-      const mainBg: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
-      const mainFg: string = await getSettingOrDefault('mainForeground', SettingDefaults.Foreground);
+      const fontFamily: string = await getSettingOrDefault('fontFamily', SettingDefaults.FontFamily);
+      const background: string = await getSettingOrDefault('mainBackground', SettingDefaults.Background);
+      const foreground: string = await getSettingOrDefault('mainForeground', SettingDefaults.Foreground);
       const activeBg: string = await getSettingOrDefault('activeBackground', SettingDefaults.ActiveBackground);
       const activeFg: string = await getSettingOrDefault('activeForeground', SettingDefaults.ActiveForeground);
       const dividerColor: string = await getSettingOrDefault('dividerColor', SettingDefaults.DividerColor);
@@ -594,8 +599,8 @@ joplin.plugins.register({
           if ((!showCompletedTodos) && note.todo_completed) continue;
 
           // prepare tab style attributes
-          const background: string = (selectedNote && note.id == selectedNote.id) ? activeBg : mainBg;
-          const foreground: string = (selectedNote && note.id == selectedNote.id) ? activeFg : mainFg;
+          const background: string = (selectedNote && note.id == selectedNote.id) ? activeBg : background;
+          const foreground: string = (selectedNote && note.id == selectedNote.id) ? activeFg : foreground;
           const newTab: string = (noteTab.type == NoteTabType.Temporary) ? " new" : "";
           const icon: string = (noteTab.type == NoteTabType.Pinned) ? "fa-times" : "fa-thumbtack";
           const iconTitle: string = (noteTab.type == NoteTabType.Pinned) ? "Unpin" : "Pin";
@@ -628,8 +633,8 @@ joplin.plugins.register({
       if (!enableDragAndDrop) {
         controlsHtml = `
           <div id="controls" style="height:${tabHeight}px;">
-            <a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${mainFg};"></a>
-            <a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${mainFg};"></a>
+            <a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${foreground};"></a>
+            <a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${foreground};"></a>
           </div>
         `;
       }
@@ -648,8 +653,8 @@ joplin.plugins.register({
           parentsHtml.push(`
             <div class="breadcrumb" style="min-width:${breadcrumbsMinWidth}px;max-width:${breadcrumbsMaxWidth}px;">
               <div class="breadcrumb-inner">
-                <a href="#" class="breadcrumb-title" style="color:${mainFg};" data-id="${parent.id}" title="${parent.title}">${parent.title}</a>
-                <span class="fas fa-chevron-right" style="color:${mainFg};"></span>
+                <a href="#" class="breadcrumb-title" style="color:${foreground};" data-id="${parent.id}" title="${parent.title}">${parent.title}</a>
+                <span class="fas fa-chevron-right" style="color:${foreground};"></span>
               </div>
             </div>
           `);
@@ -659,7 +664,7 @@ joplin.plugins.register({
         breadcrumbsHtml = `
           <div id="breadcrumbs-container" style="background:${breadcrumbsBg};">
             <div class="breadcrumbs-icon">
-              <span class="fas fa-book" style="color:${mainFg};"></span>
+              <span class="fas fa-book" style="color:${foreground};"></span>
             </div>
             ${parentsHtml.join(`\n`)}
           </div>
@@ -668,7 +673,7 @@ joplin.plugins.register({
 
       // add entries to container and push to panel
       await PANELS.setHtml(panel, `
-        <div id="container" style="background:${mainBg};font-family:'${font}',sans-serif;">
+        <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;">
           <div id="container-inner" role="tablist">
             ${noteTabsHtml.join('\n')}
             ${controlsHtml}
@@ -680,7 +685,7 @@ joplin.plugins.register({
 
     //#endregion
 
-    //#region MAP EVENTS
+    //#region WORKSPACE
 
     WORKSPACE.onNoteSelectionChange(async () => {
       try {

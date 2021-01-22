@@ -6,7 +6,7 @@ import joplin from 'api';
  */
 export enum SettingDefaults {
   Default = 'default',
-  Font = 'Roboto',
+  FontFamily = 'Roboto',
   Background = 'var(--joplin-background-color3)',
   Foreground = 'var(--joplin-color-faded)',
   ActiveBackground = 'var(--joplin-background-color)',
