@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Breadcrumbs shall be fixed (not scrolalble) ([#29](https://github.com/benji300/joplin-note-tabs/issues/29))
+- Improved reading and updating values from plugin settings ([#24](https://github.com/benji300/joplin-note-tabs/issues/24))
 
 ## [1.1.1] - 2021-01-12
 
