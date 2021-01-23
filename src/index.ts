@@ -665,19 +665,20 @@ joplin.plugins.register({
           // prepare checkbox for todo
           let checkboxHtml: string = '';
           if (showTodoCheckboxes && note.is_todo) {
-            checkboxHtml = `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''} data-id="${note.id}">`;
+            checkboxHtml = `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''}>`;
           }
 
           noteTabsHtml.push(`
-            <div id="tab" class="${newTab}" data-id="${note.id}" role="tab"
-              draggable="${enableDragAndDrop}" ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
+            <div id="tab" class="${newTab}" data-id="${note.id}" role="tab" draggable="${enableDragAndDrop}"
+              ondblclick="pinNote(event);" onclick="tabClick(event);"
+              ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
               style="height:${tabHeight}px;min-width:${minTabWidth}px;max-width:${maxTabWidth}px;border-color:${dividerColor};background:${bg};">
-              <div class="tab-inner" data-id="${note.id}">
+              <div class="tab-inner">
                 ${checkboxHtml}
-                <span class="tab-title" data-id="${note.id}" style="color:${fg};text-decoration: ${textDecoration};" title="${note.title}">
+                <span class="tab-title" style="color:${fg};text-decoration: ${textDecoration};" title="${note.title}">
                   ${note.title}
                 </span>
-                <a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" data-id="${note.id}" style="color:${fg};"></a>
+                <a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" style="color:${fg};"></a>
               </div>
             </div>
           `);
@@ -689,8 +690,8 @@ joplin.plugins.register({
       if (!enableDragAndDrop) {
         controlsHtml = `
           <div id="controls" style="height:${tabHeight}px;">
-            <a href="#" id="moveTabLeft" class="fas fa-chevron-left" title="Move active tab left" style="color:${foreground};"></a>
-            <a href="#" id="moveTabRight" class="fas fa-chevron-right" title="Move active tab right" style="color:${foreground};"></a>
+            <a href="#" class="fas fa-chevron-left" title="Move active tab left" style="color:${foreground};" onclick="moveLeft();"></a>
+            <a href="#" class="fas fa-chevron-right" title="Move active tab right" style="color:${foreground};" onclick="moveRight();"></a>
           </div>
         `;
       }
@@ -707,9 +708,10 @@ joplin.plugins.register({
           if (!parent) break;
 
           parentsHtml.push(`
-            <div class="breadcrumb" style="min-width:${breadcrumbsMinWidth}px;max-width:${breadcrumbsMaxWidth}px;">
+            <div class="breadcrumb" data-id="${parent.id}" onClick="openFolder(event);"
+              style="min-width:${breadcrumbsMinWidth}px;max-width:${breadcrumbsMaxWidth}px;">
               <div class="breadcrumb-inner">
-                <a href="#" class="breadcrumb-title" style="color:${foreground};" data-id="${parent.id}" title="${parent.title}">${parent.title}</a>
+                <a href="#" class="breadcrumb-title" style="color:${foreground};" title="${parent.title}">${parent.title}</a>
                 <span class="fas fa-chevron-right" style="color:${foreground};"></span>
               </div>
             </div>

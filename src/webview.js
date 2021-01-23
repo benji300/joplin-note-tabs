@@ -1,61 +1,42 @@
-/* DOUBLE CLICK EVENT */
-document.addEventListener('dblclick', event => {
-  const element = event.target;
-
-  if (element.id === 'tab' || element.className === 'tab-inner' || element.className === 'tab-title') {
-    webviewApi.postMessage({
-      name: 'tabsPinNote',
-      id: element.dataset.id,
-    });
+function getDataId(event) {
+  if (event.currentTarget.id === 'tab' || event.currentTarget.className === 'breadcrumb') {
+    return event.currentTarget.dataset.id;
   }
-})
+  return;
+}
 
 /* CLICK EVENTS */
-document.addEventListener('click', event => {
-  const element = event.target;
+function openFolder(event) {
+  const dataId = getDataId(event);
+  if (dataId) webviewApi.postMessage({ name: 'tabsOpenFolder', id: dataId });
+}
 
-  if (element.className === 'breadcrumb-title') {
-    webviewApi.postMessage({
-      name: 'tabsOpenFolder',
-      id: element.dataset.id,
-    });
+function pinNote(event) {
+  const dataId = getDataId(event);
+  if (dataId) webviewApi.postMessage({ name: 'tabsPinNote', id: dataId });
+}
+
+function tabClick(event) {
+  const dataId = getDataId(event);
+  if (dataId) {
+    if (event.target.id === 'Pin')
+      pinNote(event);
+    if (event.target.id === 'Unpin')
+      webviewApi.postMessage({ name: 'tabsUnpinNote', id: dataId });
+    if (event.target.id === 'check')
+      webviewApi.postMessage({ name: 'tabsToggleTodo', id: dataId, checked: event.target.checked });
+
+    webviewApi.postMessage({ name: 'tabsOpen', id: dataId });
   }
-  if (element.id === 'tab' || element.className === 'tab-inner' || element.className === 'tab-title') {
-    webviewApi.postMessage({
-      name: 'tabsOpen',
-      id: element.dataset.id,
-    });
-  }
-  if (element.id === 'Pin') {
-    webviewApi.postMessage({
-      name: 'tabsPinNote',
-      id: element.dataset.id,
-    });
-  }
-  if (element.id === 'Unpin') {
-    webviewApi.postMessage({
-      name: 'tabsUnpinNote',
-      id: element.dataset.id,
-    });
-  }
-  if (element.id === 'check') {
-    webviewApi.postMessage({
-      name: 'tabsToggleTodo',
-      id: element.dataset.id,
-      checked: element.checked
-    });
-  }
-  if (element.id === 'moveTabLeft') {
-    webviewApi.postMessage({
-      name: 'tabsMoveLeft'
-    });
-  }
-  if (element.id === 'moveTabRight') {
-    webviewApi.postMessage({
-      name: 'tabsMoveRight'
-    });
-  }
-})
+}
+
+function moveLeft() {
+  webviewApi.postMessage({ name: 'tabsMoveLeft' });
+}
+
+function moveRight() {
+  webviewApi.postMessage({ name: 'tabsMoveRight' });
+}
 
 /* DRAG AND DROP */
 let sourceNoteId = "";
