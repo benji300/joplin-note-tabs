@@ -1,19 +1,21 @@
 function getDataId(event) {
-  if (event.currentTarget.id === 'tab' || event.currentTarget.className === 'breadcrumb') {
+  if (event.currentTarget.id === 'tab' || event.currentTarget.className === 'breadcrumb')
     return event.currentTarget.dataset.id;
-  }
-  return;
+  else
+    return;
 }
 
 /* CLICK EVENTS */
 function openFolder(event) {
   const dataId = getDataId(event);
-  if (dataId) webviewApi.postMessage({ name: 'tabsOpenFolder', id: dataId });
+  if (dataId)
+    webviewApi.postMessage({ name: 'tabsOpenFolder', id: dataId });
 }
 
 function pinNote(event) {
   const dataId = getDataId(event);
-  if (dataId) webviewApi.postMessage({ name: 'tabsPinNote', id: dataId });
+  if (dataId)
+    webviewApi.postMessage({ name: 'tabsPinNote', id: dataId });
 }
 
 function tabClick(event) {
@@ -21,12 +23,12 @@ function tabClick(event) {
   if (dataId) {
     if (event.target.id === 'Pin')
       pinNote(event);
-    if (event.target.id === 'Unpin')
+    else if (event.target.id === 'Unpin')
       webviewApi.postMessage({ name: 'tabsUnpinNote', id: dataId });
-    if (event.target.id === 'check')
+    else if (event.target.id === 'check')
       webviewApi.postMessage({ name: 'tabsToggleTodo', id: dataId, checked: event.target.checked });
-
-    webviewApi.postMessage({ name: 'tabsOpen', id: dataId });
+    else
+      webviewApi.postMessage({ name: 'tabsOpen', id: dataId });
   }
 }
 
@@ -39,7 +41,7 @@ function moveRight() {
 }
 
 /* DRAG AND DROP */
-let sourceNoteId = "";
+let sourceId = '';
 
 function cancelDefault(event) {
   event.preventDefault();
@@ -48,36 +50,36 @@ function cancelDefault(event) {
 }
 
 function dragStart(event) {
-  const element = event.target;
-  element.classList.add("dragging");
-  event.dataTransfer.setData("text/plain", element.dataset.id);
-  sourceNoteId = element.dataset.id
+  const dataId = getDataId(event);
+  if (dataId) {
+    event.currentTarget.classList.add('dragging');
+    event.dataTransfer.setData('text/x-plugin-note-tabs-id', dataId);
+    sourceId = dataId;
+  }
 }
 
-function dragEnd(event) {
+function dragEnd(event, hoverColor) {
   cancelDefault(event);
-  const element = event.target;
-  element.classList.remove("dragging");
-  sourceNoteId = "";
-}
-
-function dragOver(event) {
-  cancelDefault(event);
-  const element = event.target;
-
-  document.querySelectorAll('#tab').forEach(tab => {
-    if (tab.dataset.id !== element.dataset.id) {
-      tab.classList.remove("dragover");
-    }
+  event.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('#tab').forEach(x => {
+    if (x.style.background === hoverColor)
+      x.style.background = 'none';
   });
+  sourceId = '';
+}
 
-  if (element.dataset.id !== sourceNoteId) {
-    if (element.id === 'tab') {
-      element.classList.add("dragover");
-    } else if (element.parentElement.id === 'tab') {
-      element.parentElement.classList.add("dragover");
-    } else if (element.parentElement.parentElement.id === 'tab') {
-      element.parentElement.parentElement.classList.add("dragover");
+function dragOver(event, hoverColor) {
+  cancelDefault(event);
+  if (sourceId) {
+    const dataId = getDataId(event);
+    if (dataId) {
+      document.querySelectorAll('#tab').forEach(x => {
+        if (x.style.background === hoverColor)
+          x.style.background = 'none';
+      });
+
+      if (sourceId !== dataId)
+        event.currentTarget.style.background = hoverColor;
     }
   }
 }
@@ -88,17 +90,10 @@ function dragLeave(event) {
 
 function drop(event) {
   cancelDefault(event);
-  const targetElement = event.target;
-  const sourceId = event.dataTransfer.getData("text/plain");
-
-  if (targetElement && sourceId) {
-    if (targetElement.dataset.id !== sourceNoteId) {
-      webviewApi.postMessage({
-        name: 'tabsDrag',
-        targetId: targetElement.dataset.id,
-        sourceId: sourceId
-      });
-      targetElement.classList.remove("dragover");
-    }
+  const dataSourceId = event.dataTransfer.getData('text/x-plugin-note-tabs-id');
+  if (dataSourceId) {
+    const dataTargetId = getDataId(event);
+    if (dataTargetId !== sourceId)
+      webviewApi.postMessage({ name: 'tabsDrag', targetId: dataTargetId, sourceId: dataSourceId });
   }
 }

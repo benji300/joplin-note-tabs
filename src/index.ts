@@ -168,6 +168,17 @@ joplin.plugins.register({
       description: 'Main background color of the panel. (default: Note list background color)'
     });
 
+    let hoverBackground: string;
+    await SETTINGS.registerSetting('hoverBackground', {
+      value: SettingDefaults.Default,
+      type: SettingItemType.String,
+      section: 'note.tabs.settings',
+      public: true,
+      advanced: true,
+      label: 'Hover Background color',
+      description: 'Background color used when hovering a favorite. (default: Note list hover color)'
+    });
+
     let actBackground: string;
     await SETTINGS.registerSetting('activeBackground', {
       value: SettingDefaults.Default,
@@ -251,6 +262,7 @@ joplin.plugins.register({
       fontFamily = await getSettingOrDefault(event, fontFamily, 'fontFamily', SettingDefaults.FontFamily);
       fontSize = await getSettingOrDefault(event, fontSize, 'fontSize', SettingDefaults.FontSize);
       background = await getSettingOrDefault(event, background, 'mainBackground', SettingDefaults.Background);
+      hoverBackground = await getSettingOrDefault(event, hoverBackground, 'hoverBackground', SettingDefaults.HoverBackground);
       actBackground = await getSettingOrDefault(event, actBackground, 'activeBackground', SettingDefaults.ActiveBackground);
       breadcrumbsBackground = await getSettingOrDefault(event, breadcrumbsBackground, 'breadcrumbsBackground', SettingDefaults.ActiveBackground);
       foreground = await getSettingOrDefault(event, foreground, 'mainForeground', SettingDefaults.Foreground);
@@ -657,9 +669,9 @@ joplin.plugins.register({
           // prepare tab style attributes
           const bg: string = (selectedNote && note.id == selectedNote.id) ? actBackground : background;
           const fg: string = (selectedNote && note.id == selectedNote.id) ? actForeground : foreground;
-          const newTab: string = (noteTab.type == NoteTabType.Temporary) ? " new" : "";
-          const icon: string = (noteTab.type == NoteTabType.Pinned) ? "fa-times" : "fa-thumbtack";
-          const iconTitle: string = (noteTab.type == NoteTabType.Pinned) ? "Unpin" : "Pin";
+          const newTab: string = (noteTab.type == NoteTabType.Temporary) ? ' new' : '';
+          const icon: string = (noteTab.type == NoteTabType.Pinned) ? 'fa-times' : 'fa-thumbtack';
+          const iconTitle: string = (noteTab.type == NoteTabType.Pinned) ? 'Unpin' : 'Pin';
           const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
 
           // prepare checkbox for todo
@@ -671,7 +683,7 @@ joplin.plugins.register({
           noteTabsHtml.push(`
             <div id="tab" class="${newTab}" data-id="${note.id}" role="tab" draggable="${enableDragAndDrop}"
               ondblclick="pinNote(event);" onclick="tabClick(event);"
-              ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event);" ondragleave="dragLeave(event);" ondrop="drop(event);"
+              ondragstart="dragStart(event);" ondragend="dragEnd(event, '${hoverBackground}');" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
               style="height:${tabHeight}px;min-width:${minTabWidth}px;max-width:${maxTabWidth}px;border-color:${dividerColor};background:${bg};">
               <div class="tab-inner">
                 ${checkboxHtml}
