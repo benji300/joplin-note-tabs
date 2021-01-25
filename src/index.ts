@@ -676,22 +676,21 @@ joplin.plugins.register({
 
           // prepare checkbox for todo
           let checkboxHtml: string = '';
-          if (showTodoCheckboxes && note.is_todo) {
+          if (showTodoCheckboxes && note.is_todo)
             checkboxHtml = `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''}>`;
-          }
 
           noteTabsHtml.push(`
-            <div id="tab" class="${newTab}" data-id="${note.id}" role="tab" draggable="${enableDragAndDrop}"
-              ondblclick="pinNote(event);" onclick="tabClick(event);"
-              ondragstart="dragStart(event);" ondragend="dragEnd(event, '${hoverBackground}');" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
+            <div id="tab" data-id="${note.id}" data-bg="${bg}" draggable="${enableDragAndDrop}" class="${newTab}" role="tab"
+              onclick="tabClick(event);" ondblclick="pinNote(event);" onmouseover="setBackground(event,'${hoverBackground}');" onmouseout="resetBackground(this);"
+              ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
               style="height:${tabHeight}px;min-width:${minTabWidth}px;max-width:${maxTabWidth}px;border-color:${dividerColor};background:${bg};">
-              <div class="tab-inner">
+              <span class="tab-inner">
                 ${checkboxHtml}
                 <span class="tab-title" style="color:${fg};text-decoration: ${textDecoration};" title="${note.title}">
                   ${note.title}
                 </span>
                 <a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" style="color:${fg};"></a>
-              </div>
+              </span>
             </div>
           `);
         }
@@ -722,10 +721,10 @@ joplin.plugins.register({
           parentsHtml.push(`
             <div class="breadcrumb" data-id="${parent.id}" onClick="openFolder(event);"
               style="min-width:${breadcrumbsMinWidth}px;max-width:${breadcrumbsMaxWidth}px;">
-              <div class="breadcrumb-inner">
+              <span class="breadcrumb-inner">
                 <a href="#" class="breadcrumb-title" style="color:${foreground};" title="${parent.title}">${parent.title}</a>
                 <span class="fas fa-chevron-right" style="color:${foreground};"></span>
-              </div>
+              </span>
             </div>
           `);
         }
@@ -781,28 +780,22 @@ joplin.plugins.register({
         if (ev) {
           // note was updated (ItemChangeEventType.Update)
           if (ev.event == 2) {
-            // console.log(`onNoteChange: note '${ev.id}' was updated`);
 
             // get handled note and return if null
             const note: any = await DATA.get(['notes', ev.id], { fields: ['id', 'is_todo', 'todo_completed'] });
             if (note == null) return;
 
             // if auto pin is enabled and handled, pin to tabs
-            if (pinEditedNotes) {
+            if (pinEditedNotes)
               await pinTab(note, false);
-            }
 
             // if auto unpin is enabled and handled note is a completed todo...
-            if (unpinCompletedTodos && note.is_todo && note.todo_completed) {
+            if (unpinCompletedTodos && note.is_todo && note.todo_completed)
               await removeTab(note.id);
-            }
           }
 
-          // note was deleted (ItemChangeEventType.Delete)
+          // note was deleted (ItemChangeEventType.Delete) - remove tab
           if (ev.event == 3) {
-            // console.log(`onNoteChange: note '${ev.id}' was deleted`);
-
-            // if note was deleted, remove tab
             await tabs.delete(ev.id);
           }
         }

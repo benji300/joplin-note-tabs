@@ -132,6 +132,7 @@ span {
 .breadcrumb-inner .fas {
   margin-left: auto;
   margin-right: 0px;
+  margin-top: 2px;
 }
 
 /* DRAG AND DROP */

@@ -49,6 +49,19 @@ function cancelDefault(event) {
   return false;
 }
 
+function setBackground(event, background) {
+  event.currentTarget.style.background = background;
+}
+
+function resetBackground(element) {
+  if (element.dataset.bg)
+    element.style.background = element.dataset.bg;
+}
+
+function resetTabBackgrounds() {
+  document.querySelectorAll('#tab').forEach(x => { resetBackground(x); });
+}
+
 function dragStart(event) {
   const dataId = getDataId(event);
   if (dataId) {
@@ -58,13 +71,10 @@ function dragStart(event) {
   }
 }
 
-function dragEnd(event, hoverColor) {
+function dragEnd(event) {
   cancelDefault(event);
   event.currentTarget.classList.remove('dragging');
-  document.querySelectorAll('#tab').forEach(x => {
-    if (x.style.background === hoverColor)
-      x.style.background = 'none';
-  });
+  resetTabBackgrounds();
   sourceId = '';
 }
 
@@ -73,13 +83,10 @@ function dragOver(event, hoverColor) {
   if (sourceId) {
     const dataId = getDataId(event);
     if (dataId) {
-      document.querySelectorAll('#tab').forEach(x => {
-        if (x.style.background === hoverColor)
-          x.style.background = 'none';
-      });
+      resetTabBackgrounds();
 
       if (sourceId !== dataId)
-        event.currentTarget.style.background = hoverColor;
+        setBackground(event, hoverColor);
     }
   }
 }
