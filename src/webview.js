@@ -60,6 +60,9 @@ function resetBackground(element) {
 
 function resetTabBackgrounds() {
   document.querySelectorAll('#tab').forEach(x => { resetBackground(x); });
+  tabsContainer = document.querySelector('#tabs-container');
+  if (tabsContainer)
+    tabsContainer.style.background = 'none';
 }
 
 function dragStart(event) {
