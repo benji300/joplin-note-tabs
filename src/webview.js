@@ -80,15 +80,9 @@ function dragEnd(event) {
 
 function dragOver(event, hoverColor) {
   cancelDefault(event);
-  if (sourceId) {
-    const dataId = getDataId(event);
-    if (dataId) {
-      resetTabBackgrounds();
-
-      if (sourceId !== dataId)
-        setBackground(event, hoverColor);
-    }
-  }
+  resetTabBackgrounds();
+  if (sourceId !== getDataId(event))
+    setBackground(event, hoverColor);
 }
 
 function dragLeave(event) {
@@ -97,10 +91,25 @@ function dragLeave(event) {
 
 function drop(event) {
   cancelDefault(event);
+  const dataTargetId = getDataId(event);
+
+  // check whether plugin tab was dragged - trigger tabsDrag message
   const dataSourceId = event.dataTransfer.getData('text/x-plugin-note-tabs-id');
   if (dataSourceId) {
-    const dataTargetId = getDataId(event);
-    if (dataTargetId !== sourceId)
+    if (dataTargetId !== sourceId) {
       webviewApi.postMessage({ name: 'tabsDrag', targetId: dataTargetId, sourceId: dataSourceId });
+      return;
+    }
+  }
+
+  // check whether note was dragged from app onto the panel - add new tab at dropped index
+  const appDragNoteIds = event.dataTransfer.getData('text/x-jop-note-ids');
+  if (appDragNoteIds) {
+    const noteIds = new Array();
+    for (const noteId of JSON.parse(appDragNoteIds)) {
+      noteIds.push(noteId);
+    }
+    webviewApi.postMessage({ name: 'tabsDragNotes', noteIds: noteIds, targetId: dataTargetId });
+    return;
   }
 }

@@ -295,9 +295,9 @@ joplin.plugins.register({
     }
 
     /**
-     * Add new or pin tab for handled note.
+     * Add new or pin tab for handled note. Optionally at the specified index of targetId.
      */
-    async function pinTab(note: any, addAsNew: boolean) {
+    async function pinTab(note: any, addAsNew: boolean, targetId?: string) {
       // do not pin completed todos if auto unpin is enabled
       if (unpinCompletedTodos && note.is_todo && note.todo_completed) return;
 
@@ -305,8 +305,19 @@ joplin.plugins.register({
         // if note has already a tab, change type to pinned
         await tabs.changeType(note.id, NoteTabType.Pinned);
       } else {
-        // otherwise add as new one at the end
-        if (addAsNew) await tabs.add(note.id, NoteTabType.Pinned);
+        // otherwise add as new one
+        if (addAsNew) await tabs.add(note.id, NoteTabType.Pinned, targetId);
+      }
+    }
+
+    /**
+     * Add all handled note ids as pinned tabs. Optionally at the specified index of targetId.
+     */
+    async function pinNoteIds(noteIds: any[], targetId?: string) {
+      for (const noteId of noteIds) {
+        const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
+        if (note)
+          pinTab(note, true, targetId);
       }
     }
 
@@ -379,10 +390,7 @@ joplin.plugins.register({
         if (!selectedNoteIds) return;
 
         // pin all handled notes and update panel
-        for (const noteId of selectedNoteIds) {
-          const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
-          await pinTab(note, true);
-        }
+        await pinNoteIds(selectedNoteIds);
         await updatePanelView();
       }
     });
@@ -629,6 +637,10 @@ joplin.plugins.register({
       }
       if (message.name === 'tabsDrag') {
         await tabs.moveWithId(message.sourceId, message.targetId);
+        await updatePanelView();
+      }
+      if (message.name === 'tabsDragNotes') {
+        await pinNoteIds(message.noteIds, message.targetId);
         await updatePanelView();
       }
     });

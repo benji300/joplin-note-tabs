@@ -113,10 +113,14 @@ export class NoteTabs {
   /**
    * Adds note as new tab at the end.
    */
-  async add(noteId: string, noteType: NoteTabType) {
+  async add(noteId: string, noteType: NoteTabType, targetId?: string) {
     if (noteId === undefined || noteType === undefined) return;
 
-    this._tabs.push({ id: noteId, type: noteType });
+    const newTab: any = { id: noteId, type: noteType };
+    if (targetId)
+      await this.insertAtIndex(this.indexOf(targetId), newTab);
+    else
+      this._tabs.push(newTab);
     await this.store();
   }
 
