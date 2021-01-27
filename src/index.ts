@@ -692,13 +692,13 @@ joplin.plugins.register({
             checkboxHtml = `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''}>`;
 
           noteTabsHtml.push(`
-            <div id="tab" data-id="${note.id}" data-bg="${bg}" draggable="${enableDragAndDrop}" class="${newTab}" role="tab"
+            <div id="tab" data-id="${note.id}" data-bg="${bg}" draggable="${enableDragAndDrop}" class="${newTab}" role="tab" title="${note.title}"
               onclick="tabClick(event);" ondblclick="pinNote(event);" onmouseover="setBackground(event,'${hoverBackground}');" onmouseout="resetBackground(this);"
               ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
               style="height:${tabHeight}px;min-width:${minTabWidth}px;max-width:${maxTabWidth}px;border-color:${dividerColor};background:${bg};">
               <span class="tab-inner">
                 ${checkboxHtml}
-                <span class="tab-title" style="color:${fg};text-decoration: ${textDecoration};" title="${note.title}">
+                <span class="tab-title" style="color:${fg};text-decoration: ${textDecoration};">
                   ${note.title}
                 </span>
                 <a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" style="color:${fg};"></a>

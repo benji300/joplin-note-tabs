@@ -100,6 +100,9 @@ span {
   overflow: overlay;
   width: 100%;
 }
+#breadcrumbs-container .fas {
+  font-size: 1.1em;
+}
 .breadcrumbs-icon {
   height: 100%;
   margin: auto 0;
@@ -132,7 +135,6 @@ span {
 .breadcrumb-inner .fas {
   margin-left: auto;
   margin-right: 0px;
-  margin-top: 2px;
 }
 
 /* DRAG AND DROP */
