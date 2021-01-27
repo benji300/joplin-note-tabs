@@ -141,7 +141,8 @@ export class NoteTabs {
    * Moves the tab of source note to the index of the target note.
    */
   async moveWithId(sourceId: string, targetId: string) {
-    await this.moveWithIndex(this.indexOf(sourceId), this.indexOf(targetId));
+    const targetIdx: number = (targetId) ? this.indexOf(targetId) : (this.length() - 1);
+    await this.moveWithIndex(this.indexOf(sourceId), targetIdx);
   }
 
   /**

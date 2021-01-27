@@ -143,9 +143,6 @@ span {
   -webkit-user-select: none;
   -ms-user-select: none;
 }
-.dragging {
-  opacity: 0.6 !important;
-}
 
 ::-webkit-scrollbar {
   height: 4px;

@@ -755,7 +755,7 @@ joplin.plugins.register({
       // add entries to container and push to panel
       await PANELS.setHtml(panel, `
         <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;font-size:${fontSize};">
-          <div id="tabs-container" role="tablist" draggable="true"
+          <div id="tabs-container" role="tablist" draggable="${enableDragAndDrop}"
             ondragend="dragEnd(event);" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);">
             ${noteTabsHtml.join('\n')}
             ${controlsHtml}

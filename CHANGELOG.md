@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - User option to specify the font size for the panel
 - User option to specify the background color when hovering over tabs
 - Command to toggle panel visibility ([#16](https://github.com/benji300/joplin-note-tabs/issues/16))
+- Support to drag notes from note list to tabs ([#31](https://github.com/benji300/joplin-note-tabs/issues/31))
 
 ### Changed
 

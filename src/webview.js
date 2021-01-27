@@ -68,7 +68,6 @@ function resetTabBackgrounds() {
 function dragStart(event) {
   const dataId = getDataId(event);
   if (dataId) {
-    event.currentTarget.classList.add('dragging');
     event.dataTransfer.setData('text/x-plugin-note-tabs-id', dataId);
     sourceId = dataId;
   }
@@ -76,7 +75,6 @@ function dragStart(event) {
 
 function dragEnd(event) {
   cancelDefault(event);
-  event.currentTarget.classList.remove('dragging');
   resetTabBackgrounds();
   sourceId = '';
 }
