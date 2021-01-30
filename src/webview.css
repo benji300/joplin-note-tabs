@@ -103,11 +103,25 @@ span {
 #breadcrumbs-container .fas {
   font-size: 1.1em;
 }
+
+.navigation-icons {
+  border-style: solid;
+  border-width: 0;
+  border-right-width: 1px;
+  height: 100%;
+  margin: auto 0;
+  padding: 0 4px;
+}
+.navigation-icons .fas {
+  padding: 0 4px;
+}
+
 .breadcrumbs-icon {
   height: 100%;
   margin: auto 0;
   padding-left: 8px;
 }
+
 .breadcrumb {
   display: flex;
   height: 25px;

@@ -1,6 +1,6 @@
 # Joplin Note Tabs
 
-Joplin Note Tabs is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
+Note Tabs is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
 
 It allows to open several notes at once in tabs and pin them to be kept open.
 
@@ -13,7 +13,7 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 - [Installation](#installation)
 - [Usage](#usage)
   - [Place the panel](#place-the-panel)
-- [Commands](#Commands)
+- [Commands](#commands)
   - [Keyboard shortcuts](#keyboard-shortcuts)
 - [User options](#user-options)
 - [UI Tweaks](#ui-tweaks)
@@ -26,7 +26,9 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 ## Features
 
 - Display selected note as tab
-- Display full breadcrumbs for selected note below tabs
+- Additional display options below the tabs
+  - Full breadcrumbs for selected note
+  - Navigation buttons (`historyBackward/Forward`)
 - Pin note(s) to the tabs
   - Either via command or drag & drop from the note list
 - Save pinned tabs permanently
@@ -34,8 +36,8 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 - Remember last opened and unpinned note
 - Change position of tabs within the panel
   - Either via drag & drop or keyboard shortcuts (which have been assigned to the corresponding commands)
-- Toggle to-do state from tabs
-  - Automatically unpin completed to-dos ([configurable](#user-options))
+- Toggle to-do state directly on the tabs
+  - Optionally unpin completed to-dos automatically
 - [Configurable](#user-options) style attributes
 - Support horizontal and vertical layout
 
@@ -94,6 +96,7 @@ By default the panel will be on the right side of the screen, this can be adjust
 - `View > Change application layout`
 - Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
 - Move the splitter to reach the desired height/width of the panel
+  - As soon as the width of the panel goes below `400px`, it automatically switches from horizontal to vertical layout
 - Press `ESC` to save the layout and return to normal mode
 
 ## Commands

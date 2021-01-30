@@ -7,6 +7,10 @@ function getDataId(event) {
 }
 
 /* CLICK EVENTS */
+function message(message) {
+  webviewApi.postMessage({ name: message });
+}
+
 function openFolder(event) {
   const dataId = getDataId(event);
   if (dataId) {
@@ -34,14 +38,6 @@ function tabClick(event) {
       webviewApi.postMessage({ name: 'tabsOpen', id: dataId });
     }
   }
-}
-
-function moveLeft() {
-  webviewApi.postMessage({ name: 'tabsMoveLeft' });
-}
-
-function moveRight() {
-  webviewApi.postMessage({ name: 'tabsMoveRight' });
 }
 
 /* DRAG AND DROP */

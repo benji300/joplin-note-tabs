@@ -63,6 +63,16 @@ joplin.plugins.register({
       label: 'Show breadcrumbs below tabs',
       description: 'Display full breadcrumbs for selected note below tabs. Only available in horizontal layout.'
     });
+    
+    let showNavigationButtons: boolean;
+    await SETTINGS.registerSetting('showNavigationButtons', {
+      value: false,
+      type: SettingItemType.Bool,
+      section: 'note.tabs.settings',
+      public: true,
+      label: 'Show navigation buttons below tabs',
+      description: 'Display history backward and forward buttons before the breadcrumds. Only visible if breadcrumbs are also enabled and visible.'
+    });
 
     let pinEditedNotes: boolean;
     await SETTINGS.registerSetting('pinEditedNotes', {
@@ -252,6 +262,7 @@ joplin.plugins.register({
       enableDragAndDrop = await getSettingOrDefault(event, enableDragAndDrop, 'enableDragAndDrop');
       showTodoCheckboxes = await getSettingOrDefault(event, showTodoCheckboxes, 'showTodoCheckboxes');
       showBreadcrumbs = await getSettingOrDefault(event, showBreadcrumbs, 'showBreadcrumbs');
+      showNavigationButtons = await getSettingOrDefault(event, showNavigationButtons, 'showNavigationButtons');
       pinEditedNotes = await getSettingOrDefault(event, pinEditedNotes, 'pinEditedNotes');
       unpinCompletedTodos = await getSettingOrDefault(event, unpinCompletedTodos, 'unpinCompletedTodos');
       tabHeight = await getSettingOrDefault(event, tabHeight, 'tabHeight');
@@ -638,6 +649,12 @@ joplin.plugins.register({
       if (message.name === 'tabsMoveRight') {
         await COMMANDS.execute('tabsMoveRight');
       }
+      if (message.name === 'tabsBack') {
+        await COMMANDS.execute('historyBackward');
+      }
+      if (message.name === 'tabsForward') {
+        await COMMANDS.execute('historyForward');
+      }
       if (message.name === 'tabsDrag') {
         await tabs.moveWithId(message.sourceId, message.targetId);
         await updatePanelView();
@@ -716,8 +733,19 @@ joplin.plugins.register({
       if (!enableDragAndDrop) {
         controlsHtml = `
           <div id="controls" style="height:${tabHeight}px;">
-            <a href="#" class="fas fa-chevron-left" title="Move active tab left" style="color:${foreground};" onclick="moveLeft();"></a>
-            <a href="#" class="fas fa-chevron-right" title="Move active tab right" style="color:${foreground};" onclick="moveRight();"></a>
+            <a href="#" class="fas fa-chevron-left" title="Move active tab left" style="color:${foreground};" onclick="message('tabsMoveLeft');"></a>
+            <a href="#" class="fas fa-chevron-right" title="Move active tab right" style="color:${foreground};" onclick="message('tabsMoveRight');"></a>
+          </div>
+        `;
+      }
+
+      // prepare navigation buttons, if enabled
+      let navigationHtml: string = '';
+      if (showNavigationButtons && selectedNote) {
+        navigationHtml = `
+          <div class="navigation-icons" style="border-color:${dividerColor};">
+            <a href="#" class="fas fa-chevron-left" title="Back" style="color:${foreground};" onclick="message('tabsBack');"></a>
+            <a href="#" class="fas fa-chevron-right" title="Forward" style="color:${foreground};" onclick="message('tabsForward');"></a>
           </div>
         `;
       }
@@ -747,6 +775,7 @@ joplin.plugins.register({
         // setup breadcrumbs container html
         breadcrumbsHtml = `
           <div id="breadcrumbs-container" style="background:${breadcrumbsBackground};">
+            ${navigationHtml}
             <div class="breadcrumbs-icon">
               <span class="fas fa-book" style="color:${foreground};"></span>
             </div>
@@ -829,5 +858,5 @@ joplin.plugins.register({
     //#endregion
 
     await readSettingsAndUpdate();
-  },
+  }
 });
