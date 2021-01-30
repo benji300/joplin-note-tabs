@@ -315,9 +315,14 @@ joplin.plugins.register({
      */
     async function pinNoteIds(noteIds: any[], targetId?: string) {
       for (const noteId of noteIds) {
-        const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
-        if (note)
-          pinTab(note, true, targetId);
+        try {
+          const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
+          if (note) {
+            pinTab(note, true, targetId);
+          }
+        } catch (error) {
+          return;
+        }
       }
     }
 
@@ -330,9 +335,8 @@ joplin.plugins.register({
       // remove tab completely
       await tabs.delete(noteId);
 
-      // if note is the selected note
+      // if note is the selected note, add as temp tab or replace existing one
       if (selectedNote && selectedNote.id == noteId) {
-        // add as temp tab or replace existing one
         await addTab(noteId);
       }
     }
@@ -365,7 +369,6 @@ joplin.plugins.register({
       while (last_id) {
         const parent: any = await DATA.get(['folders', last_id], { fields: ['id', 'title', 'parent_id'] });
         if (!parent) break;
-
         last_id = parent.parent_id;
         parents.push(parent);
       }
