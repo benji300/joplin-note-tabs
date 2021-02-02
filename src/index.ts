@@ -1,7 +1,7 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
-import { NoteTabType, NoteTabs} from './helpers';
+import { NoteTabType, NoteTabs} from './noteTabs';
 import { LastActiveNote } from './lastActiveNote';
 import { SettingDefaults, } from './helpers';
 
@@ -297,7 +297,7 @@ joplin.plugins.register({
     async function addTab(noteId: string) {
       if (tabs.hasTab(noteId)) return;
 
-      if (tabs.indexOfTemp() >= 0) {
+      if (tabs.indexOfTemp >= 0) {
         // replace existing temporary tab...
         tabs.replaceTemp(noteId);
       } else {
@@ -521,7 +521,7 @@ joplin.plugins.register({
         // check if note is not already last, otherwise exit
         const index: number = tabs.indexOf(selectedNote.id);
         if (index < 0) return;
-        if (index == tabs.length() - 1) return;
+        if (index == tabs.length - 1) return;
 
         // get id of right note and select it
         await COMMANDS.execute('openNote', tabs.get(index + 1).id);
