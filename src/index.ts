@@ -1,7 +1,8 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
-import { NoteTabType, NoteTabs, LastActiveNoteQueue } from './helpers';
+import { NoteTabType, NoteTabs} from './helpers';
+import { LastActiveNote } from './lastActiveNote';
 import { SettingDefaults, } from './helpers';
 
 joplin.plugins.register({
@@ -13,7 +14,7 @@ joplin.plugins.register({
     const SETTINGS = joplin.settings;
     const WORKSPACE = joplin.workspace;
 
-    let lastActiveNoteQueue = new LastActiveNoteQueue();
+    let lastActiveNote = new LastActiveNote();
 
     //#region SETTINGS
 
@@ -474,10 +475,10 @@ joplin.plugins.register({
       iconName: 'fas fa-step-backward',
       enabledCondition: "oneNoteSelected",
       execute: async () => {
-        if (lastActiveNoteQueue.length() < 2) return;
+        if (lastActiveNote.length < 2) return;
 
         // get the last active note from the queue
-        const lastActiveNoteId = lastActiveNoteQueue.pop();
+        const lastActiveNoteId = lastActiveNote.id;
 
         // select note with stored id
         await COMMANDS.execute('openNote', lastActiveNoteId);
@@ -810,7 +811,7 @@ joplin.plugins.register({
           await addTab(selectedNote.id);
 
           // add selected note id to last active queue
-          lastActiveNoteQueue.push(selectedNote.id);
+          lastActiveNote.id = selectedNote.id;
         }
 
         await updatePanelView();
