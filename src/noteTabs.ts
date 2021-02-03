@@ -1,5 +1,3 @@
-import joplin from 'api';
-
 /**
  * Tab type definitions.
  */
@@ -13,9 +11,6 @@ export enum NoteTabType {
  * Helper class to work with note tabs array.
  * - Read settings array once at startup.
  * - Then work on this._tabs array.
- * - Changes are directly stored back to the settings array
- *   - Currently there's no "event" to call store() only on App closing
- *   - Which would be preferred
  */
 export class NoteTabs {
 
@@ -30,8 +25,20 @@ export class NoteTabs {
    */
   private _tabs: any[];
 
-  constructor() {
-    this._tabs = new Array();
+  /**
+  * Init with noteTabs settings array.
+  */
+  constructor(noteTabs: any[]) {
+    this._tabs = noteTabs;
+  }
+
+  //#region  GETTER
+
+  /**
+   * All note tabs.
+   */
+  get all(): any[] {
+    return this._tabs;
   }
 
   /**
@@ -48,19 +55,7 @@ export class NoteTabs {
     return this._tabs.findIndex(x => x.type === NoteTabType.Temporary);
   }
 
-  /**
-   * Reads the noteTabs settings array.
-   */
-  async read() {
-    this._tabs = await joplin.settings.value('noteTabs');
-  }
-
-  /**
-   * Writes the temporay tabs store back to the settings array.
-   */
-  private async store() {
-    await joplin.settings.setValue('noteTabs', this._tabs);
-  }
+  //#endregion
 
   /**
    * Inserts handled tab at specified index.
@@ -69,14 +64,6 @@ export class NoteTabs {
     if (index < 0 || tab === undefined) return;
 
     this._tabs.splice(index, 0, tab);
-    await this.store();
-  }
-
-  /**
-   * Gets all tabs.
-   */
-  getAll(): any[] {
-    return this._tabs;
   }
 
   /**
@@ -113,7 +100,6 @@ export class NoteTabs {
       await this.insertAtIndex(this.indexOf(targetId), newTab);
     else
       this._tabs.push(newTab);
-    await this.store();
   }
 
   /**
@@ -126,7 +112,6 @@ export class NoteTabs {
     const tab: any = this._tabs[sourceIdx];
     await this.delete(this.get(sourceIdx).id);
     await this.insertAtIndex((targetIdx == 0 ? 0 : targetIdx), tab);
-    await this.store();
   }
 
   /**
@@ -144,7 +129,6 @@ export class NoteTabs {
     const index = this.indexOf(noteId);
     if (index >= 0) {
       this._tabs[index].type = newType;
-      await this.store();
     }
   }
 
@@ -157,7 +141,6 @@ export class NoteTabs {
     const tempIdx: number = this.indexOfTemp;
     if (tempIdx >= 0) {
       this._tabs[tempIdx].id = noteId;
-      await this.store();
     }
   }
 
@@ -168,7 +151,6 @@ export class NoteTabs {
     const index = this.indexOf(noteId);
     if (index >= 0) {
       this._tabs.splice(index, 1);
-      await this.store();
     }
   }
 
@@ -177,6 +159,5 @@ export class NoteTabs {
    */
   async clearAll() {
     this._tabs = [];
-    await this.store();
   }
 }

@@ -1,9 +1,9 @@
 import joplin from 'api';
-import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
+import { MenuItem, MenuItemLocation } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
-import { NoteTabType, NoteTabs} from './noteTabs';
+import { NoteTabType, NoteTabs } from './noteTabs';
 import { LastActiveNote } from './lastActiveNote';
-import { SettingDefaults, } from './helpers';
+import { Settings } from './settings';
 
 joplin.plugins.register({
   onStart: async function () {
@@ -14,280 +14,11 @@ joplin.plugins.register({
     const SETTINGS = joplin.settings;
     const WORKSPACE = joplin.workspace;
 
-    let lastActiveNote = new LastActiveNote();
+    const settings: Settings = new Settings();
+    await settings.register();
 
-    //#region SETTINGS
-
-    await SETTINGS.registerSection('note.tabs.settings', {
-      label: 'Note Tabs',
-      iconName: 'fas fa-window-maximize'
-    });
-
-    // private settings
-    let tabs = new NoteTabs();
-    await SETTINGS.registerSetting('noteTabs', {
-      value: [],
-      type: SettingItemType.Array,
-      section: 'note.tabs.settings',
-      public: false,
-      label: 'Note tabs'
-    });
-    await tabs.read();
-
-    // general settings
-    let enableDragAndDrop: boolean;
-    await SETTINGS.registerSetting('enableDragAndDrop', {
-      value: true,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Enable drag & drop of tabs',
-      description: 'If disabled, position of tabs can be change via commands or move buttons.'
-    });
-
-    let showTodoCheckboxes: boolean;
-    await SETTINGS.registerSetting('showTodoCheckboxes', {
-      value: true,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Show to-do checkboxes on tabs',
-      description: 'If enabled, to-dos can be completed directly on the tabs.'
-    });
-
-    let showBreadcrumbs: boolean;
-    await SETTINGS.registerSetting('showBreadcrumbs', {
-      value: false,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Show breadcrumbs below tabs',
-      description: 'Display full breadcrumbs for selected note below tabs. Only available in horizontal layout.'
-    });
-    
-    let showNavigationButtons: boolean;
-    await SETTINGS.registerSetting('showNavigationButtons', {
-      value: false,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Show navigation buttons below tabs',
-      description: 'Display history backward and forward buttons before the breadcrumds. Only visible if breadcrumbs are also enabled and visible.'
-    });
-
-    let pinEditedNotes: boolean;
-    await SETTINGS.registerSetting('pinEditedNotes', {
-      value: false,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Automatically pin notes when edited',
-      description: 'Pin notes automatically as soon as the title, content or any other attribute changes.'
-    });
-
-    let unpinCompletedTodos: boolean;
-    await SETTINGS.registerSetting('unpinCompletedTodos', {
-      value: false,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Automatically unpin completed to-dos',
-      description: 'Unpin notes automatically as soon as the to-do status changes to completed. Removes the tab completely unless it is the selected note.'
-    });
-
-    let tabHeight: number;
-    await SETTINGS.registerSetting('tabHeight', {
-      value: "40",
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Note Tabs height (px)',
-      description: 'Height of the tabs. Row height in vertical layout.'
-    });
-
-    let minTabWidth: number;
-    await SETTINGS.registerSetting('minTabWidth', {
-      value: "50",
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Minimum Tab width (px)',
-      description: 'Minimum width of one tab in pixel.'
-    });
-
-    let maxTabWidth: number;
-    await SETTINGS.registerSetting('maxTabWidth', {
-      value: "150",
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Maximum Tab width (px)',
-      description: 'Maximum width of one tab in pixel.'
-    });
-
-    let breadcrumbsMinWidth: number;
-    await SETTINGS.registerSetting('breadcrumbsMinWidth', {
-      value: "25",
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Minimum breadcrumb width (px)',
-      description: 'Minimum width of one breadcrumb in pixel.'
-    });
-
-    let breadcrumbsMaxWidth: number;
-    await SETTINGS.registerSetting('breadcrumbsMaxWidth', {
-      value: "100",
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Maximum breadcrumb width (px)',
-      description: 'Maximum width of one breadcrumb in pixel.'
-    });
-
-    // advanced settings
-    let fontFamily: string;
-    await SETTINGS.registerSetting('fontFamily', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Font family',
-      description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: Roboto)"
-    });
-
-    let fontSize: string;
-    await SETTINGS.registerSetting('fontSize', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Font size',
-      description: "Font size used in the panel. Values other than 'default' must be specified in valid CSS syntax, e.g. '13px'. (default: App default font size)"
-    });
-
-    let background: string;
-    await SETTINGS.registerSetting('mainBackground', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Background color',
-      description: 'Main background color of the panel. (default: Note list background color)'
-    });
-
-    let hoverBackground: string;
-    await SETTINGS.registerSetting('hoverBackground', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Hover Background color',
-      description: 'Background color used when hovering a favorite. (default: Note list hover color)'
-    });
-
-    let actBackground: string;
-    await SETTINGS.registerSetting('activeBackground', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Active background color',
-      description: 'Background color of the current active tab. (default: Editor background color)'
-    });
-
-    let breadcrumbsBackground: string;
-    await SETTINGS.registerSetting('breadcrumbsBackground', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Breadcrumbs background color',
-      description: 'Background color of the breadcrumbs. (default: Editor background color)'
-    });
-
-    let foreground: string;
-    await SETTINGS.registerSetting('mainForeground', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Foreground color',
-      description: 'Foreground color used for text and icons. (default: App faded color)'
-    });
-
-    let actForeground: string;
-    await SETTINGS.registerSetting('activeForeground', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Active foreground color',
-      description: 'Foreground color of the current active tab. (default: Editor font color)'
-    });
-
-    let dividerColor: string;
-    await SETTINGS.registerSetting('dividerColor', {
-      value: SettingDefaults.Default,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Divider color',
-      description: 'Color of the divider between the tabs. (default: App default border color)'
-    });
-
-    const regexp: RegExp = new RegExp(SettingDefaults.Default, "i");
-    async function getSettingOrDefault(event: ChangeEvent, localVar: any, setting: string, defaultValue?: string): Promise<any> {
-      const read: boolean = (!event || event.keys.includes(setting));
-      if (read) {
-        const value: string = await SETTINGS.value(setting);
-        if (defaultValue && value.match(regexp)) {
-          return defaultValue;
-        } else {
-          return value;
-        }
-      }
-      return localVar;
-    }
-
-    async function readSettingsAndUpdate(event?: ChangeEvent) {
-      enableDragAndDrop = await getSettingOrDefault(event, enableDragAndDrop, 'enableDragAndDrop');
-      showTodoCheckboxes = await getSettingOrDefault(event, showTodoCheckboxes, 'showTodoCheckboxes');
-      showBreadcrumbs = await getSettingOrDefault(event, showBreadcrumbs, 'showBreadcrumbs');
-      showNavigationButtons = await getSettingOrDefault(event, showNavigationButtons, 'showNavigationButtons');
-      pinEditedNotes = await getSettingOrDefault(event, pinEditedNotes, 'pinEditedNotes');
-      unpinCompletedTodos = await getSettingOrDefault(event, unpinCompletedTodos, 'unpinCompletedTodos');
-      tabHeight = await getSettingOrDefault(event, tabHeight, 'tabHeight');
-      minTabWidth = await getSettingOrDefault(event, minTabWidth, 'minTabWidth');
-      maxTabWidth = await getSettingOrDefault(event, maxTabWidth, 'maxTabWidth');
-      breadcrumbsMinWidth = await getSettingOrDefault(event, breadcrumbsMinWidth, 'breadcrumbsMinWidth');
-      breadcrumbsMaxWidth = await getSettingOrDefault(event, breadcrumbsMaxWidth, 'breadcrumbsMaxWidth');
-      fontFamily = await getSettingOrDefault(event, fontFamily, 'fontFamily', SettingDefaults.FontFamily);
-      fontSize = await getSettingOrDefault(event, fontSize, 'fontSize', SettingDefaults.FontSize);
-      background = await getSettingOrDefault(event, background, 'mainBackground', SettingDefaults.Background);
-      hoverBackground = await getSettingOrDefault(event, hoverBackground, 'hoverBackground', SettingDefaults.HoverBackground);
-      actBackground = await getSettingOrDefault(event, actBackground, 'activeBackground', SettingDefaults.ActiveBackground);
-      breadcrumbsBackground = await getSettingOrDefault(event, breadcrumbsBackground, 'breadcrumbsBackground', SettingDefaults.ActiveBackground);
-      foreground = await getSettingOrDefault(event, foreground, 'mainForeground', SettingDefaults.Foreground);
-      actForeground = await getSettingOrDefault(event, actForeground, 'activeForeground', SettingDefaults.ActiveForeground);
-      dividerColor = await getSettingOrDefault(event, dividerColor, 'dividerColor', SettingDefaults.DividerColor);
-      await updatePanelView();
-    }
-
-    SETTINGS.onChange(async (event: ChangeEvent) => {
-      await readSettingsAndUpdate(event);
-    });
-
-    //#endregion
+    const tabs = new NoteTabs(settings.noteTabs);
+    const lastActiveNote = new LastActiveNote();
 
     //#region HELPERS
 
@@ -311,7 +42,7 @@ joplin.plugins.register({
      */
     async function pinTab(note: any, addAsNew: boolean, targetId?: string) {
       // do not pin completed todos if auto unpin is enabled
-      if (unpinCompletedTodos && note.is_todo && note.todo_completed) return;
+      if (settings.unpinCompletedTodos && note.is_todo && note.todo_completed) return;
 
       if (tabs.hasTab(note.id)) {
         // if note has already a tab, change type to pinned
@@ -668,7 +399,7 @@ joplin.plugins.register({
 
     // set init message
     await PANELS.setHtml(panel, `
-      <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;font-size:${fontSize};">
+      <div id="container" style="background:${settings.background};font-family:'${settings.fontFamily}',sans-serif;font-size:${settings.fontSize};">
         <div id="tabs-container">
           <p style="padding-left:8px;">Loading panel...</p>
         </div>
@@ -684,7 +415,7 @@ joplin.plugins.register({
       const showCompletedTodos: boolean = await SETTINGS.globalValue('showCompletedTodos');
 
       // create HTML for each tab
-      for (const noteTab of tabs.getAll()) {
+      for (const noteTab of tabs.all) {
         let note: any = null;
 
         // get real note from database, if no longer exists remove tab and continue with next one
@@ -700,8 +431,8 @@ joplin.plugins.register({
           if ((!showCompletedTodos) && note.todo_completed) continue;
 
           // prepare tab style attributes
-          const bg: string = (selectedNote && note.id == selectedNote.id) ? actBackground : background;
-          const fg: string = (selectedNote && note.id == selectedNote.id) ? actForeground : foreground;
+          const bg: string = (selectedNote && note.id == selectedNote.id) ? settings.actBackground : settings.background;
+          const fg: string = (selectedNote && note.id == selectedNote.id) ? settings.actForeground : settings.foreground;
           const newTab: string = (noteTab.type == NoteTabType.Temporary) ? ' new' : '';
           const icon: string = (noteTab.type == NoteTabType.Pinned) ? 'fa-times' : 'fa-thumbtack';
           const iconTitle: string = (noteTab.type == NoteTabType.Pinned) ? 'Unpin' : 'Pin';
@@ -709,14 +440,14 @@ joplin.plugins.register({
 
           // prepare checkbox for todo
           let checkboxHtml: string = '';
-          if (showTodoCheckboxes && note.is_todo)
+          if (settings.showTodoCheckboxes && note.is_todo)
             checkboxHtml = `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''}>`;
 
           noteTabsHtml.push(`
-            <div id="tab" data-id="${note.id}" data-bg="${bg}" draggable="${enableDragAndDrop}" class="${newTab}" role="tab" title="${note.title}"
-              onclick="tabClick(event);" ondblclick="pinNote(event);" onmouseover="setBackground(event,'${hoverBackground}');" onmouseout="resetBackground(this);"
-              ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
-              style="height:${tabHeight}px;min-width:${minTabWidth}px;max-width:${maxTabWidth}px;border-color:${dividerColor};background:${bg};">
+            <div id="tab" data-id="${note.id}" data-bg="${bg}" draggable="${settings.enableDragAndDrop}" class="${newTab}" role="tab" title="${note.title}"
+              onclick="tabClick(event);" ondblclick="pinNote(event);" onmouseover="setBackground(event,'${settings.hoverBackground}');" onmouseout="resetBackground(this);"
+              ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event, '${settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
+              style="height:${settings.tabHeight}px;min-width:${settings.minTabWidth}px;max-width:${settings.maxTabWidth}px;border-color:${settings.dividerColor};background:${bg};">
               <span class="tab-inner">
                 ${checkboxHtml}
                 <span class="tab-title" style="color:${fg};text-decoration: ${textDecoration};">
@@ -731,29 +462,29 @@ joplin.plugins.register({
 
       // prepare control buttons, if drag&drop is disabled
       let controlsHtml: string = '';
-      if (!enableDragAndDrop) {
+      if (!settings.enableDragAndDrop) {
         controlsHtml = `
-          <div id="controls" style="height:${tabHeight}px;">
-            <a href="#" class="fas fa-chevron-left" title="Move active tab left" style="color:${foreground};" onclick="message('tabsMoveLeft');"></a>
-            <a href="#" class="fas fa-chevron-right" title="Move active tab right" style="color:${foreground};" onclick="message('tabsMoveRight');"></a>
+          <div id="controls" style="height:${settings.tabHeight}px;">
+            <a href="#" class="fas fa-chevron-left" title="Move active tab left" style="color:${settings.foreground};" onclick="message('tabsMoveLeft');"></a>
+            <a href="#" class="fas fa-chevron-right" title="Move active tab right" style="color:${settings.foreground};" onclick="message('tabsMoveRight');"></a>
           </div>
         `;
       }
 
       // prepare navigation buttons, if enabled
       let navigationHtml: string = '';
-      if (showNavigationButtons && selectedNote) {
+      if (settings.showNavigationButtons && selectedNote) {
         navigationHtml = `
-          <div class="navigation-icons" style="border-color:${dividerColor};">
-            <a href="#" class="fas fa-chevron-left" title="Back" style="color:${foreground};" onclick="message('tabsBack');"></a>
-            <a href="#" class="fas fa-chevron-right" title="Forward" style="color:${foreground};" onclick="message('tabsForward');"></a>
+          <div class="navigation-icons" style="border-color:${settings.dividerColor};">
+            <a href="#" class="fas fa-chevron-left" title="Back" style="color:${settings.foreground};" onclick="message('tabsBack');"></a>
+            <a href="#" class="fas fa-chevron-right" title="Forward" style="color:${settings.foreground};" onclick="message('tabsForward');"></a>
           </div>
         `;
       }
 
       // prepare breadcrumbs, if enabled
       let breadcrumbsHtml: string = '';
-      if (showBreadcrumbs && selectedNote) {
+      if (settings.showBreadcrumbs && selectedNote) {
         let parentsHtml: any[] = new Array();
         let parents: any[] = await getNoteParents(selectedNote.parent_id);
 
@@ -764,10 +495,10 @@ joplin.plugins.register({
 
           parentsHtml.push(`
             <div class="breadcrumb" data-id="${parent.id}" onClick="openFolder(event);"
-              style="min-width:${breadcrumbsMinWidth}px;max-width:${breadcrumbsMaxWidth}px;">
+              style="min-width:${settings.breadcrumbsMinWidth}px;max-width:${settings.breadcrumbsMaxWidth}px;">
               <span class="breadcrumb-inner">
-                <a href="#" class="breadcrumb-title" style="color:${foreground};" title="${parent.title}">${parent.title}</a>
-                <span class="fas fa-chevron-right" style="color:${foreground};"></span>
+                <a href="#" class="breadcrumb-title" style="color:${settings.foreground};" title="${parent.title}">${parent.title}</a>
+                <span class="fas fa-chevron-right" style="color:${settings.foreground};"></span>
               </span>
             </div>
           `);
@@ -775,10 +506,10 @@ joplin.plugins.register({
 
         // setup breadcrumbs container html
         breadcrumbsHtml = `
-          <div id="breadcrumbs-container" style="background:${breadcrumbsBackground};">
+          <div id="breadcrumbs-container" style="background:${settings.breadcrumbsBackground};">
             ${navigationHtml}
             <div class="breadcrumbs-icon">
-              <span class="fas fa-book" style="color:${foreground};"></span>
+              <span class="fas fa-book" style="color:${settings.foreground};"></span>
             </div>
             ${parentsHtml.join(`\n`)}
           </div>
@@ -787,20 +518,30 @@ joplin.plugins.register({
 
       // add entries to container and push to panel
       await PANELS.setHtml(panel, `
-        <div id="container" style="background:${background};font-family:'${fontFamily}',sans-serif;font-size:${fontSize};">
-          <div id="tabs-container" role="tablist" draggable="${enableDragAndDrop}"
-            ondragend="dragEnd(event);" ondragover="dragOver(event, '${hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);">
+        <div id="container" style="background:${settings.background};font-family:'${settings.fontFamily}',sans-serif;font-size:${settings.fontSize};">
+          <div id="tabs-container" role="tablist" draggable="${settings.enableDragAndDrop}"
+            ondragend="dragEnd(event);" ondragover="dragOver(event, '${settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);">
             ${noteTabsHtml.join('\n')}
             ${controlsHtml}
           </div>
           ${breadcrumbsHtml}
         </div>
       `);
+
+      // store the current note tabs array back to the settings
+      // - Currently there's no "event" to call store() only on App closing
+      // - Which would be preferred
+      settings.storeTabs(tabs.all);
     }
 
     //#endregion
 
-    //#region WORKSPACE
+    //#region EVENTS
+
+    SETTINGS.onChange(async (event: ChangeEvent) => {
+      await settings.read(event);
+      await updatePanelView();
+    });
 
     WORKSPACE.onNoteSelectionChange(async () => {
       try {
@@ -832,11 +573,11 @@ joplin.plugins.register({
             if (note == null) return;
 
             // if auto pin is enabled and handled, pin to tabs
-            if (pinEditedNotes)
+            if (settings.pinEditedNotes)
               await pinTab(note, false);
 
             // if auto unpin is enabled and handled note is a completed todo...
-            if (unpinCompletedTodos && note.is_todo && note.todo_completed)
+            if (settings.unpinCompletedTodos && note.is_todo && note.todo_completed)
               await removeTab(note.id);
           }
 
@@ -858,6 +599,6 @@ joplin.plugins.register({
 
     //#endregion
 
-    await readSettingsAndUpdate();
+    await updatePanelView();
   }
 });
