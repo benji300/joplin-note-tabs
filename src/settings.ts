@@ -140,6 +140,14 @@ export class Settings {
 
   //#endregion
 
+  //#region GLOBAL VALUES
+
+  get showCompletedTodos(): Promise<boolean> {
+    return joplin.settings.globalValue('showCompletedTodos');
+  }
+
+  //#endregion
+
   /**
    * Register settings section with all options and intially read them at the end.
    */
