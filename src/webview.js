@@ -1,64 +1,47 @@
-/* DOUBLE CLICK EVENT */
-document.addEventListener('dblclick', event => {
-  const element = event.target;
-
-  if (element.id === 'tab' || element.className === 'tab-inner' || element.className === 'tab-title') {
-    webviewApi.postMessage({
-      name: 'tabsPinNote',
-      id: element.dataset.id,
-    });
+function getDataId(event) {
+  if (event.currentTarget.id === 'tab' || event.currentTarget.className === 'breadcrumb') {
+    return event.currentTarget.dataset.id;
+  } else {
+    return;
   }
-})
+}
 
 /* CLICK EVENTS */
-document.addEventListener('click', event => {
-  const element = event.target;
+function message(message) {
+  webviewApi.postMessage({ name: message });
+}
 
-  if (element.className === 'breadcrumb-title') {
-    webviewApi.postMessage({
-      name: 'tabsOpenFolder',
-      id: element.dataset.id,
-    });
+function openFolder(event) {
+  const dataId = getDataId(event);
+  if (dataId) {
+    webviewApi.postMessage({ name: 'tabsOpenFolder', id: dataId });
   }
-  if (element.id === 'tab' || element.className === 'tab-inner' || element.className === 'tab-title') {
-    webviewApi.postMessage({
-      name: 'tabsOpen',
-      id: element.dataset.id,
-    });
+}
+
+function pinNote(event) {
+  const dataId = getDataId(event);
+  if (dataId) {
+    webviewApi.postMessage({ name: 'tabsPinNote', id: dataId });
   }
-  if (element.id === 'Pin') {
-    webviewApi.postMessage({
-      name: 'tabsPinNote',
-      id: element.dataset.id,
-    });
+}
+
+function tabClick(event) {
+  const dataId = getDataId(event);
+  if (dataId) {
+    if (event.target.id === 'Pin') {
+      pinNote(event);
+    } else if (event.target.id === 'Unpin') {
+      webviewApi.postMessage({ name: 'tabsUnpinNote', id: dataId });
+    } else if (event.target.id === 'check') {
+      webviewApi.postMessage({ name: 'tabsToggleTodo', id: dataId, checked: event.target.checked });
+    } else {
+      webviewApi.postMessage({ name: 'tabsOpen', id: dataId });
+    }
   }
-  if (element.id === 'Unpin') {
-    webviewApi.postMessage({
-      name: 'tabsUnpinNote',
-      id: element.dataset.id,
-    });
-  }
-  if (element.id === 'check') {
-    webviewApi.postMessage({
-      name: 'tabsToggleTodo',
-      id: element.dataset.id,
-      checked: element.checked
-    });
-  }
-  if (element.id === 'moveTabLeft') {
-    webviewApi.postMessage({
-      name: 'tabsMoveLeft'
-    });
-  }
-  if (element.id === 'moveTabRight') {
-    webviewApi.postMessage({
-      name: 'tabsMoveRight'
-    });
-  }
-})
+}
 
 /* DRAG AND DROP */
-let sourceNoteId = "";
+let sourceId = '';
 
 function cancelDefault(event) {
   event.preventDefault();
@@ -66,38 +49,44 @@ function cancelDefault(event) {
   return false;
 }
 
+function setBackground(event, background) {
+  event.currentTarget.style.background = background;
+}
+
+function resetBackground(element) {
+  if (element.dataset.bg) {
+    element.style.background = element.dataset.bg;
+  }
+}
+
+function resetTabBackgrounds() {
+  document.querySelectorAll('#tab').forEach(x => { resetBackground(x); });
+
+  tabsContainer = document.querySelector('#tabs-container');
+  if (tabsContainer) {
+    tabsContainer.style.background = 'none';
+  }
+}
+
 function dragStart(event) {
-  const element = event.target;
-  element.classList.add("dragging");
-  event.dataTransfer.setData("text/plain", element.dataset.id);
-  sourceNoteId = element.dataset.id
+  const dataId = getDataId(event);
+  if (dataId) {
+    event.dataTransfer.setData('text/x-plugin-note-tabs-id', dataId);
+    sourceId = dataId;
+  }
 }
 
 function dragEnd(event) {
+  resetTabBackgrounds();
   cancelDefault(event);
-  const element = event.target;
-  element.classList.remove("dragging");
-  sourceNoteId = "";
+  sourceId = '';
 }
 
-function dragOver(event) {
+function dragOver(event, hoverColor) {
+  resetTabBackgrounds();
   cancelDefault(event);
-  const element = event.target;
-
-  document.querySelectorAll('#tab').forEach(tab => {
-    if (tab.dataset.id !== element.dataset.id) {
-      tab.classList.remove("dragover");
-    }
-  });
-
-  if (element.dataset.id !== sourceNoteId) {
-    if (element.id === 'tab') {
-      element.classList.add("dragover");
-    } else if (element.parentElement.id === 'tab') {
-      element.parentElement.classList.add("dragover");
-    } else if (element.parentElement.parentElement.id === 'tab') {
-      element.parentElement.parentElement.classList.add("dragover");
-    }
+  if (sourceId !== getDataId(event)) {
+    setBackground(event, hoverColor);
   }
 }
 
@@ -107,17 +96,33 @@ function dragLeave(event) {
 
 function drop(event) {
   cancelDefault(event);
-  const targetElement = event.target;
-  const sourceId = event.dataTransfer.getData("text/plain");
+  const dataTargetId = getDataId(event);
 
-  if (targetElement && sourceId) {
-    if (targetElement.dataset.id !== sourceNoteId) {
-      webviewApi.postMessage({
-        name: 'tabsDrag',
-        targetId: targetElement.dataset.id,
-        sourceId: sourceId
-      });
-      targetElement.classList.remove("dragover");
+  // check whether plugin tab was dragged - trigger tabsDrag message
+  const noteTabsId = event.dataTransfer.getData('text/x-plugin-note-tabs-id');
+  if (noteTabsId) {
+    if (dataTargetId !== sourceId) {
+      webviewApi.postMessage({ name: 'tabsDrag', targetId: dataTargetId, sourceId: noteTabsId });
+      return;
     }
+  }
+
+  // check whether note was dragged from app onto the panel - add new tab at dropped index
+  const joplinNoteIds = event.dataTransfer.getData('text/x-jop-note-ids');
+  if (joplinNoteIds) {
+    const noteIds = new Array();
+    for (const noteId of JSON.parse(joplinNoteIds)) {
+      noteIds.push(noteId);
+    }
+    webviewApi.postMessage({ name: 'tabsDragNotes', noteIds: noteIds, targetId: dataTargetId });
+    return;
+  }
+
+  // check whether favorite (from joplin.plugin.benji.favorites plugin) was dragged onto the panel - add new tab at dropped index
+  const favoritesId = event.dataTransfer.getData('text/x-plugin-favorites-id');
+  if (favoritesId) {
+    const noteIds = new Array(favoritesId);
+    webviewApi.postMessage({ name: 'tabsDragNotes', noteIds: noteIds, targetId: dataTargetId });
+    return;
   }
 }

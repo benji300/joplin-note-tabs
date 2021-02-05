@@ -12,7 +12,6 @@ html,
 body,
 body > div,
 div#joplin-plugin-content {
-  font-size: var(--joplin-font-size);
   height: 100%;
 }
 a {
@@ -22,26 +21,18 @@ span {
   cursor: default;
 }
 
-::-webkit-scrollbar {
-  height: 4px;
-  width: 4px;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-}
-
 /* HORIZONTAL LAYOUT */
 #container {
   height: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow-x: hidden;
+  overflow-y: overlay;
   width: 100%;
 }
 
 #tabs-container {
   display: flex;
   float: left;
+  overflow-x: overlay;
   width: 100%;
 }
 #tab {
@@ -106,17 +97,34 @@ span {
 #breadcrumbs-container {
   display: flex;
   float: left;
+  overflow: overlay;
   width: 100%;
 }
+#breadcrumbs-container .fas {
+  font-size: 1.1em;
+}
+
+.navigation-icons {
+  border-style: solid;
+  border-width: 0;
+  border-right-width: 1px;
+  height: 100%;
+  margin: auto 0;
+  padding: 0 4px;
+}
+.navigation-icons .fas {
+  padding: 0 4px;
+}
+
 .breadcrumbs-icon {
   height: 100%;
   margin: auto 0;
   padding-left: 8px;
 }
+
 .breadcrumb {
   display: flex;
   height: 25px;
-  min-width: 50px;
 }
 .breadcrumb:last-of-type .fas {
   display: none;
@@ -133,8 +141,14 @@ span {
 .breadcrumb-title {
   overflow: hidden;
   padding: 0 4px;
+  text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
+  width: 100%;
+}
+.breadcrumb-inner .fas {
+  margin-left: auto;
+  margin-right: 0px;
 }
 
 /* DRAG AND DROP */
@@ -145,20 +159,18 @@ span {
   -webkit-user-select: none;
   -ms-user-select: none;
 }
-.dragging {
-  opacity: 0.4;
+
+::-webkit-scrollbar {
+  height: 4px;
+  width: 7px;
 }
-.dragover {
-  background-color: var(--joplin-background-color-hover3) !important;
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
 }
 
 /* VERCTICAL LAYOUT OVERWRITES */
 @media screen and (max-width: 400px) {
-  #container {
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-
   #tabs-container {
     display: block;
     width: 100%;

@@ -1,20 +1,22 @@
 # Joplin Note Tabs
 
-Joplin Note Tabs is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
+Note Tabs is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.org/) desktop application.
 
 It allows to open several notes at once in tabs and pin them to be kept open.
 
-> :warning: **CAUTION** - Requires Joplin **v1.5.7** or newer
+> :warning: **CAUTION** - Requires Joplin **v1.6.7** or newer
 
 ## Table of contents
 
 - [Features](#features)
   - [Screenshots](#screenshots)
-- [Commands](#Commands)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Place the panel](#place-the-panel)
+- [Commands](#commands)
+  - [Keyboard shortcuts](#keyboard-shortcuts)
 - [User options](#user-options)
 - [UI Tweaks](#ui-tweaks)
-- [Installation](#installation)
-- [Uninstallation](#uninstallation)
 - [Feedback](#feedback)
 - [Support](#support)
 - [Development](#development)
@@ -24,15 +26,18 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 ## Features
 
 - Display selected note as tab
-- Display full breadcrumbs for selected note below tabs
+- Additional display options below the tabs
+  - Full breadcrumbs for selected note
+  - Navigation buttons (`historyBackward/Forward`)
 - Pin note(s) to the tabs
+  - Either via command or drag & drop from the note list
 - Save pinned tabs permanently
   - Stored in database (not synced with other devices!)
 - Remember last opened and unpinned note
 - Change position of tabs within the panel
   - Either via drag & drop or keyboard shortcuts (which have been assigned to the corresponding commands)
-- Toggle to-do state from tabs
-  - Automatically unpin completed to-dos ([configurable](#user-options))
+- Toggle to-do state directly on the tabs
+  - Optionally unpin completed to-dos automatically
 - [Configurable](#user-options) style attributes
 - Support horizontal and vertical layout
 
@@ -56,24 +61,64 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 
 > **NOTE** - The used UI theme on this screenshot can be downloaded [here](https://github.com/benji300/joplin-milford-ui).
 
+## Installation
+
+### Automatic (Joplin v1.6.4 and newer)
+
+- Open Joplin and navigate to `Tools > Options > Plugins`
+- Search for `tabs` and press install
+- Restart Joplin to enable the plugin
+- By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
+
+### Manual
+
+- Download the latest released JPL package (`*.jpl`) from [here](https://github.com/benji300/joplin-note-tabs/releases)
+- Open Joplin and navigate to `Tools > Options > Plugins`
+- Press `Install plugin` and select the previously downloaded `jpl` file
+- Confirm selection
+- Restart Joplin to enable the plugin
+- By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
+
+### Uninstall
+
+- Open Joplin and navigate to `Tools > Options > Plugins`
+- Search for the `Note Tabs` plugin
+- Press `Delete` to remove the plugin completely
+  - Alternatively you can also disable the plugin by clicking on the toggle button
+- Restart Joplin
+
+## Usage
+
+### Place the panel
+
+By default the panel will be on the right side of the screen, this can be adjusted by:
+
+- `View > Change application layout`
+- Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
+- Move the splitter to reach the desired height/width of the panel
+  - As soon as the width of the panel goes below `400px`, it automatically switches from horizontal to vertical layout
+- Press `ESC` to save the layout and return to normal mode
+
 ## Commands
 
 This plugin provides additional commands as described in the following table.
 
-| Command Label                   | Command ID             | Description                                                                                   | Menu contexts                                   |
-| ------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Tabs: Pin note                  | `tabsPinNote`          | Pin selected note(s) to the tabs.                                                             | `Tools>Tabs`, `NoteListContext`,`EditorContext` |
-| Tabs: Unpin note                | `tabsUnpinNote`        | Unpin selected note(s) from the tabs.                                                         | `Tools>Tabs`                                    |
-| Tabs: Switch to last active tab | `tabsSwitchLastActive` | Switch to the last active tab, i.e. to previous selected note.                                | `Tools>Tabs`                                    |
-| Tabs: Switch to left tab        | `tabsSwitchLeft`       | Switch to the left tab next to the active, i.e. select the left note.                         | `Tools>Tabs`                                    |
-| Tabs: Switch to right tab       | `tabsSwitchRight`      | Switch to the right tab next to the active, i.e. select the right note.                       | `Tools>Tabs`                                    |
-| Tabs: Move tab left             | `tabsMoveLeft`         | Move active tab one position to the left.                                                     | `Tools>Tabs`                                    |
-| Tabs: Move tab right            | `tabsMoveRight`        | Move active tab one position to the right.                                                    | `Tools>Tabs`                                    |
-| Tabs: Remove all pinned tabs    | `tabsClear`            | Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards. | `Tools>Tabs`                                    |
+| Command Label                   | Command ID             | Description                                                                                   | Menu contexts                                                       |
+| ------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Tabs: Pin note                  | `tabsPinNote`          | Pin selected note(s) to the tabs.                                                             | `Tools>Tabs`, `NoteListContext`, `EditorContext`, `Command palette` |
+| Tabs: Unpin note                | `tabsUnpinNote`        | Unpin selected note(s) from the tabs.                                                         | `Tools>Tabs`, `Command palette`                                     |
+| Tabs: Switch to last active tab | `tabsSwitchLastActive` | Switch to the last active tab, i.e. to previous selected note.                                | `Tools>Tabs`, `Command palette`                                     |
+| Tabs: Switch to left tab        | `tabsSwitchLeft`       | Switch to the left tab next to the active, i.e. select the left note.                         | `Tools>Tabs`, `Command palette`                                     |
+| Tabs: Switch to right tab       | `tabsSwitchRight`      | Switch to the right tab next to the active, i.e. select the right note.                       | `Tools>Tabs`, `Command palette`                                     |
+| Tabs: Move tab left             | `tabsMoveLeft`         | Move active tab one position to the left.                                                     | `Tools>Tabs`, `Command palette`                                     |
+| Tabs: Move tab right            | `tabsMoveRight`        | Move active tab one position to the right.                                                    | `Tools>Tabs`, `Command palette`                                     |
+| Tabs: Remove all pinned tabs    | `tabsClear`            | Remove all pinned tabs. In case no note is selected, the tabs list might be empty afterwards. | `Tools>Tabs`, `Command palette`                                     |
+| Tabs: Toggle visibility         | `tabsToggleVisibility` | Toggle panel visibility.                                                                      | `Tools>Tabs`, `Command palette`                                     |
 
-> **NOTE** - Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts`. Search for the command label where shortcuts shall be added.
+### Keyboard shortcuts
 
-> **NOTE** - All commands can also be accessed via the `Command palette`.
+Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts` to all [commands](#commands) which are assigned to the `Tools>Favorites` menu context.
+In the keyboard shortcut editor, search for the command label where shortcuts shall be added.
 
 ## User options
 
@@ -107,40 +152,6 @@ Follow these steps to hide it via the `userchrome.css` stylesheet:
 
 > **NOTE** - Since there is currently no unique attribute for the breadcrumbs, this can only be done using the workaround from above. However, the behavior may change with each version and it may happen that it no longer works.
 
-## Installation
-
-### Joplin v1.6.4 and newer
-
-- Open Joplin and navigate to `Tools > Options > Plugins`
-- Search for `tabs` and press install
-- Restart Joplin to enable the plugin
-
-### Joplin v1.6.2 and previous
-
-- Download the latest released JPL package (`joplin.plugin.note.tabs.jpl`) from [here](https://github.com/benji300/joplin-note-tabs/releases)
-- Open Joplin and navigate to `Tools > Options > Plugins`
-- Press `Install plugin` and select the previously downloaded `jpl` file
-- Confirm selection
-- Restart Joplin to enable the plugin
-
-### Place tabs
-
-By default the tabs will be on the right side of the screen, this can be adjusted by:
-
-- `View > Change application layout`
-- Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
-- Move the splitter (between content and tabs panel) up to reach the desired height of the panel
-- Press `ESC` to save the layout and return to normal mode
-
-## Uninstallation
-
-- Open Joplin
-- Navigate to `Tools > Options > Plugins`
-- Search for the `Note Tabs` plugin
-- Press `Delete` to remove the plugin from the user profile directory
-  - Alternatively you can also disable the plugin by clicking on the toggle button
-- Restart Joplin
-
 ## Feedback
 
 - :question: Need help?
@@ -152,19 +163,21 @@ By default the tabs will be on the right side of the screen, this can be adjuste
 
 ## Support
 
-You like this plugin as much as I do and it helps you in your daily work with Joplin?
+You like this plugin as much as I do and it improves your daily work with Joplin?
 
-Then I would be very happy if you would buy me a beer via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink::beer:
+Then I would be very happy if you buy me a beer via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink::beer:
 
 ## Development
 
+The npm package of the plugin can be found [here](https://www.npmjs.com/package/joplin-plugin-note-tabs).
+
 ### Building the plugin
 
-If you want to build the plugin by your own simply run:
+If you want to build the plugin by your own simply run `npm run dist`.
 
-```
-npm run dist
-```
+### Updating the plugin framework
+
+To update the plugin framework, run `npm run update`.
 
 ## Changes
 
