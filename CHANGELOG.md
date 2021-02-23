@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- None
+
+## [1.2.1] - 2021-02-23
+
 ### Fixed
 
 - Issue that caused infinite message loop between plugin and app ([#36](https://github.com/benji300/joplin-note-tabs/issues/36))
