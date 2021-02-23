@@ -1,3 +1,5 @@
+import { Settings } from "./settings";
+
 /**
  * Tab type definitions.
  */
@@ -10,7 +12,7 @@ export enum NoteTabType {
 /**
  * Helper class to work with note tabs array.
  * - Read settings array once at startup.
- * - Then work on this._tabs array.
+ * - Then work on this.tabs array.
  */
 export class NoteTabs {
 
@@ -23,47 +25,58 @@ export class NoteTabs {
    *   "type": NoteTabType
    * }]
    */
-  private _tabs: any[];
+  // private _tabs: any[];
+
+  private _settings: Settings;
 
   /**
-  * Init with noteTabs settings array.
+  * Initialization of NoteTabs.
   */
-  constructor(noteTabs: any[]) {
-    this._tabs = noteTabs;
+  constructor(settings: Settings) {
+    this._settings = settings;
   }
 
-  //#region  GETTER
+  //#region GETTER
 
   /**
    * All note tabs.
    */
-  get all(): any[] {
-    return this._tabs;
+  get tabs(): any[] {
+    return this._settings.noteTabs;
   }
 
   /**
    * Number of tabs.
    */
   get length(): number {
-    return this._tabs.length;
+    return this.tabs.length;
   }
 
   /**
    * Index of the temporary tab. -1 if not exist.
    */
   get indexOfTemp(): number {
-    return this._tabs.findIndex(x => x.type === NoteTabType.Temporary);
+    return this.tabs.findIndex(x => x.type === NoteTabType.Temporary);
   }
 
   //#endregion
 
   /**
+   * Write tabs array back to settings.
+   * 
+   * TODO: Would be better in an "onClose()" event of the plugin. Then they would only be stored once.
+   */
+  private async store() {
+    await this._settings.storeTabs();
+  }
+
+  /**
    * Inserts handled tab at specified index.
    */
-  private async insertAtIndex(index: number, tab: any) {
+  private insertAtIndex(index: number, tab: any) {
     if (index < 0 || tab === undefined) return;
 
-    this._tabs.splice(index, 0, tab);
+    this.tabs.splice(index, 0, tab);
   }
 
   /**
@@ -72,21 +85,21 @@ export class NoteTabs {
   get(index: number): any {
     if (index < 0 || index >= this.length) return;
 
-    return this._tabs[index];
+    return this.tabs[index];
   }
 
   /**
    * Gets index of tab for note with handled id. -1 if not exist.
    */
   indexOf(noteId: string): number {
-    return this._tabs.findIndex(x => x.id === noteId);
+    return this.tabs.findIndex(x => x.id === noteId);
   }
 
   /**
    * Gets a value whether the handled note has already a tab or not.
    */
   hasTab(noteId: string): boolean {
-    return (this._tabs.find(x => x.id === noteId) !== undefined);
+    return (this.tabs.find(x => x.id === noteId) !== undefined);
   }
 
   /**
@@ -96,10 +109,12 @@ export class NoteTabs {
     if (noteId === undefined || noteType === undefined) return;
 
     const newTab: any = { id: noteId, type: noteType };
-    if (targetId)
-      await this.insertAtIndex(this.indexOf(targetId), newTab);
-    else
-      this._tabs.push(newTab);
+    if (targetId) {
+      this.insertAtIndex(this.indexOf(targetId), newTab);
+    } else {
+      this.tabs.push(newTab);
+    }
+    await this.store();
   }
 
   /**
@@ -109,9 +124,10 @@ export class NoteTabs {
     if (sourceIdx < 0 || sourceIdx >= this.length) return;
     if (targetIdx < 0 || targetIdx >= this.length) return;
 
-    const tab: any = this._tabs[sourceIdx];
-    await this.delete(this.get(sourceIdx).id);
-    await this.insertAtIndex((targetIdx == 0 ? 0 : targetIdx), tab);
+    const tab: any = this.tabs[sourceIdx];
+    this.tabs.splice(sourceIdx, 1);
+    this.insertAtIndex((targetIdx == 0 ? 0 : targetIdx), tab);
+    await this.store();
   }
 
   /**
@@ -128,7 +144,8 @@ export class NoteTabs {
   async changeType(noteId: string, newType: NoteTabType) {
     const index = this.indexOf(noteId);
     if (index >= 0) {
-      this._tabs[index].type = newType;
+      this.tabs[index].type = newType;
+      await this.store();
     }
   }
 
@@ -140,7 +157,8 @@ export class NoteTabs {
 
     const tempIdx: number = this.indexOfTemp;
     if (tempIdx >= 0) {
-      this._tabs[tempIdx].id = noteId;
+      this.tabs[tempIdx].id = noteId;
+      await this.store();
     }
   }
 
@@ -150,14 +168,8 @@ export class NoteTabs {
   async delete(noteId: string) {
     const index = this.indexOf(noteId);
     if (index >= 0) {
-      this._tabs.splice(index, 1);
+      this.tabs.splice(index, 1);
     }
-  }
-
-  /**
-   * Clears the stored tabs array.
-   */
-  async clearAll() {
-    this._tabs = [];
+    await this.store();
   }
 }

@@ -385,9 +385,17 @@ export class Settings {
   }
 
   /**
-   * Store the handled tabs array back to the settings.
+   * Store the tabs array back to the settings.
    */
-  async storeTabs(noteTabs: any[]) {
-    await joplin.settings.setValue('noteTabs', noteTabs);
+  async storeTabs() {
+    await joplin.settings.setValue('noteTabs', this._noteTabs);
+  }
+
+  /**
+   * Clear the settings tabs array.
+   */
+  async clearTabs() {
+    this._noteTabs = [];
+    await this.storeTabs();
   }
 }

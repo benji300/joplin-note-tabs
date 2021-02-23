@@ -13,13 +13,14 @@ joplin.plugins.register({
     const DIALOGS = joplin.views.dialogs;
     const SETTINGS = joplin.settings;
     const WORKSPACE = joplin.workspace;
-
+    // settings
     const settings: Settings = new Settings();
     await settings.register();
-
-    const tabs = new NoteTabs(settings.noteTabs);
+    // note tabs
+    const tabs = new NoteTabs(settings);
+    // last active note
     const lastActiveNote = new LastActiveNote();
-
+    // panel
     const panel = new Panel(tabs, settings);
     await panel.register();
 
@@ -175,7 +176,7 @@ joplin.plugins.register({
 
         // select note with stored id
         await COMMANDS.execute('openNote', lastActiveNoteId);
-        // updatePanelView() is called from onNoteSelectionChange event
+        // updateWebview() is called from onNoteSelectionChange event
       }
     });
 
@@ -196,7 +197,7 @@ joplin.plugins.register({
 
         // get id of left note and select it
         await COMMANDS.execute('openNote', tabs.get(index - 1).id);
-        // updatePanelView() is called from onNoteSelectionChange event
+        // updateWebview() is called from onNoteSelectionChange event
       }
     });
 
@@ -218,7 +219,7 @@ joplin.plugins.register({
 
         // get id of right note and select it
         await COMMANDS.execute('openNote', tabs.get(index + 1).id);
-        // updatePanelView() is called from onNoteSelectionChange event
+        // updateWebview() is called from onNoteSelectionChange event
       }
     });
 
@@ -233,13 +234,13 @@ joplin.plugins.register({
         const result: number = await DIALOGS.showMessageBox(`Remove all pinned tabs?`);
         if (result) return;
 
-        await tabs.clearAll();
+        await settings.clearTabs();
 
         // open selected note to update the panel or just update it
         const selectedNoteIds: string[] = await WORKSPACE.selectedNoteIds();
         if (selectedNoteIds.length > 0) {
           await COMMANDS.execute('openNote', selectedNoteIds[0]);
-          // updatePanelView() is called from onNoteSelectionChange event
+          // updateWebview() is called from onNoteSelectionChange event
         } else {
           await panel.updateWebview();
         }
@@ -308,7 +309,10 @@ joplin.plugins.register({
 
     //#region EVENTS
 
+    let onChangeCnt = 0;
     SETTINGS.onChange(async (event: ChangeEvent) => {
+      // TODO remove
+      console.debug(`onChange() hits: ${onChangeCnt++}`);
       await settings.read(event);
       await panel.updateWebview();
     });
@@ -369,5 +373,6 @@ joplin.plugins.register({
 
     //#endregion
 
+    await panel.updateWebview();
   }
 });

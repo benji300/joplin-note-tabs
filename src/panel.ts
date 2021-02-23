@@ -49,7 +49,7 @@ export class Panel {
     const showCompletedTodos: boolean = await this._settings.showCompletedTodos;
     const noteTabsHtml: any = [];
 
-    for (const noteTab of this._tabs.all) {
+    for (const noteTab of this._tabs.tabs) {
       let note: any = null;
 
       // get real note from database, if no longer exists remove tab and continue with next one
@@ -188,6 +188,7 @@ export class Panel {
         await joplin.commands.execute('tabsUnpinNote', id);
       }
       if (message.name === 'tabsToggleTodo') {
+        // TODO move to index.ts as internal command
         await this.toggleTodoState(message.id, message.checked);
       }
       if (message.name === 'tabsMoveLeft') {
@@ -203,6 +204,7 @@ export class Panel {
         await joplin.commands.execute('historyForward');
       }
       if (message.name === 'tabsDrag') {
+        // TODO move to index.ts as internal command
         await this._tabs.moveWithId(message.sourceId, message.targetId);
         await this.updateWebview();
       }
@@ -219,10 +221,11 @@ export class Panel {
         </div>
       </div>
     `);
-
-    await this.updateWebview();
   }
 
+  /**
+   * Update the HTML webview with actual content.
+   */
   async updateWebview() {
     const selectedNote: any = await joplin.workspace.selectedNote();
     const noteTabsHtml: string = await this.getNoteTabsHtml(selectedNote);
@@ -240,11 +243,6 @@ export class Panel {
         ${breadcrumbsHtml}
       </div>
     `);
-
-    // store the current note tabs array back to the settings
-    // - Currently there's no "event" to call store() only on App closing
-    // - Which would be preferred
-    this._settings.storeTabs(this._tabs.all);
   }
 
   /**
