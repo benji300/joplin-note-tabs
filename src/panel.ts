@@ -1,5 +1,5 @@
 import joplin from 'api';
-import { NoteTabType, NoteTabs } from './noteTabs';
+import { NoteTabs } from './noteTabs';
 import { Settings } from './settings';
 
 export class Panel {
@@ -68,9 +68,9 @@ export class Panel {
         // prepare tab style attributes
         const bg: string = (selectedNote && note.id == selectedNote.id) ? this._settings.actBackground : this._settings.background;
         const fg: string = (selectedNote && note.id == selectedNote.id) ? this._settings.actForeground : this._settings.foreground;
-        const newTab: string = (noteTab.type == NoteTabType.Temporary) ? ' new' : '';
-        const icon: string = (noteTab.type == NoteTabType.Pinned) ? 'fa-times' : 'fa-thumbtack';
-        const iconTitle: string = (noteTab.type == NoteTabType.Pinned) ? 'Unpin' : 'Pin';
+        const newTab: string = (NoteTabs.isTemporary(noteTab)) ? ' new' : '';
+        const icon: string = (NoteTabs.isPinned(noteTab)) ? 'fa-times' : 'fa-thumbtack';
+        const iconTitle: string = (NoteTabs.isPinned(noteTab)) ? 'Unpin' : 'Pin';
         const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
 
         // prepare checkbox for todo
@@ -187,7 +187,6 @@ export class Panel {
         await joplin.commands.execute('tabsUnpinNote', id);
       }
       if (message.name === 'tabsToggleTodo') {
-        // TODO move to index.ts as internal command
         await this.toggleTodoState(message.id, message.checked);
       }
       if (message.name === 'tabsMoveLeft') {

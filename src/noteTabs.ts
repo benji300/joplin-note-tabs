@@ -10,23 +10,21 @@ export enum NoteTabType {
 }
 
 /**
- * Helper class to work with note tabs array.
+ * Definition of note tab entries.
+ */
+interface INoteTab {
+  // Joplin note ID
+  id: string,
+  // Type of the tab
+  type: NoteTabType
+}
+
+/**
+ * Helper class to work with note tabs.
  * - Read settings array once at startup.
  * - Then work on this.tabs array.
  */
 export class NoteTabs {
-
-  /**
-   * Temporary array to work with tabs.
-   * 
-   * Definition of one tab entry:
-   * [{
-   *   "id": "note id",
-   *   "type": NoteTabType
-   * }]
-   */
-  // private _tabs: any[];
-
   private _settings: Settings;
 
   /**
@@ -41,7 +39,7 @@ export class NoteTabs {
   /**
    * All note tabs.
    */
-  get tabs(): any[] {
+  get tabs(): INoteTab[] {
     return this._settings.noteTabs;
   }
 
@@ -73,16 +71,30 @@ export class NoteTabs {
   /**
    * Inserts handled tab at specified index.
    */
-  private insertAtIndex(index: number, tab: any) {
+  private insertAtIndex(index: number, tab: INoteTab) {
     if (index < 0 || tab === undefined) return;
 
     this.tabs.splice(index, 0, tab);
   }
 
+  static isTemporary(tab: INoteTab): boolean {
+    if (tab) {
+      return (tab.type === NoteTabType.Temporary);
+    }
+    return false;
+  }
+
+  static isPinned(tab: INoteTab): boolean {
+    if (tab) {
+      return (tab.type === NoteTabType.Pinned);
+    }
+    return false;
+  }
+
   /**
    * Gets the tab for the handled note.
    */
-  get(index: number): any {
+  get(index: number): INoteTab {
     if (index < 0 || index >= this.length) return;
 
     return this.tabs[index];
