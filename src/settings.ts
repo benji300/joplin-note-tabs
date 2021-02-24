@@ -19,7 +19,7 @@ enum SettingDefaults {
 }
 
 /**
- * Definitions of plugin joplin.settings.
+ * Definitions of plugin settings.
  */
 export class Settings {
   // private settings

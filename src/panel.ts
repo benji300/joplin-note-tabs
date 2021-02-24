@@ -3,7 +3,6 @@ import { NoteTabType, NoteTabs } from './noteTabs';
 import { Settings } from './settings';
 
 export class Panel {
-
   private _panel: any;
   private _tabs: NoteTabs;
   private _settings: Settings;
@@ -236,7 +235,7 @@ export class Panel {
     await joplin.views.panels.setHtml(this._panel, `
       <div id="container" style="background:${this._settings.background};font-family:'${this._settings.fontFamily}',sans-serif;font-size:${this._settings.fontSize};">
         <div id="tabs-container" role="tablist" draggable="${this._settings.enableDragAndDrop}"
-          ondragend="dragEnd(event);" ondragover="dragOver(event, '${this._settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);">
+          ondragover="dragOver(event, '${this._settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);">
           ${noteTabsHtml}
           ${controlsHtml}
         </div>

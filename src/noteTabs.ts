@@ -30,8 +30,8 @@ export class NoteTabs {
   private _settings: Settings;
 
   /**
-  * Initialization of NoteTabs.
-  */
+   * Initialization of NoteTabs.
+   */
   constructor(settings: Settings) {
     this._settings = settings;
   }
@@ -169,7 +169,7 @@ export class NoteTabs {
     const index = this.indexOf(noteId);
     if (index >= 0) {
       this.tabs.splice(index, 1);
+      await this.store();
     }
-    await this.store();
   }
 }

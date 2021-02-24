@@ -1,3 +1,11 @@
+let sourceId = '';
+
+function cancelDefault(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  return false;
+}
+
 function getDataId(event) {
   if (event.currentTarget.id === 'tab' || event.currentTarget.className === 'breadcrumb') {
     return event.currentTarget.dataset.id;
@@ -6,7 +14,8 @@ function getDataId(event) {
   }
 }
 
-/* CLICK EVENTS */
+/* EVENT HANDLER */
+
 function message(message) {
   webviewApi.postMessage({ name: message });
 }
@@ -25,6 +34,7 @@ function pinNote(event) {
   }
 }
 
+// default click handler
 function tabClick(event) {
   const dataId = getDataId(event);
   if (dataId) {
@@ -41,13 +51,6 @@ function tabClick(event) {
 }
 
 /* DRAG AND DROP */
-let sourceId = '';
-
-function cancelDefault(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  return false;
-}
 
 function setBackground(event, background) {
   event.currentTarget.style.background = background;
@@ -62,9 +65,9 @@ function resetBackground(element) {
 function resetTabBackgrounds() {
   document.querySelectorAll('#tab').forEach(x => { resetBackground(x); });
 
-  tabsContainer = document.querySelector('#tabs-container');
-  if (tabsContainer) {
-    tabsContainer.style.background = 'none';
+  container = document.querySelector('#tabs-container');
+  if (container) {
+    container.style.background = 'none';
   }
 }
 
@@ -95,6 +98,7 @@ function dragLeave(event) {
 }
 
 function drop(event) {
+  resetTabBackgrounds();
   cancelDefault(event);
   const dataTargetId = getDataId(event);
 

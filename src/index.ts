@@ -82,7 +82,7 @@ joplin.plugins.register({
       name: 'tabsPinNote',
       label: 'Tabs: Pin note',
       iconName: 'fas fa-thumbtack',
-      enabledCondition: "someNotesSelected",
+      enabledCondition: 'someNotesSelected',
       execute: async (noteIds: string[], targetId?: string) => {
         // get selected note ids and return if empty
         let selectedNoteIds = noteIds;
@@ -110,7 +110,7 @@ joplin.plugins.register({
       name: 'tabsUnpinNote',
       label: 'Tabs: Unpin note',
       iconName: 'fas fa-times',
-      enabledCondition: "someNotesSelected",
+      enabledCondition: 'someNotesSelected',
       execute: async (noteIds: string[]) => {
         // get selected note ids and return if empty
         let selectedNoteIds = noteIds;
@@ -131,7 +131,7 @@ joplin.plugins.register({
       name: 'tabsMoveLeft',
       label: 'Tabs: Move tab left',
       iconName: 'fas fa-chevron-left',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: 'oneNoteSelected',
       execute: async () => {
         const selectedNote: any = await WORKSPACE.selectedNote();
         if (!selectedNote) return;
@@ -149,7 +149,7 @@ joplin.plugins.register({
       name: 'tabsMoveRight',
       label: 'Tabs: Move tab right',
       iconName: 'fas fa-chevron-right',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: 'oneNoteSelected',
       execute: async () => {
         const selectedNote: any = await WORKSPACE.selectedNote();
         if (!selectedNote) return;
@@ -167,7 +167,7 @@ joplin.plugins.register({
       name: 'tabsSwitchLastActive',
       label: 'Tabs: Switch to last active tab',
       iconName: 'fas fa-step-backward',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: 'oneNoteSelected',
       execute: async () => {
         if (lastActiveNote.length < 2) return;
 
@@ -186,7 +186,7 @@ joplin.plugins.register({
       name: 'tabsSwitchLeft',
       label: 'Tabs: Switch to left tab',
       iconName: 'fas fa-step-backward',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: 'oneNoteSelected',
       execute: async () => {
         const selectedNote: any = await WORKSPACE.selectedNote();
         if (!selectedNote) return;
@@ -207,7 +207,7 @@ joplin.plugins.register({
       name: 'tabsSwitchRight',
       label: 'Tabs: Switch to right tab',
       iconName: 'fas fa-step-forward',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: 'oneNoteSelected',
       execute: async () => {
         const selectedNote: any = await WORKSPACE.selectedNote();
         if (!selectedNote) return;
@@ -231,7 +231,7 @@ joplin.plugins.register({
       iconName: 'fas fa-times',
       execute: async () => {
         // ask user before removing tabs
-        const result: number = await DIALOGS.showMessageBox(`Remove all pinned tabs?`);
+        const result: number = await DIALOGS.showMessageBox('Do you really want to remove all pinned tabs?');
         if (result) return;
 
         await settings.clearTabs();
@@ -261,39 +261,39 @@ joplin.plugins.register({
     // prepare commands menu
     const commandsSubMenu: MenuItem[] = [
       {
-        commandName: "tabsPinNote",
+        commandName: 'tabsPinNote',
         label: 'Pin note'
       },
       {
-        commandName: "tabsUnpinNote",
+        commandName: 'tabsUnpinNote',
         label: 'Unpin note'
       },
       {
-        commandName: "tabsSwitchLastActive",
+        commandName: 'tabsSwitchLastActive',
         label: 'Switch to last active tab'
       },
       {
-        commandName: "tabsSwitchLeft",
+        commandName: 'tabsSwitchLeft',
         label: 'Switch to left tab'
       },
       {
-        commandName: "tabsSwitchRight",
+        commandName: 'tabsSwitchRight',
         label: 'Switch to right tab'
       },
       {
-        commandName: "tabsMoveLeft",
+        commandName: 'tabsMoveLeft',
         label: 'Move tab left'
       },
       {
-        commandName: "tabsMoveRight",
+        commandName: 'tabsMoveRight',
         label: 'Move tab right'
       },
       {
-        commandName: "tabsClear",
+        commandName: 'tabsClear',
         label: 'Remove all pinned tabs'
       },
       {
-        commandName: "tabsToggleVisibility",
+        commandName: 'tabsToggleVisibility',
         label: 'Toggle panel visibility'
       }
     ];
@@ -309,10 +309,9 @@ joplin.plugins.register({
 
     //#region EVENTS
 
-    let onChangeCnt = 0;
+    // let onChangeCnt = 0;
     SETTINGS.onChange(async (event: ChangeEvent) => {
-      // TODO remove
-      console.debug(`onChange() hits: ${onChangeCnt++}`);
+      // console.debug(`onChange() hits: ${onChangeCnt++}`);
       await settings.read(event);
       await panel.updateWebview();
     });
