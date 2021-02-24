@@ -80,7 +80,7 @@ joplin.plugins.register({
     // Desc: Pin the selected note(s) to the tabs
     await COMMANDS.register({
       name: 'tabsPinNote',
-      label: 'Tabs: Pin note',
+      label: 'Pin note to Tabs',
       iconName: 'fas fa-thumbtack',
       enabledCondition: 'someNotesSelected',
       execute: async (noteIds: string[], targetId?: string) => {
@@ -108,7 +108,7 @@ joplin.plugins.register({
     // Desc: Unpin the selected note(s) from the tabs
     await COMMANDS.register({
       name: 'tabsUnpinNote',
-      label: 'Tabs: Unpin note',
+      label: 'Unpin note from Tabs',
       iconName: 'fas fa-times',
       enabledCondition: 'someNotesSelected',
       execute: async (noteIds: string[]) => {
@@ -129,7 +129,7 @@ joplin.plugins.register({
     // Desc: Move active tab to left
     await COMMANDS.register({
       name: 'tabsMoveLeft',
-      label: 'Tabs: Move tab left',
+      label: 'Move active Tab left',
       iconName: 'fas fa-chevron-left',
       enabledCondition: 'oneNoteSelected',
       execute: async () => {
@@ -147,7 +147,7 @@ joplin.plugins.register({
     // Desc: Move active tab to right
     await COMMANDS.register({
       name: 'tabsMoveRight',
-      label: 'Tabs: Move tab right',
+      label: 'Move active Tab right',
       iconName: 'fas fa-chevron-right',
       enabledCondition: 'oneNoteSelected',
       execute: async () => {
@@ -165,7 +165,7 @@ joplin.plugins.register({
     // Desc: Switch to last active tab
     await COMMANDS.register({
       name: 'tabsSwitchLastActive',
-      label: 'Tabs: Switch to last active tab',
+      label: 'Switch to last active Tab',
       iconName: 'fas fa-step-backward',
       enabledCondition: 'oneNoteSelected',
       execute: async () => {
@@ -184,7 +184,7 @@ joplin.plugins.register({
     // Desc: Switch to left tab, i.e. select left note
     await COMMANDS.register({
       name: 'tabsSwitchLeft',
-      label: 'Tabs: Switch to left tab',
+      label: 'Switch to left Tab',
       iconName: 'fas fa-step-backward',
       enabledCondition: 'oneNoteSelected',
       execute: async () => {
@@ -205,7 +205,7 @@ joplin.plugins.register({
     // Desc: Switch to right tab, i.e. select right note
     await COMMANDS.register({
       name: 'tabsSwitchRight',
-      label: 'Tabs: Switch to right tab',
+      label: 'Switch to right Tab',
       iconName: 'fas fa-step-forward',
       enabledCondition: 'oneNoteSelected',
       execute: async () => {
@@ -227,7 +227,7 @@ joplin.plugins.register({
     // Desc: Remove all pinned tabs
     await COMMANDS.register({
       name: 'tabsClear',
-      label: 'Tabs: Remove all pinned tabs',
+      label: 'Remove all pinned Tabs',
       iconName: 'fas fa-times',
       execute: async () => {
         // ask user before removing tabs
@@ -251,7 +251,7 @@ joplin.plugins.register({
     // Desc: Toggle panel visibility
     await COMMANDS.register({
       name: 'tabsToggleVisibility',
-      label: 'Tabs: Toggle visibility',
+      label: 'Toggle Tabs visibility',
       iconName: 'fas fa-eye-slash',
       execute: async () => {
         await panel.toggleVisibility();
@@ -262,35 +262,35 @@ joplin.plugins.register({
     const commandsSubMenu: MenuItem[] = [
       {
         commandName: 'tabsPinNote',
-        label: 'Pin note'
+        label: 'Pin note to Tabs'
       },
       {
         commandName: 'tabsUnpinNote',
-        label: 'Unpin note'
+        label: 'Unpin note from Tabs'
       },
       {
         commandName: 'tabsSwitchLastActive',
-        label: 'Switch to last active tab'
+        label: 'Switch to last active Tab'
       },
       {
         commandName: 'tabsSwitchLeft',
-        label: 'Switch to left tab'
+        label: 'Switch to left Tab'
       },
       {
         commandName: 'tabsSwitchRight',
-        label: 'Switch to right tab'
+        label: 'Switch to right Tab'
       },
       {
         commandName: 'tabsMoveLeft',
-        label: 'Move tab left'
+        label: 'Move active Tab left'
       },
       {
         commandName: 'tabsMoveRight',
-        label: 'Move tab right'
+        label: 'Move active Tab right'
       },
       {
         commandName: 'tabsClear',
-        label: 'Remove all pinned tabs'
+        label: 'Remove all pinned Tabs'
       },
       {
         commandName: 'tabsToggleVisibility',
