@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Ability to scroll tabs and breadcrums horizontally without holding `shift` key ([#34](https://github.com/benji300/joplin-note-tabs/issues/34))
+
 ### Changed
 
 - Plugin command labels (Removed `Tabs:` prefix)

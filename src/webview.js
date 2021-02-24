@@ -50,6 +50,20 @@ function tabClick(event) {
   }
 }
 
+// scroll horizontally without 'shift' key
+document.addEventListener('wheel', (event) => {
+  let element;
+  const path = event.composedPath();
+  if (path.findIndex(x => x.id === 'tabs-container') >= 0) {
+    element = document.getElementById('tabs-container');
+  } else if (path.findIndex(x => x.id === 'breadcrumbs-container') >= 0) {
+    element = document.getElementById('breadcrumbs-container');
+  }
+  if (element) {
+    element.scrollLeft -= (-event.deltaY);
+  }
+});
+
 /* DRAG AND DROP */
 
 function setBackground(event, background) {
