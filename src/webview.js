@@ -59,6 +59,8 @@ function setBackground(event, background) {
 function resetBackground(element) {
   if (element.dataset.bg) {
     element.style.background = element.dataset.bg;
+  } else {
+    element.style.background = 'none';
   }
 }
 
