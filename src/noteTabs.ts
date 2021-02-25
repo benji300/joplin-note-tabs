@@ -69,12 +69,10 @@ export class NoteTabs {
   }
 
   /**
-   * Inserts handled tab at specified index.
+   * Gets a value whether the handled index would lead to out of bound access.
    */
-  private insertAtIndex(index: number, tab: INoteTab) {
-    if (index < 0 || tab === undefined) return;
-
-    this.tabs.splice(index, 0, tab);
+  private indexOutOfBounds(index: number): boolean {
+    return (index < 0 || index >= this.length);
   }
 
   static isTemporary(tab: INoteTab): boolean {
@@ -95,7 +93,7 @@ export class NoteTabs {
    * Gets the tab for the handled note.
    */
   get(index: number): INoteTab {
-    if (index < 0 || index >= this.length) return;
+    if (this.indexOutOfBounds(index)) return;
 
     return this.tabs[index];
   }
@@ -117,12 +115,13 @@ export class NoteTabs {
   /**
    * Adds note as new tab at the end.
    */
-  async add(noteId: string, noteType: NoteTabType, targetId?: string) {
-    if (noteId === undefined || noteType === undefined) return;
+  async add(newId: string, newType: NoteTabType, targetId?: string) {
+    if (newId === undefined || newType === undefined) return;
 
-    const newTab: any = { id: noteId, type: noteType };
-    if (targetId) {
-      this.insertAtIndex(this.indexOf(targetId), newTab);
+    const index = this.indexOf(targetId);
+    const newTab: any = { id: newId, type: newType };
+    if (index >= 0) {
+      this.tabs.splice(index, 0, newTab);
     } else {
       this.tabs.push(newTab);
     }
@@ -133,12 +132,12 @@ export class NoteTabs {
    * Moves the tab on source index to the target index.
    */
   async moveWithIndex(sourceIdx: number, targetIdx: number) {
-    if (sourceIdx < 0 || sourceIdx >= this.length) return;
-    if (targetIdx < 0 || targetIdx >= this.length) return;
+    if (this.indexOutOfBounds(sourceIdx)) return;
+    if (this.indexOutOfBounds(targetIdx)) return;
 
     const tab: any = this.tabs[sourceIdx];
     this.tabs.splice(sourceIdx, 1);
-    this.insertAtIndex((targetIdx == 0 ? 0 : targetIdx), tab);
+    this.tabs.splice((targetIdx == 0 ? 0 : targetIdx), 0, tab);
     await this.store();
   }
 
