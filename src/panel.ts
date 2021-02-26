@@ -1,6 +1,6 @@
 import joplin from 'api';
 import { NoteTabs } from './noteTabs';
-import { Settings } from './settings';
+import { Settings, LayoutMode } from './settings';
 
 export class Panel {
   private _panel: any;
@@ -10,6 +10,14 @@ export class Panel {
   constructor(tabs: NoteTabs, settings: Settings) {
     this._tabs = tabs;
     this._settings = settings;
+  }
+
+  private get tabs() {
+    return this._tabs;
+  }
+
+  private get sets() {
+    return this._settings;
   }
 
   private async toggleTodoState(noteId: string, checked: any) {
@@ -45,10 +53,10 @@ export class Panel {
 
   // create HTML for each tab
   private async getNoteTabsHtml(selectedNote: any): Promise<string> {
-    const showCompletedTodos: boolean = await this._settings.showCompletedTodos;
+    const showCompletedTodos: boolean = await this.sets.showCompletedTodos;
     const noteTabsHtml: any = [];
 
-    for (const noteTab of this._tabs.tabs) {
+    for (const noteTab of this.tabs.tabs) {
       let note: any = null;
 
       // get real note from database, if no longer exists remove tab and continue with next one
@@ -57,7 +65,7 @@ export class Panel {
         // console.log(`add note: ${JSON.stringify(note)}`);
       } catch (error) {
         // console.log(`delete note: ${noteTab.id}`);
-        await this._tabs.delete(noteTab.id);
+        await this.tabs.delete(noteTab.id);
         continue;
       }
 
@@ -66,8 +74,8 @@ export class Panel {
         if ((!showCompletedTodos) && note.todo_completed) continue;
 
         // prepare tab style attributes
-        const bg: string = (selectedNote && note.id == selectedNote.id) ? this._settings.actBackground : this._settings.background;
-        const fg: string = (selectedNote && note.id == selectedNote.id) ? this._settings.actForeground : this._settings.foreground;
+        const bg: string = (selectedNote && note.id == selectedNote.id) ? this.sets.actBackground : this.sets.background;
+        const fg: string = (selectedNote && note.id == selectedNote.id) ? this.sets.actForeground : this.sets.foreground;
         const newTab: string = (NoteTabs.isTemporary(noteTab)) ? ' new' : '';
         const icon: string = (NoteTabs.isPinned(noteTab)) ? 'fa-times' : 'fa-thumbtack';
         const iconTitle: string = (NoteTabs.isPinned(noteTab)) ? 'Unpin' : 'Pin';
@@ -75,15 +83,15 @@ export class Panel {
 
         // prepare checkbox for todo
         let checkboxHtml: string = '';
-        if (this._settings.showTodoCheckboxes && note.is_todo) {
+        if (this.sets.showTodoCheckboxes && note.is_todo) {
           checkboxHtml = `<input id="check" type="checkbox" ${(note.todo_completed) ? "checked" : ''}>`;
         }
 
         noteTabsHtml.push(`
-          <div id="tab" data-id="${note.id}" data-bg="${bg}" draggable="${this._settings.enableDragAndDrop}" class="${newTab}" role="tab" title="${note.title}"
-            onclick="tabClick(event);" ondblclick="pinNote(event);" onmouseover="setBackground(event,'${this._settings.hoverBackground}');" onmouseout="resetBackground(this);"
-            ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event, '${this._settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
-            style="height:${this._settings.tabHeight}px;min-width:${this._settings.minTabWidth}px;max-width:${this._settings.maxTabWidth}px;border-color:${this._settings.dividerColor};background:${bg};">
+          <div id="tab" data-id="${note.id}" data-bg="${bg}" draggable="${this.sets.enableDragAndDrop}" class="${newTab}" role="tab" title="${note.title}"
+            onclick="tabClick(event);" ondblclick="pinNote(event);" onmouseover="setBackground(event,'${this.sets.hoverBackground}');" onmouseout="resetBackground(this);"
+            ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event, '${this.sets.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
+            style="height:${this.sets.tabHeight}px;min-width:${this.sets.minTabWidth}px;max-width:${this.sets.maxTabWidth}px;border-color:${this.sets.dividerColor};background:${bg};">
             <span class="tab-inner">
               ${checkboxHtml}
               <span class="tab-title" style="color:${fg};text-decoration: ${textDecoration};">
@@ -103,11 +111,11 @@ export class Panel {
   private getControlsHtml(): string {
     let controlsHtml: string = '';
 
-    if (!this._settings.enableDragAndDrop) {
+    if (!this.sets.enableDragAndDrop) {
       controlsHtml = `
-        <div id="controls" style="height:${this._settings.tabHeight}px;">
-          <a href="#" class="fas fa-chevron-left" title="Move active tab left" style="color:${this._settings.foreground};" onclick="message('tabsMoveLeft');"></a>
-          <a href="#" class="fas fa-chevron-right" title="Move active tab right" style="color:${this._settings.foreground};" onclick="message('tabsMoveRight');"></a>
+        <div id="controls" style="height:${this.sets.tabHeight}px;">
+          <a href="#" class="fas fa-chevron-left" title="Move active tab left" style="color:${this.sets.foreground};" onclick="message('tabsMoveLeft');"></a>
+          <a href="#" class="fas fa-chevron-right" title="Move active tab right" style="color:${this.sets.foreground};" onclick="message('tabsMoveRight');"></a>
         </div>
       `;
     }
@@ -119,13 +127,13 @@ export class Panel {
   private async getBreadcrumbsHtml(selectedNote: any): Promise<string> {
     let breadcrumbsHtml: string = '';
 
-    if (this._settings.showBreadcrumbs && selectedNote) {
+    if (this.sets.showBreadcrumbs && selectedNote) {
       let navigationHtml: string = '';
-      if (this._settings.showNavigationButtons) {
+      if (this.sets.showNavigationButtons) {
         navigationHtml = `
-            <div class="navigation-icons" style="border-color:${this._settings.dividerColor};">
-              <a href="#" class="fas fa-chevron-left" title="Back" style="color:${this._settings.foreground};" onclick="message('tabsBack');"></a>
-              <a href="#" class="fas fa-chevron-right" title="Forward" style="color:${this._settings.foreground};" onclick="message('tabsForward');"></a>
+            <div class="navigation-icons" style="border-color:${this.sets.dividerColor};">
+              <a href="#" class="fas fa-chevron-left" title="Back" style="color:${this.sets.foreground};" onclick="message('tabsBack');"></a>
+              <a href="#" class="fas fa-chevron-right" title="Forward" style="color:${this.sets.foreground};" onclick="message('tabsForward');"></a>
             </div>
           `;
       }
@@ -140,10 +148,10 @@ export class Panel {
 
         parentsHtml.push(`
           <div class="breadcrumb" data-id="${parent.id}" onClick="openFolder(event);"
-            style="min-width:${this._settings.breadcrumbsMinWidth}px;max-width:${this._settings.breadcrumbsMaxWidth}px;">
+            style="min-width:${this.sets.breadcrumbsMinWidth}px;max-width:${this.sets.breadcrumbsMaxWidth}px;">
             <span class="breadcrumb-inner">
-              <a href="#" class="breadcrumb-title" style="color:${this._settings.foreground};" title="${parent.title}">${parent.title}</a>
-              <span class="fas fa-chevron-right" style="color:${this._settings.foreground};"></span>
+              <a href="#" class="breadcrumb-title" style="color:${this.sets.foreground};" title="${parent.title}">${parent.title}</a>
+              <span class="fas fa-chevron-right" style="color:${this.sets.foreground};"></span>
             </span>
           </div>
         `);
@@ -151,10 +159,10 @@ export class Panel {
 
       // setup breadcrumbs container html
       breadcrumbsHtml = `
-        <div id="breadcrumbs-container" style="background:${this._settings.breadcrumbsBackground};">
+        <div id="breadcrumbs-container" style="background:${this.sets.breadcrumbsBackground};">
           ${navigationHtml}
           <div class="breadcrumbs-icon">
-            <span class="fas fa-book" style="color:${this._settings.foreground};"></span>
+            <span class="fas fa-book" style="color:${this.sets.foreground};"></span>
           </div>
           ${parentsHtml.join(`\n`)}
         </div>
@@ -170,7 +178,15 @@ export class Panel {
     this._panel = await joplin.views.panels.create('note.tabs.panel');
     await joplin.views.panels.addScript(this._panel, './assets/fontawesome/css/all.min.css');
     await joplin.views.panels.addScript(this._panel, './webview.css');
+    if (this.sets.isLayoutMode(LayoutMode.Auto)) {
+      await joplin.views.panels.addScript(this._panel, './webview_auto.css');
+    }
+    if (this.sets.isLayoutMode(LayoutMode.Vertical)) {
+      await joplin.views.panels.addScript(this._panel, './webview_vertical.css');
+    }
     await joplin.views.panels.addScript(this._panel, './webview.js');
+
+    // message handler
     await joplin.views.panels.onMessage(this._panel, async (message: any) => {
       if (message.name === 'tabsOpenFolder') {
         await joplin.commands.execute('openFolder', message.id);
@@ -202,8 +218,7 @@ export class Panel {
         await joplin.commands.execute('historyForward');
       }
       if (message.name === 'tabsDrag') {
-        // TODO move to index.ts as internal command
-        await this._tabs.moveWithId(message.sourceId, message.targetId);
+        await this.tabs.moveWithId(message.sourceId, message.targetId);
         await this.updateWebview();
       }
       if (message.name === 'tabsDragNotes') {
@@ -213,7 +228,7 @@ export class Panel {
 
     // set init message
     await joplin.views.panels.setHtml(this._panel, `
-      <div id="container" style="background:${this._settings.background};font-family:'${this._settings.fontFamily}',sans-serif;font-size:${this._settings.fontSize};">
+      <div id="container" style="background:${this.sets.background};font-family:'${this.sets.fontFamily}',sans-serif;font-size:${this.sets.fontSize};">
         <div id="tabs-container">
           <p style="padding-left:8px;">Loading panel...</p>
         </div>
@@ -232,9 +247,9 @@ export class Panel {
 
     // add entries to container and push to panel
     await joplin.views.panels.setHtml(this._panel, `
-      <div id="container" style="background:${this._settings.background};font-family:'${this._settings.fontFamily}',sans-serif;font-size:${this._settings.fontSize};">
-        <div id="tabs-container" role="tablist" draggable="${this._settings.enableDragAndDrop}"
-          ondragover="dragOver(event, '${this._settings.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);">
+      <div id="container" style="background:${this.sets.background};font-family:'${this.sets.fontFamily}',sans-serif;font-size:${this.sets.fontSize};">
+        <div id="tabs-container" role="tablist" draggable="${this.sets.enableDragAndDrop}"
+          ondragover="dragOver(event, '${this.sets.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);">
           ${noteTabsHtml}
           ${controlsHtml}
         </div>

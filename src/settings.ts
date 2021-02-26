@@ -18,6 +18,12 @@ enum SettingDefaults {
   DividerColor = 'var(--joplin-divider-color)'
 }
 
+export enum LayoutMode {
+  Auto,
+  Horizontal,
+  Vertical
+}
+
 /**
  * Definitions of plugin settings.
  */
@@ -31,12 +37,13 @@ export class Settings {
   private _showNavigationButtons: boolean = false;
   private _pinEditedNotes: boolean = false;
   private _unpinCompletedTodos: boolean = false;
+  private _layoutMode: number = LayoutMode.Auto;
+  // advanced settings
   private _tabHeight: number = 35;
   private _minTabWidth: number = 50;
   private _maxTabWidth: number = 150;
   private _breadcrumbsMinWidth: number = 10;
   private _breadcrumbsMaxWidth: number = 100;
-  // advanced settings
   private _fontFamily: string = SettingDefaults.Default;
   private _fontSize: string = SettingDefaults.Default;
   private _background: string = SettingDefaults.Default;
@@ -80,6 +87,10 @@ export class Settings {
 
   get unpinCompletedTodos(): boolean {
     return this._unpinCompletedTodos;
+  }
+
+  get layoutMode(): LayoutMode {
+    return this._layoutMode;
   }
 
   get tabHeight(): number {
@@ -191,7 +202,7 @@ export class Settings {
       section: 'note.tabs.settings',
       public: true,
       label: 'Show breadcrumbs below tabs',
-      description: 'Display full breadcrumbs for selected note below tabs. Only available in horizontal layout.'
+      description: 'Display full breadcrumbs for selected note below tabs. Only available in horizontal layout mode.'
     });
     await joplin.settings.registerSetting('showNavigationButtons', {
       value: this._showNavigationButtons,
@@ -217,11 +228,27 @@ export class Settings {
       label: 'Automatically unpin completed to-dos',
       description: 'Unpin notes automatically as soon as the to-do status changes to completed. Removes the tab completely unless it is the selected note.'
     });
+    await joplin.settings.registerSetting('layoutMode', {
+      value: LayoutMode.Auto,
+      type: SettingItemType.Int,
+      section: 'note.tabs.settings',
+      isEnum: true,
+      public: true,
+      label: 'Force tabs layout',
+      description: 'Force tabs horizontal or vertical layout. If Auto, the layout switches automatically at a width of about 400px. Requires restart to be applied.',
+      options: {
+        '0': 'Auto',
+        '1': 'Horizontal',
+        '2': 'Vertical'
+      },
+    });
+    // advanced settings
     await joplin.settings.registerSetting('tabHeight', {
       value: this._tabHeight,
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
+      advanced: true,
       label: 'Note Tabs height (px)',
       description: 'Height of the tabs. Row height in vertical layout.'
     });
@@ -230,6 +257,7 @@ export class Settings {
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
+      advanced: true,
       label: 'Minimum Tab width (px)',
       description: 'Minimum width of one tab in pixel.'
     });
@@ -238,6 +266,7 @@ export class Settings {
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
+      advanced: true,
       label: 'Maximum Tab width (px)',
       description: 'Maximum width of one tab in pixel.'
     });
@@ -246,6 +275,7 @@ export class Settings {
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
+      advanced: true,
       label: 'Minimum breadcrumb width (px)',
       description: 'Minimum width of one breadcrumb in pixel.'
     });
@@ -254,11 +284,10 @@ export class Settings {
       type: SettingItemType.Int,
       section: 'note.tabs.settings',
       public: true,
+      advanced: true,
       label: 'Maximum breadcrumb width (px)',
       description: 'Maximum width of one breadcrumb in pixel.'
     });
-
-    // advanced settings
     await joplin.settings.registerSetting('fontFamily', {
       value: this._fontFamily,
       type: SettingItemType.String,
@@ -373,6 +402,7 @@ export class Settings {
     this._maxTabWidth = await this.getOrDefault(event, this._maxTabWidth, 'maxTabWidth');
     this._breadcrumbsMinWidth = await this.getOrDefault(event, this._breadcrumbsMinWidth, 'breadcrumbsMinWidth');
     this._breadcrumbsMaxWidth = await this.getOrDefault(event, this._breadcrumbsMaxWidth, 'breadcrumbsMaxWidth');
+    this._layoutMode = await this.getOrDefault(event, this._layoutMode, 'layoutMode');
     this._fontFamily = await this.getOrDefault(event, this._fontFamily, 'fontFamily', SettingDefaults.FontFamily);
     this._fontSize = await this.getOrDefault(event, this._fontSize, 'fontSize', SettingDefaults.FontSize);
     this._background = await this.getOrDefault(event, this._background, 'mainBackground', SettingDefaults.Background);
@@ -397,5 +427,12 @@ export class Settings {
   async clearTabs() {
     this._noteTabs = [];
     await this.storeTabs();
+  }
+
+  /**
+   * Check whether or not the handled mode matches with the setting.
+   */
+  isLayoutMode(mode: LayoutMode): boolean {
+    return (this._layoutMode === mode);
   }
 }

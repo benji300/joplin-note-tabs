@@ -173,6 +173,7 @@ span {
   -ms-user-select: none;
 }
 
+/* SCROLLBARS */
 ::-webkit-scrollbar {
   height: 4px;
   width: 7px;
@@ -180,22 +181,4 @@ span {
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 5px;
-}
-
-/* VERCTICAL LAYOUT OVERWRITES */
-@media screen and (max-width: 400px) {
-  #tabs-container {
-    display: block;
-    width: 100%;
-  }
-
-  #tab {
-    border-right-width: 0;
-    border-bottom-width: 1px;
-    max-width: 100% !important;
-  }
-
-  #breadcrumbs-container {
-    display: none !important;
-  }
 }
