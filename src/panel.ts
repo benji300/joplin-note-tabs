@@ -178,10 +178,10 @@ export class Panel {
     this._panel = await joplin.views.panels.create('note.tabs.panel');
     await joplin.views.panels.addScript(this._panel, './assets/fontawesome/css/all.min.css');
     await joplin.views.panels.addScript(this._panel, './webview.css');
-    if (this.sets.isLayoutMode(LayoutMode.Auto)) {
+    if (this.sets.hasLayoutMode(LayoutMode.Auto)) {
       await joplin.views.panels.addScript(this._panel, './webview_auto.css');
     }
-    if (this.sets.isLayoutMode(LayoutMode.Vertical)) {
+    if (this.sets.hasLayoutMode(LayoutMode.Vertical)) {
       await joplin.views.panels.addScript(this._panel, './webview_vertical.css');
     }
     await joplin.views.panels.addScript(this._panel, './webview.js');

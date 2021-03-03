@@ -18,6 +18,12 @@ enum SettingDefaults {
   DividerColor = 'var(--joplin-divider-color)'
 }
 
+export enum UnpinBehavior {
+  Keep,
+  LastActive,
+  Adjacent
+}
+
 export enum LayoutMode {
   Auto,
   Horizontal,
@@ -37,6 +43,7 @@ export class Settings {
   private _showNavigationButtons: boolean = false;
   private _pinEditedNotes: boolean = false;
   private _unpinCompletedTodos: boolean = false;
+  private _unpinBehavior: number = UnpinBehavior.Keep;
   private _layoutMode: number = LayoutMode.Auto;
   // advanced settings
   private _tabHeight: number = 35;
@@ -87,6 +94,10 @@ export class Settings {
 
   get unpinCompletedTodos(): boolean {
     return this._unpinCompletedTodos;
+  }
+
+  get unpinBehavior(): LayoutMode {
+    return this._unpinBehavior;
   }
 
   get layoutMode(): LayoutMode {
@@ -227,6 +238,22 @@ export class Settings {
       public: true,
       label: 'Automatically unpin completed to-dos',
       description: 'Unpin notes automatically as soon as the to-do status changes to completed. Removes the tab completely unless it is the selected note.'
+    });
+    await joplin.settings.registerSetting('unpinBehavior', {
+      value: UnpinBehavior.Keep,
+      type: SettingItemType.Int,
+      section: 'note.tabs.settings',
+      isEnum: true,
+      public: true,
+      label: 'Unpin active tab behavior',
+      description: 'Specify behavior when unpinning the current active tab. ' +
+        'Either keep tab selected (reappears as temporary tab - old behavior), select the last active tab (edited note) or select one of the adjacent tabs. ' +
+        'Where the latter one can either be the left or right adjacent tab, depending on which exists.',
+      options: {
+        '0': 'Keep selected',
+        '1': 'Select last active',
+        '2': 'Select adjacent'
+      },
     });
     await joplin.settings.registerSetting('layoutMode', {
       value: LayoutMode.Auto,
@@ -397,12 +424,13 @@ export class Settings {
     this._showNavigationButtons = await this.getOrDefault(event, this._showNavigationButtons, 'showNavigationButtons');
     this._pinEditedNotes = await this.getOrDefault(event, this._pinEditedNotes, 'pinEditedNotes');
     this._unpinCompletedTodos = await this.getOrDefault(event, this._unpinCompletedTodos, 'unpinCompletedTodos');
+    this._unpinBehavior = await this.getOrDefault(event, this._unpinBehavior, 'unpinBehavior');
+    this._layoutMode = await this.getOrDefault(event, this._layoutMode, 'layoutMode');
     this._tabHeight = await this.getOrDefault(event, this._tabHeight, 'tabHeight');
     this._minTabWidth = await this.getOrDefault(event, this._minTabWidth, 'minTabWidth');
     this._maxTabWidth = await this.getOrDefault(event, this._maxTabWidth, 'maxTabWidth');
     this._breadcrumbsMinWidth = await this.getOrDefault(event, this._breadcrumbsMinWidth, 'breadcrumbsMinWidth');
     this._breadcrumbsMaxWidth = await this.getOrDefault(event, this._breadcrumbsMaxWidth, 'breadcrumbsMaxWidth');
-    this._layoutMode = await this.getOrDefault(event, this._layoutMode, 'layoutMode');
     this._fontFamily = await this.getOrDefault(event, this._fontFamily, 'fontFamily', SettingDefaults.FontFamily);
     this._fontSize = await this.getOrDefault(event, this._fontSize, 'fontSize', SettingDefaults.FontSize);
     this._background = await this.getOrDefault(event, this._background, 'mainBackground', SettingDefaults.Background);
@@ -430,9 +458,16 @@ export class Settings {
   }
 
   /**
+   * Check whether or not the handled unpin behavior matches with the setting.
+   */
+  hasUnpinBehavior(behavior: UnpinBehavior): boolean {
+    return (this._unpinBehavior === behavior);
+  }
+
+  /**
    * Check whether or not the handled mode matches with the setting.
    */
-  isLayoutMode(mode: LayoutMode): boolean {
+  hasLayoutMode(mode: LayoutMode): boolean {
     return (this._layoutMode === mode);
   }
 }
