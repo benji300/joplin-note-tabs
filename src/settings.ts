@@ -49,7 +49,6 @@ export class Settings {
   private _tabHeight: number = 35;
   private _minTabWidth: number = 50;
   private _maxTabWidth: number = 150;
-  private _breadcrumbsMinWidth: number = 10;
   private _breadcrumbsMaxWidth: number = 100;
   private _fontFamily: string = SettingDefaults.Default;
   private _fontSize: string = SettingDefaults.Default;
@@ -114,10 +113,6 @@ export class Settings {
 
   get maxTabWidth(): number {
     return this._maxTabWidth;
-  }
-
-  get breadcrumbsMinWidth(): number {
-    return this._breadcrumbsMinWidth;
   }
 
   get breadcrumbsMaxWidth(): number {
@@ -297,15 +292,6 @@ export class Settings {
       label: 'Maximum Tab width (px)',
       description: 'Maximum width of one tab in pixel.'
     });
-    await joplin.settings.registerSetting('breadcrumbsMinWidth', {
-      value: this._breadcrumbsMinWidth,
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Minimum breadcrumb width (px)',
-      description: 'Minimum width of one breadcrumb in pixel.'
-    });
     await joplin.settings.registerSetting('breadcrumbsMaxWidth', {
       value: this._breadcrumbsMaxWidth,
       type: SettingItemType.Int,
@@ -429,7 +415,6 @@ export class Settings {
     this._tabHeight = await this.getOrDefault(event, this._tabHeight, 'tabHeight');
     this._minTabWidth = await this.getOrDefault(event, this._minTabWidth, 'minTabWidth');
     this._maxTabWidth = await this.getOrDefault(event, this._maxTabWidth, 'maxTabWidth');
-    this._breadcrumbsMinWidth = await this.getOrDefault(event, this._breadcrumbsMinWidth, 'breadcrumbsMinWidth');
     this._breadcrumbsMaxWidth = await this.getOrDefault(event, this._breadcrumbsMaxWidth, 'breadcrumbsMaxWidth');
     this._fontFamily = await this.getOrDefault(event, this._fontFamily, 'fontFamily', SettingDefaults.FontFamily);
     this._fontSize = await this.getOrDefault(event, this._fontSize, 'fontSize', SettingDefaults.FontSize);

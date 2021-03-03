@@ -148,7 +148,7 @@ export class Panel {
 
         parentsHtml.push(`
           <div class="breadcrumb" data-id="${parent.id}" onClick="openFolder(event);"
-            style="min-width:${this.sets.breadcrumbsMinWidth}px;max-width:${this.sets.breadcrumbsMaxWidth}px;">
+            style="max-width:${this.sets.breadcrumbsMaxWidth}px;">
             <span class="breadcrumb-inner">
               <a href="#" class="breadcrumb-title" style="color:${this.sets.foreground};" title="${parent.title}">${parent.title}</a>
               <span class="fas fa-chevron-right" style="color:${this.sets.foreground};"></span>
