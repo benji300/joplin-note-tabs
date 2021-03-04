@@ -3,7 +3,7 @@ import { MenuItem, MenuItemLocation } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
 import { NoteTabType, NoteTabs } from './noteTabs';
 import { LastActiveNote } from './lastActiveNote';
-import { Settings, UnpinBehavior } from './settings';
+import { Settings, UnpinBehavior, AddBehavior } from './settings';
 import { Panel } from './panel';
 
 joplin.plugins.register({
@@ -27,33 +27,46 @@ joplin.plugins.register({
     //#region HELPERS
 
     /**
-     * Add note as temporary tab, if not already has one.
+     * Add note as tab, if not already has one.
      */
     async function addTab(noteId: string) {
       if (tabs.hasTab(noteId)) return;
 
-      if (tabs.indexOfTemp >= 0) {
-        // replace existing temporary tab...
-        tabs.replaceTemp(noteId);
+      // depending on settings - either add directly as pinned tab
+      const addAsPinned: boolean = settings.hasAddBehavior(AddBehavior.Pinned);
+      if (addAsPinned) {
+        await pinTab(noteId, true);
       } else {
-        // or add as new temporary tab at the end
-        await tabs.add(noteId, NoteTabType.Temporary);
+        // or as temporay tab
+        if (tabs.indexOfTemp >= 0) {
+          // replace existing temporary tab...
+          tabs.replaceTemp(noteId);
+        } else {
+          // or add as new temporary tab at the end
+          await tabs.add(noteId, NoteTabType.Temporary);
+        }
       }
     }
 
     /**
      * Add new or pin tab for handled note. Optionally at the specified index of targetId.
      */
-    async function pinTab(note: any, addAsNew: boolean, targetId?: string) {
-      // do not pin completed todos if auto unpin is enabled
-      if (settings.unpinCompletedTodos && note.is_todo && note.todo_completed) return;
+    async function pinTab(noteId: string, addAsNew: boolean, targetId?: string) {
+      const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
 
-      if (tabs.hasTab(note.id)) {
-        // if note has already a tab, change type to pinned
-        await tabs.changeType(note.id, NoteTabType.Pinned);
-      } else {
-        // otherwise add as new one
-        if (addAsNew) await tabs.add(note.id, NoteTabType.Pinned, targetId);
+      if (note) {
+        // do not pin completed todos if auto unpin is enabled
+        if (settings.unpinCompletedTodos && note.is_todo && note.todo_completed) return;
+
+        if (tabs.hasTab(note.id)) {
+          // if note has already a tab, change type to pinned
+          await tabs.changeType(note.id, NoteTabType.Pinned);
+        } else {
+          // otherwise add as new one
+          if (addAsNew) {
+            await tabs.add(note.id, NoteTabType.Pinned, targetId);
+          }
+        }
       }
     }
 
@@ -126,7 +139,7 @@ joplin.plugins.register({
 
         // if no one was selected before
         if (!selected) {
-          // re-add removed note temporary tab at the end
+          // re-add removed note as tab at the end
           await addTab(noteId);
         }
       } else {
@@ -153,16 +166,9 @@ joplin.plugins.register({
         if (!selectedNoteIds) selectedNoteIds = await WORKSPACE.selectedNoteIds();
         if (!selectedNoteIds) return;
 
-        // Add all handled note ids as pinned tabs. Optionally at the specified index of targetId.
+        // add all handled notes as pinned tabs. Optionally at the specified index of targetId.
         for (const noteId of selectedNoteIds) {
-          try {
-            const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
-            if (note) {
-              pinTab(note, true, targetId);
-            }
-          } catch (error) {
-            continue;
-          }
+          await pinTab(noteId, true, targetId);
         }
         await panel.updateWebview();
       }
@@ -394,7 +400,7 @@ joplin.plugins.register({
 
             // if auto pin is enabled, pin changed note to tabs
             if (settings.pinEditedNotes)
-              await pinTab(note, false);
+              await pinTab(note.id, false);
 
             // if auto unpin is enabled and changed note is a completed todo...
             if (settings.unpinCompletedTodos && note.is_todo && note.todo_completed)

@@ -18,6 +18,11 @@ enum SettingDefaults {
   DividerColor = 'var(--joplin-divider-color)'
 }
 
+export enum AddBehavior {
+  Temporary,
+  Pinned
+}
+
 export enum UnpinBehavior {
   Keep,
   LastActive,
@@ -43,7 +48,8 @@ export class Settings {
   private _showNavigationButtons: boolean = false;
   private _pinEditedNotes: boolean = false;
   private _unpinCompletedTodos: boolean = false;
-  private _unpinBehavior: number = UnpinBehavior.Keep;
+  private _addBehavior: AddBehavior = AddBehavior.Temporary;
+  private _unpinBehavior: UnpinBehavior = UnpinBehavior.Keep;
   private _layoutMode: number = LayoutMode.Auto;
   // advanced settings
   private _tabHeight: number = 35;
@@ -95,12 +101,16 @@ export class Settings {
     return this._unpinCompletedTodos;
   }
 
-  get unpinBehavior(): LayoutMode {
-    return this._unpinBehavior;
+  hasAddBehavior(behavior: AddBehavior): boolean {
+    return (this._addBehavior === behavior);
   }
 
-  get layoutMode(): LayoutMode {
-    return this._layoutMode;
+  hasUnpinBehavior(behavior: UnpinBehavior): boolean {
+    return (this._unpinBehavior === behavior);
+  }
+
+  hasLayoutMode(mode: LayoutMode): boolean {
+    return (this._layoutMode === mode);
   }
 
   get tabHeight(): number {
@@ -232,7 +242,22 @@ export class Settings {
       section: 'note.tabs.settings',
       public: true,
       label: 'Automatically unpin completed to-dos',
-      description: 'Unpin notes automatically as soon as the to-do status changes to completed. Removes the tab completely unless it is the selected note.'
+      description: 'Unpin notes automatically as soon as the to-do status changes to completed. ' +
+        'Removes the tab completely unless it is the selected note.'
+    });
+    await joplin.settings.registerSetting('addBehavior', {
+      value: AddBehavior.Temporary,
+      type: SettingItemType.Int,
+      section: 'note.tabs.settings',
+      isEnum: true,
+      public: true,
+      label: 'Add tab behavior',
+      description: 'Specify how new tabs are added to the panel. Either as temporary or directly as pinned tab. ' +
+        'Only one temporary (italic font) tab exists at a time.',
+      options: {
+        '0': 'Temporary',
+        '1': 'Pinned'
+      },
     });
     await joplin.settings.registerSetting('unpinBehavior', {
       value: UnpinBehavior.Keep,
@@ -241,9 +266,9 @@ export class Settings {
       isEnum: true,
       public: true,
       label: 'Unpin active tab behavior',
-      description: 'Specify behavior when unpinning the current active tab. ' +
-        'Either keep tab selected (reappears as temporary tab - old behavior), select the last active tab (edited note) or select one of the adjacent tabs. ' +
-        'Where the latter one can either be the left or right adjacent tab, depending on which exists.',
+      description: 'Specify the behavior when unpinning the current active tab. ' +
+        'Either keep tab selected, select the last active tab or select one of the adjacent tabs. ' +
+        'Adjacent tabs can either be the next left or right tab, depending on which exists.',
       options: {
         '0': 'Keep selected',
         '1': 'Select last active',
@@ -410,6 +435,7 @@ export class Settings {
     this._showNavigationButtons = await this.getOrDefault(event, this._showNavigationButtons, 'showNavigationButtons');
     this._pinEditedNotes = await this.getOrDefault(event, this._pinEditedNotes, 'pinEditedNotes');
     this._unpinCompletedTodos = await this.getOrDefault(event, this._unpinCompletedTodos, 'unpinCompletedTodos');
+    this._addBehavior = await this.getOrDefault(event, this._addBehavior, 'addBehavior');
     this._unpinBehavior = await this.getOrDefault(event, this._unpinBehavior, 'unpinBehavior');
     this._layoutMode = await this.getOrDefault(event, this._layoutMode, 'layoutMode');
     this._tabHeight = await this.getOrDefault(event, this._tabHeight, 'tabHeight');
@@ -440,19 +466,5 @@ export class Settings {
   async clearTabs() {
     this._noteTabs = [];
     await this.storeTabs();
-  }
-
-  /**
-   * Check whether or not the handled unpin behavior matches with the setting.
-   */
-  hasUnpinBehavior(behavior: UnpinBehavior): boolean {
-    return (this._unpinBehavior === behavior);
-  }
-
-  /**
-   * Check whether or not the handled mode matches with the setting.
-   */
-  hasLayoutMode(mode: LayoutMode): boolean {
-    return (this._layoutMode === mode);
   }
 }
