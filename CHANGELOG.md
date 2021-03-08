@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- None
+
+## [1.3.0] - 2021-03-09
+
 ### Added
 
 - User option (`Add tab behavior`) to force horizontal or vertical layout mode ([#2](https://github.com/benji300/joplin-note-tabs/issues/2))
