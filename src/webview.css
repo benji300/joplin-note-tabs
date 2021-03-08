@@ -41,6 +41,7 @@ span {
   border-right-width: 1px;
   display: flex;
   padding: 0 8px;
+  transition: 0.2s;
 }
 #tab .fas {
   margin-left: auto;

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Ensure visibility of active tab, i.e. selected note ([#32](https://github.com/benji300/joplin-note-tabs/issues/32))
 - Plugin command labels (Removed `Tabs:` prefix)
 - Breadcrumbs and navigation icon styles
 

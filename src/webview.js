@@ -50,6 +50,14 @@ function tabClick(event) {
   }
 }
 
+// scroll active tab into view
+document.addEventListener('DOMSubtreeModified', (event) => {
+  const activeTab = document.querySelector("div#tab[active]");
+  if (activeTab) {
+    activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+});
+
 // scroll horizontally without 'shift' key
 document.addEventListener('wheel', (event) => {
   let element;
