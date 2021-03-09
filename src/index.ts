@@ -115,23 +115,25 @@ joplin.plugins.register({
 
       // if noteId is the selected note - try to select another note depending on the settings
       if (selectedNote && selectedNote.id == noteId) {
-        const selectLastActive: boolean = settings.hasUnpinBehavior(UnpinBehavior.LastActive);
-        let selectAdjacent: boolean = settings.hasUnpinBehavior(UnpinBehavior.Adjacent);
         let selected: boolean = false;
 
-        // try to select last active tab
-        if ((!selected) && selectLastActive) {
-          selected = await openLastActiveNote();
-          // do not restore already removed last active tabs - in this case go ahead with adjacent
-          if (!selected) selectAdjacent = true;
-        }
-        // try to select left adjacent tab
-        if ((!selected) && selectAdjacent) {
-          selected = await switchTabLeft(noteId);
-        }
-        // try to select right adjacent tab
-        if ((!selected) && selectAdjacent) {
-          selected = await switchTabRight(noteId);
+        // try to select the appropriate tab
+        switch (settings.unpinBehavior) {
+          case UnpinBehavior.LastActive:
+            selected = await openLastActiveNote();
+            if (selected) break;
+          // fallthrough if no last active found
+          case UnpinBehavior.LeftTab:
+            selected = await switchTabLeft(noteId);
+            if (selected) break;
+          // fallthrough if no right tab found
+          case UnpinBehavior.RightTab:
+            selected = await switchTabRight(noteId);
+            if (selected) break;
+            // try to select left tab
+            selected = await switchTabLeft(noteId);
+          default:
+            break;
         }
 
         // then remove note from tabs

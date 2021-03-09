@@ -26,7 +26,8 @@ export enum AddBehavior {
 export enum UnpinBehavior {
   Keep,
   LastActive,
-  Adjacent
+  LeftTab,
+  RightTab
 }
 
 export enum LayoutMode {
@@ -105,8 +106,8 @@ export class Settings {
     return (this._addBehavior === behavior);
   }
 
-  hasUnpinBehavior(behavior: UnpinBehavior): boolean {
-    return (this._unpinBehavior === behavior);
+  get unpinBehavior(): UnpinBehavior {
+    return this._unpinBehavior;
   }
 
   hasLayoutMode(mode: LayoutMode): boolean {
@@ -267,12 +268,12 @@ export class Settings {
       public: true,
       label: 'Unpin active tab behavior',
       description: 'Specify the behavior when unpinning the current active tab. ' +
-        'Either keep tab selected, select the last active tab or select one of the adjacent tabs. ' +
-        'Adjacent tabs can either be the next left or right tab, depending on which exists.',
+        'Either keep the tab selected. Or select the last active tab or the next left or right tab.',
       options: {
         '0': 'Keep selected',
-        '1': 'Select last active',
-        '2': 'Select adjacent'
+        '1': 'Select last active tab',
+        '2': 'Select left tab',
+        '3': 'Select right tab'
       },
     });
     await joplin.settings.registerSetting('layoutMode', {
