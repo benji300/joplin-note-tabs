@@ -268,7 +268,7 @@ export class Settings {
       public: true,
       label: 'Unpin active tab behavior',
       description: 'Specify the behavior when unpinning the current active tab. ' +
-        'Either keep the tab selected. Or select the last active tab or the next left or right tab.',
+        'Either keep the active tab selected (may replaces the temporary one) or select another one, depending on the setting.',
       options: {
         '0': 'Keep selected',
         '1': 'Select last active tab',
