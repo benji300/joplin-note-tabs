@@ -13,9 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- User option (`Add tab behavior`) to force horizontal or vertical layout mode ([#2](https://github.com/benji300/joplin-note-tabs/issues/2))
-- User option (`Unpin active tab behavior`) to select behavior when unpinning the active tab ([#25](https://github.com/benji300/joplin-note-tabs/issues/25))
-- User option (`Force tabs layout`) to specify type (temporary or pinned) for new tabs ([#35](https://github.com/benji300/joplin-note-tabs/issues/35))
+- User option `Force tabs layout` to force horizontal or vertical layout mode ([#2](https://github.com/benji300/joplin-note-tabs/issues/2))
+- User option `Unpin active tab behavior` to select behavior when unpinning the active tab ([#25](https://github.com/benji300/joplin-note-tabs/issues/25))
+- User option `Add tab behavior` to specify type (temporary or pinned) for new tabs ([#35](https://github.com/benji300/joplin-note-tabs/issues/35))
 - Ability to scroll tabs and breadcrums horizontally without holding `shift` key ([#34](https://github.com/benji300/joplin-note-tabs/issues/34))
 
 ### Changed
