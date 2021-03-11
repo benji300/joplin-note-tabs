@@ -3,7 +3,7 @@ import { MenuItem, MenuItemLocation } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
 import { NoteTabType, NoteTabs } from './noteTabs';
 import { LastActiveNote } from './lastActiveNote';
-import { Settings } from './settings';
+import { Settings, UnpinBehavior, AddBehavior } from './settings';
 import { Panel } from './panel';
 
 joplin.plugins.register({
@@ -27,34 +27,84 @@ joplin.plugins.register({
     //#region HELPERS
 
     /**
-     * Add note as temporary tab, if not already has one.
+     * Add note as tab, if not already has one.
      */
     async function addTab(noteId: string) {
       if (tabs.hasTab(noteId)) return;
 
-      if (tabs.indexOfTemp >= 0) {
-        // replace existing temporary tab...
-        tabs.replaceTemp(noteId);
+      // depending on settings - either add directly as pinned tab
+      const addAsPinned: boolean = settings.hasAddBehavior(AddBehavior.Pinned);
+      if (addAsPinned) {
+        await pinTab(noteId, true);
       } else {
-        // or add as new temporary tab at the end
-        await tabs.add(noteId, NoteTabType.Temporary);
+        // or as temporay tab
+        if (tabs.indexOfTemp >= 0) {
+          // replace existing temporary tab...
+          tabs.replaceTemp(noteId);
+        } else {
+          // or add as new temporary tab at the end
+          await tabs.add(noteId, NoteTabType.Temporary);
+        }
       }
     }
 
     /**
      * Add new or pin tab for handled note. Optionally at the specified index of targetId.
      */
-    async function pinTab(note: any, addAsNew: boolean, targetId?: string) {
-      // do not pin completed todos if auto unpin is enabled
-      if (settings.unpinCompletedTodos && note.is_todo && note.todo_completed) return;
+    async function pinTab(noteId: string, addAsNew: boolean, targetId?: string) {
+      const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
 
-      if (tabs.hasTab(note.id)) {
-        // if note has already a tab, change type to pinned
-        await tabs.changeType(note.id, NoteTabType.Pinned);
-      } else {
-        // otherwise add as new one
-        if (addAsNew) await tabs.add(note.id, NoteTabType.Pinned, targetId);
+      if (note) {
+        // do not pin completed todos if auto unpin is enabled
+        if (settings.unpinCompletedTodos && note.is_todo && note.todo_completed) return;
+
+        if (tabs.hasTab(note.id)) {
+          // if note has already a tab, change type to pinned
+          await tabs.changeType(note.id, NoteTabType.Pinned);
+        } else {
+          // otherwise add as new one
+          if (addAsNew) {
+            await tabs.add(note.id, NoteTabType.Pinned, targetId);
+          }
+        }
       }
+    }
+
+    /**
+     * Open last active note (tab) (if still exists).
+     */
+    async function openLastActiveNote(): Promise<boolean> {
+      if (lastActiveNote.length < 2) return false;
+
+      const lastActiveNoteId = lastActiveNote.id;
+      // return if an already removed tab is about to be restored
+      if (tabs.indexOf(lastActiveNoteId) < 0) return false;
+
+      await COMMANDS.execute('openNote', lastActiveNoteId);
+      return true;
+    }
+
+    /**
+     * Switch to left tab.
+     */
+    async function switchTabLeft(noteId: string): Promise<boolean> {
+      const index: number = tabs.indexOf(noteId);
+      if (index <= 0) return false;
+
+      await COMMANDS.execute('openNote', tabs.get(index - 1).id);
+      return true;
+    }
+
+    /**
+     * Switch to right tab.
+     */
+    async function switchTabRight(noteId: string): Promise<boolean> {
+      const index: number = tabs.indexOf(noteId);
+      if (index < 0) return false;
+      if (index == tabs.length - 1) return false;
+
+      await COMMANDS.execute('openNote', tabs.get(index + 1).id);
+      return true;
     }
 
     /**
@@ -63,12 +113,41 @@ joplin.plugins.register({
     async function removeTab(noteId: string) {
       const selectedNote: any = await WORKSPACE.selectedNote();
 
-      // remove tab completely
-      await tabs.delete(noteId);
-
-      // if note is the selected note, add as temp tab or replace existing one
+      // if noteId is the selected note - try to select another note depending on the settings
       if (selectedNote && selectedNote.id == noteId) {
-        await addTab(noteId);
+        let selected: boolean = false;
+
+        // try to select the appropriate tab
+        switch (settings.unpinBehavior) {
+          case UnpinBehavior.LastActive:
+            selected = await openLastActiveNote();
+            if (selected) break;
+          // fallthrough if no last active found
+          case UnpinBehavior.LeftTab:
+            selected = await switchTabLeft(noteId);
+            if (selected) break;
+          // fallthrough if no right tab found
+          case UnpinBehavior.RightTab:
+            selected = await switchTabRight(noteId);
+            if (selected) break;
+            // try to select left tab
+            selected = await switchTabLeft(noteId);
+          default:
+            break;
+        }
+
+        // then remove note from tabs
+        await tabs.delete(noteId);
+
+        // if no one was selected before
+        if (!selected) {
+          // re-add removed note as tab at the end
+          await addTab(noteId);
+        }
+      } else {
+
+        // else simply remove note from tabs
+        await tabs.delete(noteId);
       }
     }
 
@@ -80,25 +159,18 @@ joplin.plugins.register({
     // Desc: Pin the selected note(s) to the tabs
     await COMMANDS.register({
       name: 'tabsPinNote',
-      label: 'Tabs: Pin note',
+      label: 'Pin note to Tabs',
       iconName: 'fas fa-thumbtack',
-      enabledCondition: "someNotesSelected",
+      enabledCondition: 'someNotesSelected',
       execute: async (noteIds: string[], targetId?: string) => {
         // get selected note ids and return if empty
         let selectedNoteIds = noteIds;
         if (!selectedNoteIds) selectedNoteIds = await WORKSPACE.selectedNoteIds();
         if (!selectedNoteIds) return;
 
-        // Add all handled note ids as pinned tabs. Optionally at the specified index of targetId.
+        // add all handled notes as pinned tabs. Optionally at the specified index of targetId.
         for (const noteId of selectedNoteIds) {
-          try {
-            const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
-            if (note) {
-              pinTab(note, true, targetId);
-            }
-          } catch (error) {
-            continue;
-          }
+          await pinTab(noteId, true, targetId);
         }
         await panel.updateWebview();
       }
@@ -108,9 +180,9 @@ joplin.plugins.register({
     // Desc: Unpin the selected note(s) from the tabs
     await COMMANDS.register({
       name: 'tabsUnpinNote',
-      label: 'Tabs: Unpin note',
+      label: 'Unpin note from Tabs',
       iconName: 'fas fa-times',
-      enabledCondition: "someNotesSelected",
+      enabledCondition: 'someNotesSelected',
       execute: async (noteIds: string[]) => {
         // get selected note ids and return if empty
         let selectedNoteIds = noteIds;
@@ -129,9 +201,9 @@ joplin.plugins.register({
     // Desc: Move active tab to left
     await COMMANDS.register({
       name: 'tabsMoveLeft',
-      label: 'Tabs: Move tab left',
+      label: 'Move active Tab left',
       iconName: 'fas fa-chevron-left',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: 'oneNoteSelected',
       execute: async () => {
         const selectedNote: any = await WORKSPACE.selectedNote();
         if (!selectedNote) return;
@@ -147,9 +219,9 @@ joplin.plugins.register({
     // Desc: Move active tab to right
     await COMMANDS.register({
       name: 'tabsMoveRight',
-      label: 'Tabs: Move tab right',
+      label: 'Move active Tab right',
       iconName: 'fas fa-chevron-right',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: 'oneNoteSelected',
       execute: async () => {
         const selectedNote: any = await WORKSPACE.selectedNote();
         if (!selectedNote) return;
@@ -165,17 +237,11 @@ joplin.plugins.register({
     // Desc: Switch to last active tab
     await COMMANDS.register({
       name: 'tabsSwitchLastActive',
-      label: 'Tabs: Switch to last active tab',
+      label: 'Switch to last active Tab',
       iconName: 'fas fa-step-backward',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: 'oneNoteSelected',
       execute: async () => {
-        if (lastActiveNote.length < 2) return;
-
-        // get the last active note from the queue
-        const lastActiveNoteId = lastActiveNote.id;
-
-        // select note with stored id
-        await COMMANDS.execute('openNote', lastActiveNoteId);
+        await openLastActiveNote();
         // updateWebview() is called from onNoteSelectionChange event
       }
     });
@@ -184,19 +250,14 @@ joplin.plugins.register({
     // Desc: Switch to left tab, i.e. select left note
     await COMMANDS.register({
       name: 'tabsSwitchLeft',
-      label: 'Tabs: Switch to left tab',
+      label: 'Switch to left Tab',
       iconName: 'fas fa-step-backward',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: 'oneNoteSelected',
       execute: async () => {
         const selectedNote: any = await WORKSPACE.selectedNote();
         if (!selectedNote) return;
 
-        // check if note is not already first, otherwise exit
-        const index: number = tabs.indexOf(selectedNote.id);
-        if (index <= 0) return;
-
-        // get id of left note and select it
-        await COMMANDS.execute('openNote', tabs.get(index - 1).id);
+        await switchTabLeft(selectedNote.id);
         // updateWebview() is called from onNoteSelectionChange event
       }
     });
@@ -205,20 +266,14 @@ joplin.plugins.register({
     // Desc: Switch to right tab, i.e. select right note
     await COMMANDS.register({
       name: 'tabsSwitchRight',
-      label: 'Tabs: Switch to right tab',
+      label: 'Switch to right Tab',
       iconName: 'fas fa-step-forward',
-      enabledCondition: "oneNoteSelected",
+      enabledCondition: 'oneNoteSelected',
       execute: async () => {
         const selectedNote: any = await WORKSPACE.selectedNote();
         if (!selectedNote) return;
 
-        // check if note is not already last, otherwise exit
-        const index: number = tabs.indexOf(selectedNote.id);
-        if (index < 0) return;
-        if (index == tabs.length - 1) return;
-
-        // get id of right note and select it
-        await COMMANDS.execute('openNote', tabs.get(index + 1).id);
+        await switchTabRight(selectedNote.id);
         // updateWebview() is called from onNoteSelectionChange event
       }
     });
@@ -227,11 +282,11 @@ joplin.plugins.register({
     // Desc: Remove all pinned tabs
     await COMMANDS.register({
       name: 'tabsClear',
-      label: 'Tabs: Remove all pinned tabs',
+      label: 'Remove all pinned Tabs',
       iconName: 'fas fa-times',
       execute: async () => {
         // ask user before removing tabs
-        const result: number = await DIALOGS.showMessageBox(`Remove all pinned tabs?`);
+        const result: number = await DIALOGS.showMessageBox('Do you really want to remove all pinned tabs?');
         if (result) return;
 
         await settings.clearTabs();
@@ -251,7 +306,7 @@ joplin.plugins.register({
     // Desc: Toggle panel visibility
     await COMMANDS.register({
       name: 'tabsToggleVisibility',
-      label: 'Tabs: Toggle visibility',
+      label: 'Toggle Tabs visibility',
       iconName: 'fas fa-eye-slash',
       execute: async () => {
         await panel.toggleVisibility();
@@ -261,39 +316,39 @@ joplin.plugins.register({
     // prepare commands menu
     const commandsSubMenu: MenuItem[] = [
       {
-        commandName: "tabsPinNote",
-        label: 'Pin note'
+        commandName: 'tabsPinNote',
+        label: 'Pin note to Tabs'
       },
       {
-        commandName: "tabsUnpinNote",
-        label: 'Unpin note'
+        commandName: 'tabsUnpinNote',
+        label: 'Unpin note from Tabs'
       },
       {
-        commandName: "tabsSwitchLastActive",
-        label: 'Switch to last active tab'
+        commandName: 'tabsSwitchLastActive',
+        label: 'Switch to last active Tab'
       },
       {
-        commandName: "tabsSwitchLeft",
-        label: 'Switch to left tab'
+        commandName: 'tabsSwitchLeft',
+        label: 'Switch to left Tab'
       },
       {
-        commandName: "tabsSwitchRight",
-        label: 'Switch to right tab'
+        commandName: 'tabsSwitchRight',
+        label: 'Switch to right Tab'
       },
       {
-        commandName: "tabsMoveLeft",
-        label: 'Move tab left'
+        commandName: 'tabsMoveLeft',
+        label: 'Move active Tab left'
       },
       {
-        commandName: "tabsMoveRight",
-        label: 'Move tab right'
+        commandName: 'tabsMoveRight',
+        label: 'Move active Tab right'
       },
       {
-        commandName: "tabsClear",
-        label: 'Remove all pinned tabs'
+        commandName: 'tabsClear',
+        label: 'Remove all pinned Tabs'
       },
       {
-        commandName: "tabsToggleVisibility",
+        commandName: 'tabsToggleVisibility',
         label: 'Toggle panel visibility'
       }
     ];
@@ -309,10 +364,9 @@ joplin.plugins.register({
 
     //#region EVENTS
 
-    let onChangeCnt = 0;
+    // let onChangeCnt = 0;
     SETTINGS.onChange(async (event: ChangeEvent) => {
-      // TODO remove
-      console.debug(`onChange() hits: ${onChangeCnt++}`);
+      // console.debug(`onChange() hits: ${onChangeCnt++}`);
       await settings.read(event);
       await panel.updateWebview();
     });
@@ -339,18 +393,18 @@ joplin.plugins.register({
     WORKSPACE.onNoteChange(async (ev: any) => {
       try {
         if (ev) {
-          // note was updated (ItemChangeEventType.Update)
+          // note was changed (ItemChangeEventType.Update)
           if (ev.event == 2) {
 
-            // get handled note and return if null
+            // get changed note and return if null
             const note: any = await DATA.get(['notes', ev.id], { fields: ['id', 'is_todo', 'todo_completed'] });
             if (note == null) return;
 
-            // if auto pin is enabled and handled, pin to tabs
+            // if auto pin is enabled, pin changed note to tabs
             if (settings.pinEditedNotes)
-              await pinTab(note, false);
+              await pinTab(note.id, false);
 
-            // if auto unpin is enabled and handled note is a completed todo...
+            // if auto unpin is enabled and changed note is a completed todo...
             if (settings.unpinCompletedTodos && note.is_todo && note.todo_completed)
               await removeTab(note.id);
           }

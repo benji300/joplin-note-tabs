@@ -1,3 +1,11 @@
+let sourceId = '';
+
+function cancelDefault(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  return false;
+}
+
 function getDataId(event) {
   if (event.currentTarget.id === 'tab' || event.currentTarget.className === 'breadcrumb') {
     return event.currentTarget.dataset.id;
@@ -6,7 +14,8 @@ function getDataId(event) {
   }
 }
 
-/* CLICK EVENTS */
+/* EVENT HANDLER */
+
 function message(message) {
   webviewApi.postMessage({ name: message });
 }
@@ -25,6 +34,7 @@ function pinNote(event) {
   }
 }
 
+// default click handler
 function tabClick(event) {
   const dataId = getDataId(event);
   if (dataId) {
@@ -40,14 +50,29 @@ function tabClick(event) {
   }
 }
 
-/* DRAG AND DROP */
-let sourceId = '';
+// scroll active tab into view
+document.addEventListener('DOMSubtreeModified', (event) => {
+  const activeTab = document.querySelector("div#tab[active]");
+  if (activeTab) {
+    activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+});
 
-function cancelDefault(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  return false;
-}
+// scroll horizontally without 'shift' key
+document.addEventListener('wheel', (event) => {
+  let element;
+  const path = event.composedPath();
+  if (path.findIndex(x => x.id === 'tabs-container') >= 0) {
+    element = document.getElementById('tabs-container');
+  } else if (path.findIndex(x => x.id === 'breadcrumbs-container') >= 0) {
+    element = document.getElementById('breadcrumbs-container');
+  }
+  if (element) {
+    element.scrollLeft -= (-event.deltaY);
+  }
+});
+
+/* DRAG AND DROP */
 
 function setBackground(event, background) {
   event.currentTarget.style.background = background;
@@ -56,15 +81,17 @@ function setBackground(event, background) {
 function resetBackground(element) {
   if (element.dataset.bg) {
     element.style.background = element.dataset.bg;
+  } else {
+    element.style.background = 'none';
   }
 }
 
 function resetTabBackgrounds() {
   document.querySelectorAll('#tab').forEach(x => { resetBackground(x); });
 
-  tabsContainer = document.querySelector('#tabs-container');
-  if (tabsContainer) {
-    tabsContainer.style.background = 'none';
+  container = document.querySelector('#tabs-container');
+  if (container) {
+    container.style.background = 'none';
   }
 }
 
@@ -95,6 +122,7 @@ function dragLeave(event) {
 }
 
 function drop(event) {
+  resetTabBackgrounds();
   cancelDefault(event);
   const dataTargetId = getDataId(event);
 

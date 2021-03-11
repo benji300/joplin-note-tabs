@@ -1,0 +1,15 @@
+/* FORCE VERTICAL LAYOUT */
+#tabs-container {
+  display: block;
+  height: 100%;
+}
+
+#tab {
+  border-right-width: 0;
+  border-bottom-width: 1px;
+  max-width: 100% !important;
+}
+
+#breadcrumbs-container {
+  display: none !important;
+}
