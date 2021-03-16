@@ -27,8 +27,9 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 
 - Display selected note as tab
 - Additional display options below the tabs
-  - Full breadcrumbs for selected note
   - Navigation buttons (`historyBackward/Forward`)
+  - Completion status of all checklists in selected note
+  - Full breadcrumbs for selected note
 - Pin note(s) to the tabs
   - Either via command or drag & drop from the note list
 - Save pinned tabs permanently

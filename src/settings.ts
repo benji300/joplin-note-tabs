@@ -47,6 +47,7 @@ export class Settings {
   private _showTodoCheckboxes: boolean = false;
   private _showBreadcrumbs: boolean = false;
   private _showNavigationButtons: boolean = false;
+  private _showChecklistStatus: boolean = false;
   private _pinEditedNotes: boolean = false;
   private _unpinCompletedTodos: boolean = false;
   private _addBehavior: AddBehavior = AddBehavior.Temporary;
@@ -92,6 +93,10 @@ export class Settings {
 
   get showNavigationButtons(): boolean {
     return this._showNavigationButtons;
+  }
+
+  get showChecklistStatus(): boolean {
+    return this._showChecklistStatus;
   }
 
   get pinEditedNotes(): boolean {
@@ -218,16 +223,24 @@ export class Settings {
       type: SettingItemType.Bool,
       section: 'note.tabs.settings',
       public: true,
-      label: 'Show breadcrumbs below tabs',
-      description: 'Display full breadcrumbs for selected note below tabs. Only available in horizontal layout mode.'
+      label: 'Show breadcrumbs',
+      description: 'Display full breadcrumbs for selected note. Displayed below the tabs in horizontal layout only.'
     });
     await joplin.settings.registerSetting('showNavigationButtons', {
       value: this._showNavigationButtons,
       type: SettingItemType.Bool,
       section: 'note.tabs.settings',
       public: true,
-      label: 'Show navigation buttons below tabs',
-      description: 'Display history backward and forward buttons before the breadcrumds. Only visible if breadcrumbs are also enabled and visible.'
+      label: 'Show navigation buttons',
+      description: 'Display history backward and forward buttons. Displayed below the tabs in horizontal layout only.'
+    });
+    await joplin.settings.registerSetting('showChecklistStatus', {
+      value: this._showChecklistStatus,
+      type: SettingItemType.Bool,
+      section: 'note.tabs.settings',
+      public: true,
+      label: 'Show checklist completion status',
+      description: 'Display completion status of all checklists in the selected note. Displayed below the tabs in horizontal layout only.'
     });
     await joplin.settings.registerSetting('pinEditedNotes', {
       value: this._pinEditedNotes,
@@ -378,8 +391,8 @@ export class Settings {
       section: 'note.tabs.settings',
       public: true,
       advanced: true,
-      label: 'Breadcrumbs background color',
-      description: 'Background color of the breadcrumbs. (default: Editor background color)'
+      label: 'Infobar background color',
+      description: 'Background color of the info bar (incl. breadcrumbs, etc.) below the tabs. (default: Editor background color)'
     });
     await joplin.settings.registerSetting('mainForeground', {
       value: this._foreground,
@@ -434,6 +447,7 @@ export class Settings {
     this._showTodoCheckboxes = await this.getOrDefault(event, this._showTodoCheckboxes, 'showTodoCheckboxes');
     this._showBreadcrumbs = await this.getOrDefault(event, this._showBreadcrumbs, 'showBreadcrumbs');
     this._showNavigationButtons = await this.getOrDefault(event, this._showNavigationButtons, 'showNavigationButtons');
+    this._showChecklistStatus = await this.getOrDefault(event, this._showChecklistStatus, 'showChecklistStatus');
     this._pinEditedNotes = await this.getOrDefault(event, this._pinEditedNotes, 'pinEditedNotes');
     this._unpinCompletedTodos = await this.getOrDefault(event, this._unpinCompletedTodos, 'unpinCompletedTodos');
     this._addBehavior = await this.getOrDefault(event, this._addBehavior, 'addBehavior');
