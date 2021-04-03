@@ -117,6 +117,10 @@ This plugin provides additional commands as described in the following table.
 
 ### Keyboard shortcuts
 
+Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts` to all [commands](#commands) which are assigned to the `Tools>Favorites` menu context.
+In the keyboard shortcut editor, search for the command label where shortcuts shall be added.
+
+#### Manual workaround
 1. Go to Joplin Setting>Keyboard Shortcuts>Export
 2.Open the Export .json file with notepad, follow the structure to add command hotkey.
 3. Example:
