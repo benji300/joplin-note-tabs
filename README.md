@@ -6,23 +6,6 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 
 > :warning: **CAUTION** - Requires Joplin **v1.6.7** or newer
 
-## Table of contents
-
-- [Features](#features)
-  - [Screenshots](#screenshots)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Place the panel](#place-the-panel)
-- [Commands](#commands)
-  - [Keyboard shortcuts](#keyboard-shortcuts)
-- [User options](#user-options)
-- [UI Tweaks](#ui-tweaks)
-- [Feedback](#feedback)
-- [Support](#support)
-- [Development](#development)
-- [Changes](#changes)
-- [License](#license)
-
 ## Features
 
 - Display selected note as tab
@@ -67,7 +50,7 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 ### Automatic (Joplin v1.6.4 and newer)
 
 - Open Joplin and navigate to `Tools > Options > Plugins`
-- Search for `tabs` and press install
+- Search for the plugin name and press install
 - Restart Joplin to enable the plugin
 - By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
 
@@ -83,8 +66,7 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 ### Uninstall
 
 - Open Joplin and navigate to `Tools > Options > Plugins`
-- Search for the `Note Tabs` plugin
-- Press `Delete` to remove the plugin completely
+- Search for the plugin name and press `Delete` to remove the plugin completely
   - Alternatively you can also disable the plugin by clicking on the toggle button
 - Restart Joplin
 
@@ -123,7 +105,7 @@ In the keyboard shortcut editor, search for the command label where shortcuts sh
 
 ## User options
 
-This plugin adds provides user options which can be changed via `Tools > Options > Note Tabs`.
+This plugin adds provides user options which can be changed via `Tools > Options > Note Tabs` (Windows App).
 
 > **NOTE** - If `default` is set for an advanced style setting, the corresponding default color, font family, etc. will be used to match the common App look.
 
@@ -166,7 +148,7 @@ Follow these steps to hide it via the `userchrome.css` stylesheet:
 
 You like this plugin as much as I do and it improves your daily work with Joplin?
 
-Then I would be very happy if you buy me a beer via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink::beer:
+Then I would be very happy if you buy me a :beer: or :coffee: via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink:
 
 ## Development
 
