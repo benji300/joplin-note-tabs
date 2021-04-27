@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - User option `Show checklist completion status` to display the completion status of all checklists in the selected note
+- Ability to unpin note with middle button click on tab
 
 ## [1.3.0] - 2021-03-09
 

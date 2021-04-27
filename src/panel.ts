@@ -170,7 +170,7 @@ export class Panel {
 
         noteTabsHtml.push(`
           <div id="tab" ${active} data-id="${note.id}" data-bg="${bg}" draggable="${this.sets.enableDragAndDrop}" class="${newTab}" role="tab" title="${note.title}"
-            onclick="tabClick(event);" ondblclick="pinNote(event);" onmouseover="setBackground(event,'${this.sets.hoverBackground}');" onmouseout="resetBackground(this);"
+            onclick="tabClick(event);" ondblclick="pinNote(event);" onauxclick="onAuxClick(event);" onmouseover="setBackground(event,'${this.sets.hoverBackground}');" onmouseout="resetBackground(this);"
             ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event, '${this.sets.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
             style="height:${this.sets.tabHeight}px;min-width:${this.sets.minTabWidth}px;max-width:${this.sets.maxTabWidth}px;border-color:${this.sets.dividerColor};background:${bg};">
             <span class="tab-inner">
