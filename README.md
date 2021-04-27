@@ -4,7 +4,7 @@ Note Tabs is a plugin to extend the UX and UI of [Joplin's](https://joplinapp.or
 
 It allows to open several notes at once in tabs and pin them to be kept open.
 
-> :warning: **CAUTION** - Requires Joplin **v1.6.7** or newer
+> :warning: **CAUTION** - Requires Joplin **v1.8.2** or newer
 
 ## Features
 
