@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Escape html characters from note titles before using them as tab titles
 
+### Removed
+
+- Bundled font packages (FontAwesome, Roboto). Use built-in versions now
+
 ## [1.3.0] - 2021-03-09
 
 ### Added

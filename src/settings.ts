@@ -185,242 +185,242 @@ export class Settings {
    * Register settings section with all options and intially read them at the end.
    */
   async register() {
-    // settings section
+    // register settings in own section
     await joplin.settings.registerSection('note.tabs.settings', {
       label: 'Note Tabs',
       iconName: 'fas fa-window-maximize'
     });
-
-    // private settings
-    await joplin.settings.registerSetting('noteTabs', {
-      value: [],
-      type: SettingItemType.Array,
-      section: 'note.tabs.settings',
-      public: false,
-      label: 'Note tabs'
+    await joplin.settings.registerSettings({
+      // private settings
+      noteTabs: {
+        value: [],
+        type: SettingItemType.Array,
+        section: 'note.tabs.settings',
+        public: false,
+        label: 'Note tabs'
+      },
+      // general settings
+      enableDragAndDrop: {
+        value: this._enableDragAndDrop,
+        type: SettingItemType.Bool,
+        section: 'note.tabs.settings',
+        public: true,
+        label: 'Enable drag & drop of tabs',
+        description: 'If disabled, position of tabs can be change via commands or move buttons.'
+      },
+      showTodoCheckboxes: {
+        value: this._showTodoCheckboxes,
+        type: SettingItemType.Bool,
+        section: 'note.tabs.settings',
+        public: true,
+        label: 'Show to-do checkboxes on tabs',
+        description: 'If enabled, to-dos can be completed directly on the tabs.'
+      },
+      showBreadcrumbs: {
+        value: this._showBreadcrumbs,
+        type: SettingItemType.Bool,
+        section: 'note.tabs.settings',
+        public: true,
+        label: 'Show breadcrumbs',
+        description: 'Display full breadcrumbs for selected note. Displayed below the tabs in horizontal layout only.'
+      },
+      showNavigationButtons: {
+        value: this._showNavigationButtons,
+        type: SettingItemType.Bool,
+        section: 'note.tabs.settings',
+        public: true,
+        label: 'Show navigation buttons',
+        description: 'Display history backward and forward buttons. Displayed below the tabs in horizontal layout only.'
+      },
+      showChecklistStatus: {
+        value: this._showChecklistStatus,
+        type: SettingItemType.Bool,
+        section: 'note.tabs.settings',
+        public: true,
+        label: 'Show checklist completion status',
+        description: 'Display completion status of all checklists in the selected note. Displayed below the tabs in horizontal layout only.'
+      },
+      pinEditedNotes: {
+        value: this._pinEditedNotes,
+        type: SettingItemType.Bool,
+        section: 'note.tabs.settings',
+        public: true,
+        label: 'Automatically pin notes when edited',
+        description: 'Pin notes automatically as soon as the title, content or any other attribute changes.'
+      },
+      unpinCompletedTodos: {
+        value: this._unpinCompletedTodos,
+        type: SettingItemType.Bool,
+        section: 'note.tabs.settings',
+        public: true,
+        label: 'Automatically unpin completed to-dos',
+        description: 'Unpin notes automatically as soon as the to-do status changes to completed. ' +
+          'Removes the tab completely unless it is the selected note.'
+      },
+      addBehavior: {
+        value: AddBehavior.Temporary,
+        type: SettingItemType.Int,
+        section: 'note.tabs.settings',
+        isEnum: true,
+        public: true,
+        label: 'Add tab behavior',
+        description: 'Specify how new tabs are added to the panel. Either as temporary or directly as pinned tab. ' +
+          'Only one temporary (italic font) tab exists at a time.',
+        options: {
+          '0': 'Temporary',
+          '1': 'Pinned'
+        }
+      },
+      unpinBehavior: {
+        value: UnpinBehavior.Keep,
+        type: SettingItemType.Int,
+        section: 'note.tabs.settings',
+        isEnum: true,
+        public: true,
+        label: 'Unpin active tab behavior',
+        description: 'Specify the behavior when unpinning the current active tab. ' +
+          'Either keep the active tab selected (may replaces the temporary one) or select another one, depending on the setting.',
+        options: {
+          '0': 'Keep selected',
+          '1': 'Select last active tab',
+          '2': 'Select left tab',
+          '3': 'Select right tab'
+        }
+      },
+      layoutMode: {
+        value: LayoutMode.Auto,
+        type: SettingItemType.Int,
+        section: 'note.tabs.settings',
+        isEnum: true,
+        public: true,
+        label: 'Force tabs layout',
+        description: 'Force tabs horizontal or vertical layout. If Auto, the layout switches automatically at a width of about 400px. Requires restart to be applied.',
+        options: {
+          '0': 'Auto',
+          '1': 'Horizontal',
+          '2': 'Vertical'
+        }
+      },
+      // advanced settings
+      tabHeight: {
+        value: this._tabHeight,
+        type: SettingItemType.Int,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Note Tabs height (px)',
+        description: 'Height of the tabs. Row height in vertical layout.'
+      },
+      minTabWidth: {
+        value: this._minTabWidth,
+        type: SettingItemType.Int,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Minimum Tab width (px)',
+        description: 'Minimum width of one tab in pixel.'
+      },
+      maxTabWidth: {
+        value: this._maxTabWidth,
+        type: SettingItemType.Int,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Maximum Tab width (px)',
+        description: 'Maximum width of one tab in pixel.'
+      },
+      breadcrumbsMaxWidth: {
+        value: this._breadcrumbsMaxWidth,
+        type: SettingItemType.Int,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Maximum breadcrumb width (px)',
+        description: 'Maximum width of one breadcrumb in pixel.'
+      },
+      fontFamily: {
+        value: this._fontFamily,
+        type: SettingItemType.String,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Font family',
+        description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: App default)"
+      },
+      fontSize: {
+        value: this._fontSize,
+        type: SettingItemType.String,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Font size',
+        description: "Font size used in the panel. Values other than 'default' must be specified in valid CSS syntax, e.g. '13px'. (default: App default font size)"
+      },
+      mainBackground: {
+        value: this._background,
+        type: SettingItemType.String,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Background color',
+        description: 'Main background color of the panel. (default: Note list background color)'
+      },
+      hoverBackground: {
+        value: this._hoverBackground,
+        type: SettingItemType.String,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Hover Background color',
+        description: 'Background color used when hovering a favorite. (default: Note list hover color)'
+      },
+      activeBackground: {
+        value: this._actBackground,
+        type: SettingItemType.String,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Active background color',
+        description: 'Background color of the current active tab. (default: Editor background color)'
+      },
+      breadcrumbsBackground: {
+        value: this._breadcrumbsBackground,
+        type: SettingItemType.String,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Infobar background color',
+        description: 'Background color of the info bar (incl. breadcrumbs, etc.) below the tabs. (default: Editor background color)'
+      },
+      mainForeground: {
+        value: this._foreground,
+        type: SettingItemType.String,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Foreground color',
+        description: 'Foreground color used for text and icons. (default: App faded color)'
+      },
+      activeForeground: {
+        value: this._actForeground,
+        type: SettingItemType.String,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Active foreground color',
+        description: 'Foreground color of the current active tab. (default: Editor font color)'
+      },
+      dividerColor: {
+        value: this._dividerColor,
+        type: SettingItemType.String,
+        section: 'note.tabs.settings',
+        public: true,
+        advanced: true,
+        label: 'Divider color',
+        description: 'Color of the divider between the tabs. (default: App default border color)'
+      }
     });
     this._noteTabs = await joplin.settings.value('noteTabs');
-
-    // general settings
-    await joplin.settings.registerSetting('enableDragAndDrop', {
-      value: this._enableDragAndDrop,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Enable drag & drop of tabs',
-      description: 'If disabled, position of tabs can be change via commands or move buttons.'
-    });
-    await joplin.settings.registerSetting('showTodoCheckboxes', {
-      value: this._showTodoCheckboxes,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Show to-do checkboxes on tabs',
-      description: 'If enabled, to-dos can be completed directly on the tabs.'
-    });
-    await joplin.settings.registerSetting('showBreadcrumbs', {
-      value: this._showBreadcrumbs,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Show breadcrumbs',
-      description: 'Display full breadcrumbs for selected note. Displayed below the tabs in horizontal layout only.'
-    });
-    await joplin.settings.registerSetting('showNavigationButtons', {
-      value: this._showNavigationButtons,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Show navigation buttons',
-      description: 'Display history backward and forward buttons. Displayed below the tabs in horizontal layout only.'
-    });
-    await joplin.settings.registerSetting('showChecklistStatus', {
-      value: this._showChecklistStatus,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Show checklist completion status',
-      description: 'Display completion status of all checklists in the selected note. Displayed below the tabs in horizontal layout only.'
-    });
-    await joplin.settings.registerSetting('pinEditedNotes', {
-      value: this._pinEditedNotes,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Automatically pin notes when edited',
-      description: 'Pin notes automatically as soon as the title, content or any other attribute changes.'
-    });
-    await joplin.settings.registerSetting('unpinCompletedTodos', {
-      value: this._unpinCompletedTodos,
-      type: SettingItemType.Bool,
-      section: 'note.tabs.settings',
-      public: true,
-      label: 'Automatically unpin completed to-dos',
-      description: 'Unpin notes automatically as soon as the to-do status changes to completed. ' +
-        'Removes the tab completely unless it is the selected note.'
-    });
-    await joplin.settings.registerSetting('addBehavior', {
-      value: AddBehavior.Temporary,
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      isEnum: true,
-      public: true,
-      label: 'Add tab behavior',
-      description: 'Specify how new tabs are added to the panel. Either as temporary or directly as pinned tab. ' +
-        'Only one temporary (italic font) tab exists at a time.',
-      options: {
-        '0': 'Temporary',
-        '1': 'Pinned'
-      },
-    });
-    await joplin.settings.registerSetting('unpinBehavior', {
-      value: UnpinBehavior.Keep,
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      isEnum: true,
-      public: true,
-      label: 'Unpin active tab behavior',
-      description: 'Specify the behavior when unpinning the current active tab. ' +
-        'Either keep the active tab selected (may replaces the temporary one) or select another one, depending on the setting.',
-      options: {
-        '0': 'Keep selected',
-        '1': 'Select last active tab',
-        '2': 'Select left tab',
-        '3': 'Select right tab'
-      },
-    });
-    await joplin.settings.registerSetting('layoutMode', {
-      value: LayoutMode.Auto,
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      isEnum: true,
-      public: true,
-      label: 'Force tabs layout',
-      description: 'Force tabs horizontal or vertical layout. If Auto, the layout switches automatically at a width of about 400px. Requires restart to be applied.',
-      options: {
-        '0': 'Auto',
-        '1': 'Horizontal',
-        '2': 'Vertical'
-      },
-    });
-    // advanced settings
-    await joplin.settings.registerSetting('tabHeight', {
-      value: this._tabHeight,
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Note Tabs height (px)',
-      description: 'Height of the tabs. Row height in vertical layout.'
-    });
-    await joplin.settings.registerSetting('minTabWidth', {
-      value: this._minTabWidth,
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Minimum Tab width (px)',
-      description: 'Minimum width of one tab in pixel.'
-    });
-    await joplin.settings.registerSetting('maxTabWidth', {
-      value: this._maxTabWidth,
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Maximum Tab width (px)',
-      description: 'Maximum width of one tab in pixel.'
-    });
-    await joplin.settings.registerSetting('breadcrumbsMaxWidth', {
-      value: this._breadcrumbsMaxWidth,
-      type: SettingItemType.Int,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Maximum breadcrumb width (px)',
-      description: 'Maximum width of one breadcrumb in pixel.'
-    });
-    await joplin.settings.registerSetting('fontFamily', {
-      value: this._fontFamily,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Font family',
-      description: "Font family used in the panel. Font families other than 'default' must be installed on the system. If the font is incorrect or empty, it might default to a generic sans-serif font. (default: App default)"
-    });
-    await joplin.settings.registerSetting('fontSize', {
-      value: this._fontSize,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Font size',
-      description: "Font size used in the panel. Values other than 'default' must be specified in valid CSS syntax, e.g. '13px'. (default: App default font size)"
-    });
-    await joplin.settings.registerSetting('mainBackground', {
-      value: this._background,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Background color',
-      description: 'Main background color of the panel. (default: Note list background color)'
-    });
-    await joplin.settings.registerSetting('hoverBackground', {
-      value: this._hoverBackground,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Hover Background color',
-      description: 'Background color used when hovering a favorite. (default: Note list hover color)'
-    });
-    await joplin.settings.registerSetting('activeBackground', {
-      value: this._actBackground,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Active background color',
-      description: 'Background color of the current active tab. (default: Editor background color)'
-    });
-    await joplin.settings.registerSetting('breadcrumbsBackground', {
-      value: this._breadcrumbsBackground,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Infobar background color',
-      description: 'Background color of the info bar (incl. breadcrumbs, etc.) below the tabs. (default: Editor background color)'
-    });
-    await joplin.settings.registerSetting('mainForeground', {
-      value: this._foreground,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Foreground color',
-      description: 'Foreground color used for text and icons. (default: App faded color)'
-    });
-    await joplin.settings.registerSetting('activeForeground', {
-      value: this._actForeground,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Active foreground color',
-      description: 'Foreground color of the current active tab. (default: Editor font color)'
-    });
-    await joplin.settings.registerSetting('dividerColor', {
-      value: this._dividerColor,
-      type: SettingItemType.String,
-      section: 'note.tabs.settings',
-      public: true,
-      advanced: true,
-      label: 'Divider color',
-      description: 'Color of the divider between the tabs. (default: App default border color)'
-    });
 
     // initially read settings
     await this.read();
