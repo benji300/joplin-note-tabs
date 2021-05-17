@@ -98,6 +98,15 @@ export class Panel {
     `);
   }
 
+  private escapeHtml(key: any): String {
+    return String(key)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   /**
    * Gets an array of all parents starting from the handled parent_id.
    * Consider first entry is handled parent.
@@ -154,6 +163,7 @@ export class Panel {
         if ((!showCompletedTodos) && note.todo_completed) continue;
 
         // prepare tab style attributes
+        const title: String = this.escapeHtml(note.title);
         const bg: string = (selectedNote && note.id == selectedNote.id) ? this.sets.actBackground : this.sets.background;
         const fg: string = (selectedNote && note.id == selectedNote.id) ? this.sets.actForeground : this.sets.foreground;
         const active: string = (selectedNote && note.id == selectedNote.id) ? 'active' : '';
@@ -169,14 +179,14 @@ export class Panel {
         }
 
         noteTabsHtml.push(`
-          <div id="tab" ${active} data-id="${note.id}" data-bg="${bg}" draggable="${this.sets.enableDragAndDrop}" class="${newTab}" role="tab" title="${note.title}"
+          <div id="tab" ${active} data-id="${note.id}" data-bg="${bg}" draggable="${this.sets.enableDragAndDrop}" class="${newTab}" role="tab" title="${title}"
             onclick="tabClick(event);" ondblclick="pinNote(event);" onauxclick="onAuxClick(event);" onmouseover="setBackground(event,'${this.sets.hoverBackground}');" onmouseout="resetBackground(this);"
             ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event, '${this.sets.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
             style="height:${this.sets.tabHeight}px;min-width:${this.sets.minTabWidth}px;max-width:${this.sets.maxTabWidth}px;border-color:${this.sets.dividerColor};background:${bg};">
             <span class="tab-inner">
               ${checkboxHtml}
               <span class="tab-title" style="color:${fg};text-decoration: ${textDecoration};">
-                ${note.title}
+                ${title}
               </span>
               <a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" style="color:${fg};"></a>
             </span>
