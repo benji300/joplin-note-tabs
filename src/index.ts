@@ -401,12 +401,19 @@ joplin.plugins.register({
             if (note == null) return;
 
             // if auto pin is enabled, pin changed note to tabs
-            if (settings.pinEditedNotes)
+            if (settings.pinEditedNotes) {
               await pinTab(note.id, false);
+            }
 
             // if auto unpin is enabled and changed note is a completed todo...
-            if (settings.unpinCompletedTodos && note.is_todo && note.todo_completed)
-              await removeTab(note.id);
+            if (settings.unpinCompletedTodos && note.is_todo && note.todo_completed) {
+              const index: number = tabs.indexOf(note.id);
+              // and the note is currently pinned...
+              if (tabs.indexOfTemp != index) {
+                // then remove its tab
+                await removeTab(note.id);
+              }
+            }
           }
 
           // note was deleted (ItemChangeEventType.Delete) - remove tab

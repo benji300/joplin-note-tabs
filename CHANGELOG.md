@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Escape html characters from note titles before using them as tab titles
+- Removing the tab of a completed but unpinned (temporary) to-do when editing the content of the note
+  - Occured only when 'Unpin active tab behavior' was set to a value other than 'Keep selected'
 
 ### Removed
 
