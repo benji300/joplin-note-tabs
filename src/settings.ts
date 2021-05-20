@@ -265,7 +265,7 @@ export class Settings {
         public: true,
         label: 'Add tab behavior',
         description: 'Specify how new tabs are added to the panel. Either as temporary or directly as pinned tab. ' +
-          'Only one temporary (italic font) tab exists at a time.',
+          'Only one temporary tab (italic font) exists at a time.',
         options: {
           '0': 'Temporary',
           '1': 'Pinned'
@@ -279,7 +279,8 @@ export class Settings {
         public: true,
         label: 'Unpin active tab behavior',
         description: 'Specify the behavior when unpinning the current active tab. ' +
-          'Either keep the active tab selected (may replaces the temporary one) or select another one, depending on the setting.',
+          'Either keep the active tab selected or select another one, depending on the setting.' +
+          "In case 'Keep selected' is set, the temporary tab (italic font) may be replaced with the current active tab.",
         options: {
           '0': 'Keep selected',
           '1': 'Select last active tab',
