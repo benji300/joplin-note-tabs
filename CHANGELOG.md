@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - User option `Show checklist completion status` to display the completion status of all checklists in the selected note
 - Ability to unpin note with middle button click on tab
+- Command to pin linked note to tabs
+  - Works only if the cursor is inside an internal link to another note in the editor
 
 ### Fixed
 

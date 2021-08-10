@@ -1,5 +1,5 @@
 import joplin from 'api';
-import { MenuItem, MenuItemLocation } from 'api/types';
+import { ContentScriptType, MenuItem, MenuItemLocation } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
 import { NoteTabType, NoteTabs } from './noteTabs';
 import { LastActiveNote } from './lastActiveNote';
@@ -23,6 +23,7 @@ joplin.plugins.register({
     // panel
     const panel = new Panel(tabs, settings);
     await panel.register();
+
 
     //#region HELPERS
 
@@ -176,6 +177,18 @@ joplin.plugins.register({
       }
     });
 
+    // Command: tabsPinLinkedNote
+    // Desc: Open the linked note in a new pinned tab
+    await COMMANDS.register({
+      name: 'tabsPinLinkedNote',
+      label: 'Pin linked note to Tabs',
+      execute: async () => {
+        // trigger command from content script
+        // pinning linked note is handled in TabsContentScript event handler
+        await joplin.commands.execute('editor.execCommand', { name: 'getLinkedNoteId', });
+      }
+    });
+
     // Command: tabsUnpinNote
     // Desc: Unpin the selected note(s) from the tabs
     await COMMANDS.register({
@@ -320,6 +333,10 @@ joplin.plugins.register({
         label: 'Pin note to Tabs'
       },
       {
+        commandName: 'tabsPinLinkedNote',
+        label: 'Pin linked note to Tabs'
+      },
+      {
         commandName: 'tabsUnpinNote',
         label: 'Unpin note from Tabs'
       },
@@ -359,6 +376,7 @@ joplin.plugins.register({
 
     // add commands to editor context menu
     await joplin.views.menuItems.create('editorContextMenuPinNote', 'tabsPinNote', MenuItemLocation.EditorContextMenu);
+    await joplin.views.menuItems.create('editorContextMenuOpenAsNewTab', 'tabsPinLinkedNote', MenuItemLocation.EditorContextMenu);
 
     //#endregion
 
@@ -430,6 +448,26 @@ joplin.plugins.register({
 
     WORKSPACE.onSyncComplete(async () => {
       await panel.updateWebview();
+    });
+
+    //#endregion
+
+    //#region CONTENTSCRIPTS
+
+    joplin.contentScripts.register(ContentScriptType.CodeMirrorPlugin, 'TabsContentScript', './contentScript.js');
+
+    await joplin.contentScripts.onMessage('TabsContentScript', async (message: any) => {
+      if (message.command === 'linkedNoteId') {
+        let noteId: string = message.id;
+
+        console.log(`Content script returned with noteID: ${noteId}`);
+
+        // open noteId in a new pinned tab at the end
+        if (noteId) {
+          await pinTab(noteId, true);
+          await panel.updateWebview();
+        }
+      }
     });
 
     //#endregion
