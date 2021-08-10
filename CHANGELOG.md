@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- None
+
+## [1.4.0] - 2021-08-10
+
 ### Added
 
 - User option `Show checklist completion status` to display the completion status of all checklists in the selected note
 - Ability to unpin note with middle button click on tab
+
+### Changed
+
+- Updated plugin API to version v1.8.2 (`registerSettings`) to support app version v2.2.4 or newer
 
 ### Fixed
 
