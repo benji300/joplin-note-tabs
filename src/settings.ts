@@ -280,7 +280,7 @@ export class Settings {
         label: 'Unpin active tab behavior',
         description: 'Specify the behavior when unpinning the current active tab. ' +
           'Either keep the active tab selected or select another one, depending on the setting.' +
-          "In case 'Keep selected' is set, the temporary tab (italic font) may be replaced with the current active tab.",
+          "In case 'Keep selected' is set, the temporary tab (shown with italic font in the tab list) may be replaced with the current active tab.",
         options: {
           '0': 'Keep selected',
           '1': 'Select last active tab',
