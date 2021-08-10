@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - None
 
+## [1.4.0] - 2021-08-10
+
+### Added
+
+- User option `Show checklist completion status` to display the completion status of all checklists in the selected note
+- Ability to unpin note with middle button click on tab
+
+### Changed
+
+- Updated plugin API to version v1.8.2 (`registerSettings`) to support app version v2.2.4 or newer
+
+### Fixed
+
+- Escape html characters from note titles before using them as tab titles
+- Removing the tab of a completed but unpinned (temporary) to-do when editing the content of the note
+  - Occured only when 'Unpin active tab behavior' was set to a value other than 'Keep selected'
+
+### Removed
+
+- Bundled font packages (FontAwesome, Roboto). Use built-in versions now
+
 ## [1.3.0] - 2021-03-09
 
 ### Added

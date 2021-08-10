@@ -8,6 +8,8 @@ import JoplinViews from './JoplinViews';
 import JoplinInterop from './JoplinInterop';
 import JoplinSettings from './JoplinSettings';
 import JoplinContentScripts from './JoplinContentScripts';
+import JoplinClipboard from './JoplinClipboard';
+import JoplinWindow from './JoplinWindow';
 /**
  * This is the main entry point to the Joplin API. You can access various services using the provided accessors.
  *
@@ -33,8 +35,12 @@ export default class Joplin {
     private interop_;
     private settings_;
     private contentScripts_;
+    private clipboard_;
+    private window_;
     constructor(implementation: any, plugin: Plugin, store: any);
     get data(): JoplinData;
+    get clipboard(): JoplinClipboard;
+    get window(): JoplinWindow;
     get plugins(): JoplinPlugins;
     get workspace(): JoplinWorkspace;
     get contentScripts(): JoplinContentScripts;
@@ -49,4 +55,17 @@ export default class Joplin {
     get views(): JoplinViews;
     get interop(): JoplinInterop;
     get settings(): JoplinSettings;
+    /**
+     * It is not possible to bundle native packages with a plugin, because they
+     * need to work cross-platforms. Instead access to certain useful native
+     * packages is provided using this function.
+     *
+     * Currently these packages are available:
+     *
+     * - [sqlite3](https://www.npmjs.com/package/sqlite3)
+     * - [fs-extra](https://www.npmjs.com/package/fs-extra)
+     *
+     * [View the demo plugin](https://github.com/laurent22/joplin/tree/dev/packages/app-cli/tests/support/plugins/nativeModule)
+     */
+    require(_path: string): any;
 }

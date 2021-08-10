@@ -39,7 +39,6 @@ export class Panel {
    */
   async register() {
     this._panel = await joplin.views.panels.create('note.tabs.panel');
-    await joplin.views.panels.addScript(this._panel, './assets/fontawesome/css/all.min.css');
     await joplin.views.panels.addScript(this._panel, './webview.css');
     if (this.sets.hasLayoutMode(LayoutMode.Auto)) {
       await joplin.views.panels.addScript(this._panel, './webview_auto.css');
@@ -91,12 +90,21 @@ export class Panel {
 
     // set init message
     await joplin.views.panels.setHtml(this._panel, `
-      <div id="container" style="background:${this.sets.background};font-family:'${this.sets.fontFamily}',sans-serif;font-size:${this.sets.fontSize};">
+      <div id="container" style="background:${this.sets.background};font-family:${this.sets.fontFamily},sans-serif;font-size:${this.sets.fontSize};">
         <div id="tabs-container">
           <p style="padding-left:8px;">Loading panel...</p>
         </div>
       </div>
     `);
+  }
+
+  private escapeHtml(key: any): String {
+    return String(key)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   /**
@@ -114,6 +122,20 @@ export class Panel {
       parents.push(parent);
     }
     return parents;
+  }
+
+  /**
+   * Gets all checklist items (with checked state) from the notes body.
+   */
+  private getNoteChecklistItems(noteBody: string): any[] {
+    let items: any[] = [];
+    for (const line of noteBody.split('\n')) {
+      const match = line.match(/^\s*(-\s+\[(x|\s)\])/);
+      if (match) {
+        items.push({ checked: match[2].includes("x", 0) });
+      }
+    }
+    return items;
   }
 
   /**
@@ -141,9 +163,10 @@ export class Panel {
         if ((!showCompletedTodos) && note.todo_completed) continue;
 
         // prepare tab style attributes
+        const title: String = this.escapeHtml(note.title);
         const bg: string = (selectedNote && note.id == selectedNote.id) ? this.sets.actBackground : this.sets.background;
         const fg: string = (selectedNote && note.id == selectedNote.id) ? this.sets.actForeground : this.sets.foreground;
-        const active:string = (selectedNote && note.id == selectedNote.id) ? 'active' :'';
+        const active: string = (selectedNote && note.id == selectedNote.id) ? 'active' : '';
         const newTab: string = (NoteTabs.isTemporary(noteTab)) ? ' new' : '';
         const icon: string = (NoteTabs.isPinned(noteTab)) ? 'fa-times' : 'fa-thumbtack';
         const iconTitle: string = (NoteTabs.isPinned(noteTab)) ? 'Unpin' : 'Pin';
@@ -156,14 +179,14 @@ export class Panel {
         }
 
         noteTabsHtml.push(`
-          <div id="tab" ${active} data-id="${note.id}" data-bg="${bg}" draggable="${this.sets.enableDragAndDrop}" class="${newTab}" role="tab" title="${note.title}"
-            onclick="tabClick(event);" ondblclick="pinNote(event);" onmouseover="setBackground(event,'${this.sets.hoverBackground}');" onmouseout="resetBackground(this);"
+          <div id="tab" ${active} data-id="${note.id}" data-bg="${bg}" draggable="${this.sets.enableDragAndDrop}" class="${newTab}" role="tab" title="${title}"
+            onclick="tabClick(event);" ondblclick="pinNote(event);" onauxclick="onAuxClick(event);" onmouseover="setBackground(event,'${this.sets.hoverBackground}');" onmouseout="resetBackground(this);"
             ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event, '${this.sets.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
             style="height:${this.sets.tabHeight}px;min-width:${this.sets.minTabWidth}px;max-width:${this.sets.maxTabWidth}px;border-color:${this.sets.dividerColor};background:${bg};">
             <span class="tab-inner">
               ${checkboxHtml}
               <span class="tab-title" style="color:${fg};text-decoration: ${textDecoration};">
-                ${note.title}
+                ${title}
               </span>
               <a href="#" id="${iconTitle}" class="fas ${icon}" title="${iconTitle}" style="color:${fg};"></a>
             </span>
@@ -193,30 +216,53 @@ export class Panel {
   }
 
   /**
-   * Prepares navigation buttons and breadcrumbs. Both only if enabled.
+   * Prepares HTML for navigation buttons, checklist states and breadcrumbs. Only if enabled.
    */
-  private async getBreadcrumbsHtml(selectedNote: any): Promise<string> {
+  private async getInfoBarHtml(selectedNote: any): Promise<string> {
+    let navigationHtml: string = '';
+    let checklistStatusHtml: string = '';
     let breadcrumbsHtml: string = '';
+    let infobarHtml: string = '';
 
-    if (this.sets.showBreadcrumbs && selectedNote) {
-      let navigationHtml: string = '';
-      if (this.sets.showNavigationButtons) {
-        navigationHtml = `
-            <div class="navigation-icons" style="border-color:${this.sets.dividerColor};">
-              <a href="#" class="fas fa-chevron-left" title="Back" style="color:${this.sets.foreground};" onclick="message('tabsBack');"></a>
-              <a href="#" class="fas fa-chevron-right" title="Forward" style="color:${this.sets.foreground};" onclick="message('tabsForward');"></a>
+    // prepare html for navigation buttons, if necessary
+    if (this.sets.showNavigationButtons) {
+      navigationHtml = `
+          <div class="navigation-icons" style="border-color:${this.sets.dividerColor};">
+            <a href="#" class="fas fa-chevron-left" title="Back" style="color:${this.sets.foreground};" onclick="message('tabsBack');"></a>
+            <a href="#" class="fas fa-chevron-right" title="Forward" style="color:${this.sets.foreground};" onclick="message('tabsForward');"></a>
+          </div>
+        `;
+    }
+
+    // prepare html for checklist items, if necessary
+    if (this.sets.showChecklistStatus && selectedNote) {
+      const checklistItems: any[] = this.getNoteChecklistItems(selectedNote.body);
+      if (checklistItems.length > 0) {
+        const all: number = checklistItems.length;
+        const checked: number = checklistItems.filter(x => x.checked).length;
+        const completed: string = (checked == all) ? 'completed' : '';
+        checklistStatusHtml = `
+          <div class="checklist-state" style="color:${this.sets.foreground};border-color:${this.sets.dividerColor};">
+            <div class="checklist-state-inner">
+              <span class="checklist-state-text ${completed}">
+                <span class="fas fa-check-square" style=""></span>
+                ${checked} / ${all}
+              </span>
             </div>
-          `;
+          </div>
+        `;
       }
+    }
 
+    // prepare html for breadcrumbs, if necessary
+    if (this.sets.showBreadcrumbs && selectedNote) {
       let parentsHtml: any[] = new Array();
-      let parents: any[] = await this.getNoteParents(selectedNote.parent_id);
 
       // collect all parent folders and prepare html container for each
+      let parents: any[] = await this.getNoteParents(selectedNote.parent_id);
       while (parents) {
         const parent: any = parents.pop();
         if (!parent) break;
-
         parentsHtml.push(`
           <div class="breadcrumb" data-id="${parent.id}" onClick="openFolder(event);"
             style="max-width:${this.sets.breadcrumbsMaxWidth}px;">
@@ -228,18 +274,30 @@ export class Panel {
         `);
       }
 
-      // setup breadcrumbs container html
-      breadcrumbsHtml = `
-        <div id="breadcrumbs-container" style="background:${this.sets.breadcrumbsBackground};">
-          ${navigationHtml}
+      if (parentsHtml) {
+        breadcrumbsHtml = `
           <div class="breadcrumbs-icon">
             <span class="fas fa-book" style="color:${this.sets.foreground};"></span>
           </div>
-          ${parentsHtml.join(`\n`)}
+          <div id="breadcrumbs-container">
+            ${parentsHtml.join(`\n`)}
+          </div>
+        `;
+      }
+    }
+
+    // setup infobar container html, if any of the childs != empty string
+    if (navigationHtml || checklistStatusHtml || breadcrumbsHtml) {
+      infobarHtml = `
+        <div id="infobar-container" style="background:${this.sets.breadcrumbsBackground};">
+          ${navigationHtml}
+          ${checklistStatusHtml}
+          ${breadcrumbsHtml}
         </div>
       `;
     }
-    return breadcrumbsHtml;
+
+    return infobarHtml;
   }
 
   /**
@@ -249,17 +307,17 @@ export class Panel {
     const selectedNote: any = await joplin.workspace.selectedNote();
     const noteTabsHtml: string = await this.getNoteTabsHtml(selectedNote);
     const controlsHtml: string = this.getControlsHtml();
-    const breadcrumbsHtml: string = await this.getBreadcrumbsHtml(selectedNote);
+    const infoBarHtml: string = await this.getInfoBarHtml(selectedNote);
 
     // add entries to container and push to panel
     await joplin.views.panels.setHtml(this._panel, `
-      <div id="container" style="background:${this.sets.background};font-family:'${this.sets.fontFamily}',sans-serif;font-size:${this.sets.fontSize};">
+      <div id="container" style="background:${this.sets.background};font-family:${this.sets.fontFamily},sans-serif;font-size:${this.sets.fontSize};">
         <div id="tabs-container" role="tablist" draggable="${this.sets.enableDragAndDrop}"
           ondragover="dragOver(event, '${this.sets.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);">
           ${noteTabsHtml}
           ${controlsHtml}
         </div>
-        ${breadcrumbsHtml}
+        ${infoBarHtml}
       </div>
     `);
   }

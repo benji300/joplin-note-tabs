@@ -27,11 +27,12 @@ export interface Command {
 	execute(...args: any[]): Promise<any | void>;
 
 	/**
-	 * Defines whether the command should be enabled or disabled, which in turns affects
-	 * the enabled state of any associated button or menu item.
+	 * Defines whether the command should be enabled or disabled, which in turns
+	 * affects the enabled state of any associated button or menu item.
 	 *
-	 * The condition should be expressed as a "when-clause" (as in Visual Studio Code). It's a simple boolean expression that evaluates to
-	 * `true` or `false`. It supports the following operators:
+	 * The condition should be expressed as a "when-clause" (as in Visual Studio
+	 * Code). It's a simple boolean expression that evaluates to `true` or
+	 * `false`. It supports the following operators:
 	 *
 	 * Operator | Symbol | Example
 	 * -- | -- | --
@@ -40,7 +41,15 @@ export interface Command {
 	 * Or | \|\| | "noteIsTodo \|\| noteTodoCompleted"
 	 * And | && | "oneNoteSelected && !inConflictFolder"
 	 *
-	 * Currently the supported context variables aren't documented, but you can [find the list here](https://github.com/laurent22/joplin/blob/dev/packages/lib/services/commands/stateToWhenClauseContext.ts).
+	 * Joplin, unlike VSCode, also supports parenthesis, which allows creating
+	 * more complex expressions such as `cond1 || (cond2 && cond3)`. Only one
+	 * level of parenthesis is possible (nested ones aren't supported).
+	 *
+	 * Currently the supported context variables aren't documented, but you can
+	 * find the list below:
+	 *
+	 * - [Global When Clauses](https://github.com/laurent22/joplin/blob/dev/packages/lib/services/commands/stateToWhenClauseContext.ts)
+	 * - [Desktop app When Clauses](https://github.com/laurent22/joplin/blob/dev/packages/app-desktop/services/commands/stateToWhenClauseContext.ts)
 	 *
 	 * Note: Commands are enabled by default unless you use this property.
 	 */
@@ -325,24 +334,81 @@ export enum SettingItemType {
 	Button = 6,
 }
 
+export enum AppType {
+	Desktop = 'desktop',
+	Mobile = 'mobile',
+	Cli = 'cli',
+}
+
+export enum SettingStorage {
+	Database = 1,
+	File = 2,
+}
+
 // Redefine a simplified interface to mask internal details
 // and to remove function calls as they would have to be async.
 export interface SettingItem {
 	value: any;
 	type: SettingItemType;
-	public: boolean;
-	label: string;
 
+	label: string;
 	description?: string;
-	isEnum?: boolean;
+
+	/**
+	 * A public setting will appear in the Configuration screen and will be
+	 * modifiable by the user. A private setting however will not appear there,
+	 * and can only be changed programmatically. You may use this to store some
+	 * values that you do not want to directly expose.
+	 */
+	public: boolean;
+
+	/**
+	 * You would usually set this to a section you would have created
+	 * specifically for the plugin.
+	 */
 	section?: string;
-	options?: any;
-	appTypes?: string[];
+
+	/**
+	 * To create a setting with multiple options, set this property to `true`.
+	 * That setting will render as a dropdown list in the configuration screen.
+	 */
+	isEnum?: boolean;
+
+	/**
+	 * This property is required when `isEnum` is `true`. In which case, it
+	 * should contain a map of value => label.
+	 */
+	options?: Record<any, any>;
+
+	/**
+	 * Reserved property. Not used at the moment.
+	 */
+	appTypes?: AppType[];
+
+	/**
+	 * Set this to `true` to store secure data, such as passwords. Any such
+	 * setting will be stored in the system keychain if one is available.
+	 */
 	secure?: boolean;
+
+	/**
+	 * An advanced setting will be moved under the "Advanced" button in the
+	 * config screen.
+	 */
 	advanced?: boolean;
+
+	/**
+	 * Set the min, max and step values if you want to restrict an int setting
+	 * to a particular range.
+	 */
 	minimum?: number;
 	maximum?: number;
 	step?: number;
+
+	/**
+	 * Either store the setting in the database or in settings.json. Defaults to database.
+	 */
+	storage?: SettingStorage;
 }
 
 export interface SettingSection {
@@ -369,7 +435,7 @@ export type Path = string[];
 // Content Script types
 // =================================================================
 
-export type PostMessageHandler = (id: string, message: any)=> Promise<any>;
+export type PostMessageHandler = (message: any)=> Promise<any>;
 
 /**
  * When a content script is initialised, it receives a `context` object.

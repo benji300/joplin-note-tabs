@@ -1,11 +1,6 @@
 /* GENERAL STYLES */
-@font-face {
-  font-family: "Roboto";
-  font-style: normal;
-  font-weight: 400;
-  src: local(""),
-    url("./assets/roboto/roboto-v20-latin-regular.woff2") format("woff2"),
-    url("./assets/roboto/roboto-v20-latin-regular.woff") format("woff");
+html {
+  --infobarHeight: 26px;
 }
 
 html,
@@ -95,17 +90,16 @@ span {
   opacity: 1;
 }
 
-#breadcrumbs-container {
+#infobar-container {
   display: flex;
   float: left;
-  overflow-x: overlay;
-  overflow-y: hidden;
+  height: var(--infobarHeight);
   width: 100%;
 }
-#breadcrumbs-container .fas {
+#infobar-container .fas {
   font-size: 1.3em;
 }
-#breadcrumbs-container .fas.fa-book {
+#infobar-container .fas.fa-book {
   font-size: 1.2em;
 }
 
@@ -122,20 +116,54 @@ span {
   border-radius: 3px;
 }
 .navigation-icons .fas {
-  line-height: 23px;
+  line-height: calc(var(--infobarHeight) - 2px);
   min-width: 12px;
   padding: 0 4px;
 }
 
+.checklist-state {
+  border-style: solid;
+  border-width: 0;
+  border-right-width: 1px;
+  margin: auto 0;
+  min-width: fit-content;
+  padding: 0 4px;
+}
+.checklist-state-inner {
+  align-items: center;
+  display: flex;
+  line-height: calc(var(--infobarHeight) - 2px);
+}
+.checklist-state-text {
+  align-items: center;
+  display: flex;
+  margin: 0 2px;
+  padding: 0 4px;
+}
+.checklist-state-text > .fas {
+  padding-right: 4px;
+}
+.checklist-state-text.completed {
+  background: #46ba61;
+  color: white;
+  border-radius: 3px;
+}
+
 .breadcrumbs-icon {
-  height: 100%;
   margin: auto 0;
   padding-left: 8px;
 }
-
+#breadcrumbs-container {
+  display: flex;
+  float: left;
+  overflow-x: overlay;
+  overflow-y: hidden;
+  width: 100%;
+}
 .breadcrumb {
   display: flex;
-  height: 25px;
+  height: var(--infobarHeight);
+  min-width: 36px;
 }
 .breadcrumb:last-of-type .fas {
   display: none;
@@ -143,7 +171,7 @@ span {
 .breadcrumb-inner {
   align-items: center;
   display: flex;
-  line-height: 23px;
+  line-height: calc(var(--infobarHeight) - 2px);
   width: 100%;
 }
 .breadcrumb-inner a:hover {
@@ -153,7 +181,6 @@ span {
 .breadcrumb-inner .fas {
   margin-left: auto;
   margin-right: 0px;
-  margin-top: -1px;
 }
 .breadcrumb-title {
   margin: 0 2px;

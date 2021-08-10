@@ -34,6 +34,13 @@ function pinNote(event) {
   }
 }
 
+function unpinNote(event) {
+  const dataId = getDataId(event);
+  if (dataId) {
+    webviewApi.postMessage({ name: 'tabsUnpinNote', id: dataId });
+  }
+}
+
 // default click handler
 function tabClick(event) {
   const dataId = getDataId(event);
@@ -41,12 +48,20 @@ function tabClick(event) {
     if (event.target.id === 'Pin') {
       pinNote(event);
     } else if (event.target.id === 'Unpin') {
-      webviewApi.postMessage({ name: 'tabsUnpinNote', id: dataId });
+      unpinNote(event);
     } else if (event.target.id === 'check') {
       webviewApi.postMessage({ name: 'tabsToggleTodo', id: dataId, checked: event.target.checked });
     } else {
       webviewApi.postMessage({ name: 'tabsOpen', id: dataId });
     }
+  }
+}
+
+function onAuxClick(event) {
+  cancelDefault(event);
+  // middle button clicked
+  if (event.button == 1) {
+    unpinNote(event);
   }
 }
 
