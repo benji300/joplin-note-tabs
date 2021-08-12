@@ -188,6 +188,11 @@ You like this plugin as much as I do and it improves your daily work with Joplin
 
 Then I would be very happy if you buy me a :beer: or :coffee: via [PayPal](https://www.paypal.com/donate?hosted_button_id=6FHDGK3PTNU22) :wink:
 
+## Contributing
+
+Contributions to this plugin are most welcome. Feel free to open a pull request or an issue.
+Make sure to use conventional [commit messages](https://github.com/pvdlg/conventional-commit-types) if you're creating a pull request.
+
 ## Development
 
 The npm package of the plugin can be found [here](https://www.npmjs.com/package/joplin-plugin-note-tabs).
