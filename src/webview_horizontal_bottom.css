@@ -1,0 +1,33 @@
+/*
+  If the user places the tabs on the bottom,
+  we want to make the tabs connect to the upper border instead.
+*/
+
+#container {
+  align-items: flex-start;
+}
+
+#tabs-container {
+  align-items: flex-start;
+}
+
+#tab {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+#tab[active]:before {
+  top: 0;
+  left: -6px;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 0;
+}
+
+#tab[active]:after {
+  top: 0;
+  right: -6px;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 0;
+}

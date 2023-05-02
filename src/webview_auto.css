@@ -3,12 +3,20 @@
   #tabs-container {
     display: block;
     height: 100%;
+    padding: 0;
   }
 
   #tab {
     border-right-width: 0;
     border-bottom-width: 1px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
     max-width: 100% !important;
+  }
+
+  #tab[active]:before,
+  #tab[active]:after {
+    visibility: hidden;
   }
 
   #breadcrumbs-container {

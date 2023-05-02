@@ -46,6 +46,9 @@ export class Panel {
     if (this.sets.hasLayoutMode(LayoutMode.Vertical)) {
       await joplin.views.panels.addScript(this._panel, './webview_vertical.css');
     }
+    if (this.sets.hasLayoutMode(LayoutMode.HorizontalBottom)) {
+      await joplin.views.panels.addScript(this._panel, './webview_horizontal_bottom.css');
+    }
     await joplin.views.panels.addScript(this._panel, './webview.js');
 
     // message handler
@@ -172,6 +175,15 @@ export class Panel {
         const iconTitle: string = (NoteTabs.isPinned(noteTab)) ? 'Unpin' : 'Pin';
         const textDecoration: string = (note.is_todo && note.todo_completed) ? 'line-through' : '';
 
+        // prepare tab style CSS
+        const tabStyle = `
+          height: ${this.sets.tabHeight}px;
+          min-width: ${this.sets.minTabWidth}px;
+          max-width: ${this.sets.maxTabWidth}px;
+          border-color: ${this.sets.dividerColor};
+          background: ${bg};
+        `.replace(/[\n\s]+/g, ""); // remove whitespace
+
         // prepare checkbox for todo
         let checkboxHtml: string = '';
         if (this.sets.showTodoCheckboxes && note.is_todo) {
@@ -182,7 +194,7 @@ export class Panel {
           <div id="tab" ${active} data-id="${note.id}" data-bg="${bg}" draggable="${this.sets.enableDragAndDrop}" class="${newTab}" role="tab" title="${title}"
             onclick="tabClick(event);" ondblclick="pinNote(event);" onauxclick="onAuxClick(event);" onmouseover="setBackground(event,'${this.sets.hoverBackground}');" onmouseout="resetBackground(this);"
             ondragstart="dragStart(event);" ondragend="dragEnd(event);" ondragover="dragOver(event, '${this.sets.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);"
-            style="height:${this.sets.tabHeight}px;min-width:${this.sets.minTabWidth}px;max-width:${this.sets.maxTabWidth}px;border-color:${this.sets.dividerColor};background:${bg};">
+            style="${tabStyle}">
             <span class="tab-inner">
               ${checkboxHtml}
               <span class="tab-title" style="color:${fg};text-decoration: ${textDecoration};">
@@ -308,17 +320,40 @@ export class Panel {
     const noteTabsHtml: string = await this.getNoteTabsHtml(selectedNote);
     const controlsHtml: string = this.getControlsHtml();
     const infoBarHtml: string = await this.getInfoBarHtml(selectedNote);
+    const placedBelow: boolean = this.sets.hasLayoutMode(LayoutMode.HorizontalBottom);
+
+    const tabBeforeAfterStyle = `
+      <style>
+        #tab[active]:before {
+          box-shadow: 2px ${placedBelow ? "-2px" : "2px"} 0 ${this.sets.actBackground};
+        }
+
+        #tab[active]:after {
+          box-shadow: -2px ${placedBelow ? "-2px" : "2px"} 0 ${this.sets.actBackground};
+        }
+
+        #tab[active]:hover:before {
+          box-shadow: 2px ${placedBelow ? "-2px" : "2px"} 0 ${this.sets.hoverBackground};
+        }
+        
+        #tab[active]:hover:after {
+          box-shadow: -2px ${placedBelow ? "-2px" : "2px"} 0 ${this.sets.hoverBackground};
+        }
+      </style>
+    `;
 
     // add entries to container and push to panel
     await joplin.views.panels.setHtml(this._panel, `
       <div id="container" style="background:${this.sets.background};font-family:${this.sets.fontFamily},sans-serif;font-size:${this.sets.fontSize};">
+        ${placedBelow ? infoBarHtml : ""}
         <div id="tabs-container" role="tablist" draggable="${this.sets.enableDragAndDrop}"
           ondragover="dragOver(event, '${this.sets.hoverBackground}');" ondragleave="dragLeave(event);" ondrop="drop(event);" ondragend="dragEnd(event);">
           ${noteTabsHtml}
           ${controlsHtml}
         </div>
-        ${infoBarHtml}
+        ${!placedBelow ? infoBarHtml : ""}
       </div>
+      ${tabBeforeAfterStyle}
     `);
   }
 
