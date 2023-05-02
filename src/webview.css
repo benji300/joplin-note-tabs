@@ -9,15 +9,20 @@ body > div,
 div#joplin-plugin-content {
   height: 100%;
 }
+
 a {
   text-decoration: none;
 }
+
 span {
   cursor: default;
 }
 
 /* HORIZONTAL LAYOUT */
 #container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   height: 100%;
   overflow-x: hidden;
   overflow-y: overlay;
@@ -26,40 +31,69 @@ span {
 
 #tabs-container {
   display: flex;
+  align-items: flex-end;
+  flex-grow: 1;
+  /*padding: 0px 5px 0 5px;*/
   float: left;
   overflow-x: overlay;
+  overflow-y: hidden;
   width: 100%;
 }
+
 #tab {
-  border-style: solid;
-  border-width: 0;
-  border-right-width: 1px;
   display: flex;
+  position: relative;
   padding: 0 8px;
   transition: 0.2s;
+  flex-grow: 1;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
+
 #tab .fas {
   margin-left: auto;
   margin-right: 0;
   padding: 2px;
-  visibility: hidden;
 }
-#tab:hover .fas {
-  visibility: visible;
+
+#tab[active]:before,
+#tab[active]:after {
+  position: absolute;
+  bottom: -1px;
+  width: 6px;
+  height: 6px;
+  content: " ";
+  transition: 0.2s;
 }
+
+#tab[active]:before {
+  z-index: 1;
+  left: -6px;
+  border-bottom-right-radius: 6px;
+}
+
+#tab[active]:after {
+  z-index: 1;
+  right: -6px;
+  border-bottom-left-radius: 6px;
+}
+
 .new {
   font-style: italic;
 }
+
 .tab-inner {
   align-items: center;
   display: flex;
   height: 100%;
   width: 100%;
 }
-.tab-inner > input {
+
+.tab-inner>input {
   margin: 0;
   margin-right: 3px;
 }
+
 .tab-title {
   overflow: hidden;
   padding-right: 3px;
@@ -75,6 +109,7 @@ span {
   margin-left: auto;
   margin-right: 0;
 }
+
 #controls .fas {
   align-items: center;
   display: flex;
@@ -86,6 +121,7 @@ span {
   opacity: 0.8;
   width: 26px;
 }
+
 #controls .fas:hover {
   opacity: 1;
 }
@@ -96,9 +132,11 @@ span {
   height: var(--infobarHeight);
   width: 100%;
 }
+
 #infobar-container .fas {
   font-size: 1.3em;
 }
+
 #infobar-container .fas.fa-book {
   font-size: 1.2em;
 }
@@ -111,10 +149,12 @@ span {
   min-width: fit-content;
   padding: 0 4px;
 }
+
 .navigation-icons a:hover {
   background: var(--joplin-background-color-hover3);
   border-radius: 3px;
 }
+
 .navigation-icons .fas {
   line-height: calc(var(--infobarHeight) - 2px);
   min-width: 12px;
@@ -129,20 +169,24 @@ span {
   min-width: fit-content;
   padding: 0 4px;
 }
+
 .checklist-state-inner {
   align-items: center;
   display: flex;
   line-height: calc(var(--infobarHeight) - 2px);
 }
+
 .checklist-state-text {
   align-items: center;
   display: flex;
   margin: 0 2px;
   padding: 0 4px;
 }
-.checklist-state-text > .fas {
+
+.checklist-state-text>.fas {
   padding-right: 4px;
 }
+
 .checklist-state-text.completed {
   background: #46ba61;
   color: white;
@@ -153,6 +197,7 @@ span {
   margin: auto 0;
   padding-left: 8px;
 }
+
 #breadcrumbs-container {
   display: flex;
   float: left;
@@ -160,28 +205,34 @@ span {
   overflow-y: hidden;
   width: 100%;
 }
+
 .breadcrumb {
   display: flex;
   height: var(--infobarHeight);
   min-width: 36px;
 }
+
 .breadcrumb:last-of-type .fas {
   display: none;
 }
+
 .breadcrumb-inner {
   align-items: center;
   display: flex;
   line-height: calc(var(--infobarHeight) - 2px);
   width: 100%;
 }
+
 .breadcrumb-inner a:hover {
   background: var(--joplin-background-color-hover3);
   border-radius: 3px;
 }
+
 .breadcrumb-inner .fas {
   margin-left: auto;
   margin-right: 0px;
 }
+
 .breadcrumb-title {
   margin: 0 2px;
   overflow: hidden;
@@ -206,6 +257,7 @@ span {
   height: 4px;
   width: 7px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 5px;

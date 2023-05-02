@@ -32,7 +32,8 @@ export enum UnpinBehavior {
 
 export enum LayoutMode {
   Auto,
-  Horizontal,
+  HorizontalTop,
+  HorizontalBottom,
   Vertical
 }
 
@@ -54,7 +55,7 @@ export class Settings {
   private _unpinBehavior: UnpinBehavior = UnpinBehavior.Keep;
   private _layoutMode: number = LayoutMode.Auto;
   // advanced settings
-  private _tabHeight: number = 35;
+  private _tabHeight: number = 30;
   private _minTabWidth: number = 50;
   private _maxTabWidth: number = 150;
   private _breadcrumbsMaxWidth: number = 100;
@@ -298,8 +299,9 @@ export class Settings {
         description: 'Force tabs horizontal or vertical layout. If Auto, the layout switches automatically at a width of about 400px. Requires restart to be applied.',
         options: {
           '0': 'Auto',
-          '1': 'Horizontal',
-          '2': 'Vertical'
+          '1': 'Horizontal (tabs above)',
+          '2': 'Horizontal (tabs below)',
+          '3': 'Vertical'
         }
       },
       // advanced settings

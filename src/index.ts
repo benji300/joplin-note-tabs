@@ -23,6 +23,11 @@ joplin.plugins.register({
     // panel
     const panel = new Panel(tabs, settings);
     await panel.register();
+    // custom CSS (to disable iframe border)
+    // source: https://github.com/andrejilderda/joplin-macos-native-theme/blob/main/src/index.ts#LL22C5-L22C5
+    const installDir = await joplin.plugins.installationDir();
+		const cssFilePath = installDir + '/iframe.css';
+    await (joplin as any).window.loadChromeCssFile(cssFilePath);
 
     //#region HELPERS
 

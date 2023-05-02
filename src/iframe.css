@@ -1,0 +1,8 @@
+/*
+  Remove the bottom border for plugin iframes,
+  such that the tabs can "connect" to the rest of Joplin's UI.
+*/
+
+iframe {
+    border-bottom: none !important;
+}
