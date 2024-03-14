@@ -16,6 +16,7 @@ joplin.plugins.register({
     // settings
     const settings: Settings = new Settings();
     await settings.register();
+    
     // note tabs
     const tabs = new NoteTabs(settings);
     // last active note
@@ -23,6 +24,25 @@ joplin.plugins.register({
     // panel
     const panel = new Panel(tabs, settings);
     await panel.register();
+
+    await settings.read();
+    let updateTitle = false
+    for (const noteTab of tabs.tabs) {
+      let note: any = null;
+      // get real note from database, if no longer exists remove tab and continue with next one
+      if (noteTab.title == undefined || noteTab.title.length==0){
+        try {
+          note = await joplin.data.get(['notes', noteTab.id], { fields: ['id', 'title'] });
+        } catch (error) {
+          continue;
+        }
+        noteTab.title = note.title;
+        updateTitle = true
+      }      
+    }
+    if (updateTitle) {
+      await settings.storeTabs();
+    }
 
     //#region HELPERS
 
@@ -43,7 +63,7 @@ joplin.plugins.register({
           tabs.replaceTemp(noteId);
         } else {
           // or add as new temporary tab at the end
-          await tabs.add(noteId, NoteTabType.Temporary);
+          await tabs.add(noteId, '', NoteTabType.Temporary);
         }
       }
     }
@@ -52,7 +72,7 @@ joplin.plugins.register({
      * Add new or pin tab for handled note. Optionally at the specified index of targetId.
      */
     async function pinTab(noteId: string, addAsNew: boolean, targetId?: string) {
-      const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'is_todo', 'todo_completed'] });
+      const note: any = await DATA.get(['notes', noteId], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
 
       if (note) {
         // do not pin completed todos if auto unpin is enabled
@@ -64,7 +84,7 @@ joplin.plugins.register({
         } else {
           // otherwise add as new one
           if (addAsNew) {
-            await tabs.add(note.id, NoteTabType.Pinned, targetId);
+            await tabs.add(note.id, note.title, NoteTabType.Pinned, targetId);
           }
         }
       }

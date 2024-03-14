@@ -15,6 +15,8 @@ export enum NoteTabType {
 interface INoteTab {
   // Joplin note ID
   id: string,
+  // Joplin note Title
+  title: string,
   // Type of the tab
   type: NoteTabType
 }
@@ -115,11 +117,11 @@ export class NoteTabs {
   /**
    * Adds note as new tab at the end.
    */
-  async add(newId: string, newType: NoteTabType, targetId?: string) {
+  async add(newId: string, title: string, newType: NoteTabType, targetId?: string) {
     if (newId === undefined || newType === undefined) return;
 
     const index = this.indexOf(targetId);
-    const newTab: any = { id: newId, type: newType };
+    const newTab: any = { id: newId, title:title, type: newType };
     if (index >= 0) {
       this.tabs.splice(index, 0, newTab);
     } else {
