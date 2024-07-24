@@ -8,19 +8,19 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 
 ## Features
 
-- Display selected note as tab
+- Display selected note as a tab
 - Additional display options below the tabs
   - Navigation buttons (`historyBackward/Forward`)
   - Completion status of all checklists in selected note
-  - Full breadcrumbs for selected note
+  - Full breadcrumbs for the selected note
 - Pin note(s) to the tabs
   - Either via command or drag & drop from the note list
 - Save pinned tabs permanently
   - Stored in database (not synced with other devices!)
-- Remember last opened and unpinned note
-- Change position of tabs within the panel
+- Remember the last opened and unpinned note
+- Change the position of tabs within the panel
   - Either via drag & drop or keyboard shortcuts (which have been assigned to the corresponding commands)
-- Toggle to-do state directly on the tabs
+- Toggle To-Do state directly on the tabs
   - Optionally unpin completed to-dos automatically
 - [Configurable](#user-options) style attributes
 - Support horizontal and vertical layout
@@ -52,7 +52,7 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 - Open Joplin and navigate to `Tools > Options > Plugins`
 - Search for the plugin name and press install
 - Restart Joplin to enable the plugin
-- By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
+- By default, the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
 
 ### Manual
 
@@ -61,13 +61,13 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 - Press `Install plugin` and select the previously downloaded `jpl` file
 - Confirm selection
 - Restart Joplin to enable the plugin
-- By default the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
+- By default, the panel will appear on the right side of the screen, see how to [place the panel](#place-the-panel)
 
 ### Uninstall
 
 - Open Joplin and navigate to `Tools > Options > Plugins`
 - Search for the plugin name and press `Delete` to remove the plugin completely
-  - Alternatively you can also disable the plugin by clicking on the toggle button
+  - Alternatively, you can also disable the plugin by clicking on the toggle button
 - Restart Joplin
 
 ## Usage
@@ -77,7 +77,7 @@ It allows to open several notes at once in tabs and pin them to be kept open.
 By default the panel will be on the right side of the screen, this can be adjusted by:
 
 - `View > Change application layout`
-- Use the arrow keys (the displayed ones, not keyboard keys) to move the panel at the desired position
+- Use the arrow keys (the displayed ones, not the keyboard keys) to move the panel to the desired position
 - Move the splitter to reach the desired height/width of the panel
   - As soon as the width of the panel goes below `400px`, it automatically switches from horizontal to vertical layout
 - Press `ESC` to save the layout and return to normal mode
@@ -100,16 +100,16 @@ This plugin provides additional commands as described in the following table.
 
 ### Keyboard shortcuts
 
-Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts` to all [commands](#commands) which are assigned to the `Tools > Tabs` menu context.
+Keyboard shortcuts can be assigned in user options via `Tools > Options > Keyboard Shortcuts` to all [commands](#commands) that are assigned to the `Tools > Tabs` menu context.
 In the keyboard shortcut editor, search for the command label where shortcuts shall be added.
 
 #### Manual workaround
 
 1. Go to Joplin `Settings > Keyboard Shortcuts > Export`.
-2. Open the Export .json file with notepad, follow the structure to add command hotkey.
+2. Open the exported `.json` file with your text editor, and follow the structure to add new command hotkeys.
 3. Example:
 
-```
+```json
 [
   {
     "command": "newTodo",
@@ -136,16 +136,21 @@ In the keyboard shortcut editor, search for the command label where shortcuts sh
     "accelerator": "Ctrl+W"
   },
   {
+    "command": "tabsClear",
+    "accelerator": "Ctrl+Shift+W"
+  },
+  {
     "command": "tabsSwitchLastActive",
     "accelerator": "Ctrl+Tab"
   }
 ]
 ```
-4. Save the file then import at Joplin `Settings > Keyboard Shortcuts`.
+
+4. Save the file then import it at Joplin `Settings > Keyboard Shortcuts > Import`.
 
 ## User options
 
-This plugin provides user options which can be changed via `Tools > Options > Note Tabs` (Windows App).
+This plugin provides user options that can be changed via `Tools > Options > Note Tabs` (Windows App).
 
 > **NOTE** - If `default` is set for an advanced style setting, the corresponding default color, font family, etc. will be used to match the common App look.
 
@@ -153,7 +158,7 @@ This plugin provides user options which can be changed via `Tools > Options > No
 
 ## UI Tweaks
 
-If option `Show breadcrumbs below tabs` is enabled in the settings it might be useful to disable the default breadcrumbs below the note title.
+If the option `Show breadcrumbs below tabs` is enabled in the settings, it might be useful to disable the default breadcrumbs below the note title.
 Follow these steps to hide it via the `userchrome.css` stylesheet:
 
 - Open Joplin
@@ -182,7 +187,7 @@ Follow these steps to hide it via the `userchrome.css` stylesheet:
 - :bulb: An idea to improve or enhance the plugin?
   - Start a new discussion on the [Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752) or upvote [popular feature requests](https://github.com/benji300/joplin-note-tabs/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc+)
 - :bug: Found a bug?
-  - Check the [Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752) if anyone else already reported the same issue. Otherwise report it by yourself.
+  - Check the [Forum](https://discourse.joplinapp.org/t/plugin-note-tabs/12752) if anyone else already reported the same issue. Otherwise, report it by yourself.
 
 ## Support
 
@@ -201,7 +206,7 @@ The npm package of the plugin can be found [here](https://www.npmjs.com/package/
 
 ### Building the plugin
 
-If you want to build the plugin by your own simply run `npm run dist`.
+If you want to build the plugin by yourself, simply run `npm run dist`.
 
 ### Updating the plugin framework
 
