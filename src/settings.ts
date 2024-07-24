@@ -255,7 +255,7 @@ export class Settings {
         public: true,
         label: 'Automatically unpin completed to-dos',
         description: 'Unpin notes automatically as soon as the to-do status changes to completed. ' +
-          'Removes the tab completely unless it is the selected note.'
+          'Closes the tab unless it is the selected note.'
       },
       addBehavior: {
         value: AddBehavior.Temporary,

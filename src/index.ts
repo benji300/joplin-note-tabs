@@ -77,7 +77,7 @@ joplin.plugins.register({
       if (lastActiveNote.length < 2) return false;
 
       const lastActiveNoteId = lastActiveNote.id;
-      // return if an already removed tab is about to be restored
+      // return if an already closed tab is about to be restored
       if (tabs.indexOf(lastActiveNoteId) < 0) return false;
 
       await COMMANDS.execute('openNote', lastActiveNoteId);
@@ -108,9 +108,9 @@ joplin.plugins.register({
     }
 
     /**
-     * Remove or unpin note with handled id.
+     * Close or unpin note with handled id.
      */
-    async function removeTab(noteId: string) {
+    async function closeTab(noteId: string) {
       const selectedNote: any = await WORKSPACE.selectedNote();
 
       // if noteId is the selected note - try to select another note depending on the settings
@@ -136,17 +136,17 @@ joplin.plugins.register({
             break;
         }
 
-        // then remove note from tabs
+        // then delete note from tabs
         await tabs.delete(noteId);
 
         // if no one was selected before
         if (!selected) {
-          // re-add removed note as tab at the end
+          // re-add deleted note as tab at the end
           await addTab(noteId);
         }
       } else {
 
-        // else simply remove note from tabs
+        // else simply delete note from tabs
         await tabs.delete(noteId);
       }
     }
@@ -191,7 +191,7 @@ joplin.plugins.register({
 
         // unpin selected notes and update panel
         for (const noteId of selectedNoteIds) {
-          await removeTab(noteId);
+          await closeTab(noteId);
         }
         await panel.updateWebview();
       }
@@ -279,14 +279,14 @@ joplin.plugins.register({
     });
 
     // Command: tabsClear
-    // Desc: Remove all pinned tabs
+    // Desc: Close all pinned tabs
     await COMMANDS.register({
       name: 'tabsClear',
-      label: 'Remove all pinned Tabs',
+      label: 'Close all pinned Tabs',
       iconName: 'fas fa-times',
       execute: async () => {
         // ask user before removing tabs
-        const result: number = await DIALOGS.showMessageBox('Do you really want to remove all pinned tabs?');
+        const result: number = await DIALOGS.showMessageBox('Do you really want to close all pinned tabs?');
         if (result) return;
 
         await settings.clearTabs();
@@ -345,7 +345,7 @@ joplin.plugins.register({
       },
       {
         commandName: 'tabsClear',
-        label: 'Remove all pinned Tabs'
+        label: 'Close all pinned Tabs'
       },
       {
         commandName: 'tabsToggleVisibility',
@@ -410,13 +410,13 @@ joplin.plugins.register({
               const index: number = tabs.indexOf(note.id);
               // and the note is currently pinned...
               if (tabs.indexOfTemp != index) {
-                // then remove its tab
-                await removeTab(note.id);
+                // then close its tab
+                await closeTab(note.id);
               }
             }
           }
 
-          // note was deleted (ItemChangeEventType.Delete) - remove tab
+          // note was deleted (ItemChangeEventType.Delete) - delete tab
           if (ev.event == 3) {
             await tabs.delete(ev.id);
           }

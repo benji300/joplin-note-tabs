@@ -148,7 +148,7 @@ export class Panel {
     for (const noteTab of this.tabs.tabs) {
       let note: any = null;
 
-      // get real note from database, if no longer exists remove tab and continue with next one
+      // get real note from database, if no longer exists delete tab and continue with next one
       try {
         note = await joplin.data.get(['notes', noteTab.id], { fields: ['id', 'title', 'is_todo', 'todo_completed'] });
         // console.log(`add note: ${JSON.stringify(note)}`);

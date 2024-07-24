@@ -174,7 +174,7 @@ export class NoteTabs {
   }
 
   /**
-   * Removes tab on handled index.
+   * Deletes tab on handled index.
    */
   async delete(noteId: string) {
     const index = this.indexOf(noteId);
