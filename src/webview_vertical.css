@@ -1,7 +1,15 @@
 /* FORCE VERTICAL LAYOUT */
+#container {
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+}
+
 #tabs-container {
   display: block;
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 #tab {
@@ -10,6 +18,16 @@
   max-width: 100% !important;
 }
 
+/* no trailing border line under the last tab - it read as a cut-off
+   next item sitting right above the nav bar */
+#tabs-container #tab:last-child {
+  border-bottom-width: 0;
+}
+
 #breadcrumbs-container {
   display: none !important;
+}
+
+#infobar-container {
+  flex: 0 0 auto;
 }

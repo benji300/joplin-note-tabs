@@ -86,6 +86,21 @@ function isTabVisible(tab, container) {
     tabRect.left >= containerRect.left && tabRect.right <= containerRect.right;
 }
 
+// walk up from the tab to find whichever ancestor is actually clipping/
+// scrolling it - which element that is depends on layout mode (default vs
+// vertical) and shouldn't be hardcoded
+function getScrollParent(el) {
+  let node = el.parentElement;
+  while (node && node !== document.body) {
+    const style = getComputedStyle(node);
+    if (/(auto|scroll|overlay)/.test(style.overflowY) || /(auto|scroll|overlay)/.test(style.overflowX)) {
+      return node;
+    }
+    node = node.parentElement;
+  }
+  return document.body;
+}
+
 const tabsObserver = new MutationObserver(() => {
   for (const id of SCROLLABLE_IDS) {
     const element = document.getElementById(id);
@@ -96,12 +111,12 @@ const tabsObserver = new MutationObserver(() => {
     }
   }
 
-  // check against #container - the actual clipped viewport in both layout
-  // modes (#tabs-container itself isn't clipped in vertical layout)
-  const viewport = document.getElementById('container') || document.getElementById('tabs-container');
   const activeTab = document.querySelector("div#tab[active]");
-  if (activeTab && viewport && !isTabVisible(activeTab, viewport)) {
-    activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
+  if (activeTab) {
+    const viewport = getScrollParent(activeTab);
+    if (!isTabVisible(activeTab, viewport)) {
+      activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
   }
 });
 // document.body is stable across setHtml() calls - Joplin only replaces the
@@ -117,7 +132,10 @@ document.addEventListener('wheel', (event) => {
   } else if (path.findIndex(x => x.id === 'breadcrumbs-container') >= 0) {
     element = document.getElementById('breadcrumbs-container');
   }
-  if (element) {
+  // only in play when the element actually has horizontal overflow to
+  // scroll through (e.g. not in vertical layout mode, where tabs-container
+  // scrolls vertically on its own and this hack would otherwise fight it)
+  if (element && element.scrollWidth > element.clientWidth) {
     element.scrollLeft -= (-event.deltaY);
   }
 });
