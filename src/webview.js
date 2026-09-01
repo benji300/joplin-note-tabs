@@ -65,13 +65,48 @@ function onAuxClick(event) {
   }
 }
 
-// scroll active tab into view
-document.addEventListener('DOMSubtreeModified', (event) => {
+// preserve scroll position across setHtml() re-renders, only auto-scrolling
+// the active tab into view when it isn't already visible.
+// #container scrolls vertically (vertical layout mode), #tabs-container
+// scrolls horizontally (default layout mode) - track both.
+const SCROLLABLE_IDS = ['container', 'tabs-container'];
+const savedScroll = {};
+
+document.addEventListener('scroll', (event) => {
+  const id = event.target && event.target.id;
+  if (SCROLLABLE_IDS.includes(id)) {
+    savedScroll[id] = { top: event.target.scrollTop, left: event.target.scrollLeft };
+  }
+}, true);
+
+function isTabVisible(tab, container) {
+  const tabRect = tab.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  return tabRect.top >= containerRect.top && tabRect.bottom <= containerRect.bottom &&
+    tabRect.left >= containerRect.left && tabRect.right <= containerRect.right;
+}
+
+const tabsObserver = new MutationObserver(() => {
+  for (const id of SCROLLABLE_IDS) {
+    const element = document.getElementById(id);
+    const pos = savedScroll[id];
+    if (element && pos) {
+      element.scrollTop = pos.top;
+      element.scrollLeft = pos.left;
+    }
+  }
+
+  // check against #container - the actual clipped viewport in both layout
+  // modes (#tabs-container itself isn't clipped in vertical layout)
+  const viewport = document.getElementById('container') || document.getElementById('tabs-container');
   const activeTab = document.querySelector("div#tab[active]");
-  if (activeTab) {
+  if (activeTab && viewport && !isTabVisible(activeTab, viewport)) {
     activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
 });
+// document.body is stable across setHtml() calls - Joplin only replaces the
+// innerHTML of a nested content div, so observing body catches every update.
+tabsObserver.observe(document.body, { childList: true, subtree: true });
 
 // scroll horizontally without 'shift' key
 document.addEventListener('wheel', (event) => {
