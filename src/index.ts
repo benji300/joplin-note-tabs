@@ -3,6 +3,7 @@ import { MenuItem, MenuItemLocation } from 'api/types';
 import { ChangeEvent } from 'api/JoplinSettings';
 import { NoteTabType, NoteTabs } from './noteTabs';
 import { LastActiveNote } from './lastActiveNote';
+import { ClosedTabs } from './closedTabs';
 import { Settings, UnpinBehavior, AddBehavior } from './settings';
 import { Panel } from './panel';
 
@@ -20,6 +21,8 @@ joplin.plugins.register({
     const tabs = new NoteTabs(settings);
     // last active note
     const lastActiveNote = new LastActiveNote();
+    // recently closed tabs
+    const closedTabs = new ClosedTabs();
     // panel
     const panel = new Panel(tabs, settings);
     await panel.register();
@@ -113,6 +116,12 @@ joplin.plugins.register({
     async function removeTab(noteId: string) {
       const selectedNote: any = await WORKSPACE.selectedNote();
 
+      // remember the tab's type and original neighbor before it's gone, so a
+      // later "reopen last closed" can restore both
+      const closedIndex: number = tabs.indexOf(noteId);
+      const closedTab: any = tabs.get(closedIndex);
+      const nextTab: any = tabs.get(closedIndex + 1);
+
       // if noteId is the selected note - try to select another note depending on the settings
       if (selectedNote && selectedNote.id == noteId) {
         let selected: boolean = false;
@@ -143,11 +152,16 @@ joplin.plugins.register({
         if (!selected) {
           // re-add removed note as tab at the end
           await addTab(noteId);
+        } else if (closedTab) {
+          closedTabs.push({ id: closedTab.id, type: closedTab.type, nextTabId: nextTab ? nextTab.id : undefined });
         }
       } else {
 
         // else simply remove note from tabs
         await tabs.delete(noteId);
+        if (closedTab) {
+          closedTabs.push({ id: closedTab.id, type: closedTab.type, nextTabId: nextTab ? nextTab.id : undefined });
+        }
       }
     }
 
@@ -302,6 +316,37 @@ joplin.plugins.register({
       }
     });
 
+    // Command: tabsReopenLastClosed
+    // Desc: Reopen the most recently closed tab, restoring its type and position
+    await COMMANDS.register({
+      name: 'tabsReopenLastClosed',
+      label: 'Reopen last closed Tab',
+      iconName: 'fas fa-history',
+      execute: async () => {
+        // walk back through the stack in case the most recent entry's note
+        // was deleted or somehow already has a tab
+        let closed = closedTabs.pop();
+        while (closed) {
+          if (!tabs.hasTab(closed.id)) {
+            let note: any = null;
+            try {
+              note = await DATA.get(['notes', closed.id], { fields: ['id'] });
+            } catch (error) {
+              note = null;
+            }
+
+            if (note) {
+              await tabs.add(closed.id, closed.type, closed.nextTabId);
+              await COMMANDS.execute('openNote', closed.id);
+              // updateWebview() is called from onNoteSelectionChange event
+              return;
+            }
+          }
+          closed = closedTabs.pop();
+        }
+      }
+    });
+
     // Command: tabsToggleVisibility
     // Desc: Toggle panel visibility
     await COMMANDS.register({
@@ -322,6 +367,10 @@ joplin.plugins.register({
       {
         commandName: 'tabsUnpinNote',
         label: 'Unpin note from Tabs'
+      },
+      {
+        commandName: 'tabsReopenLastClosed',
+        label: 'Reopen last closed Tab'
       },
       {
         commandName: 'tabsSwitchLastActive',
