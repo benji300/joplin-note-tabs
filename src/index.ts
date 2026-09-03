@@ -430,6 +430,9 @@ joplin.plugins.register({
 
           // add selected note id to last active queue
           lastActiveNote.id = selectedNote.id;
+
+          // persist so it can be restored on next startup
+          await settings.storeLastOpenNoteId(selectedNote.id);
         }
 
         await panel.updateWebview();
@@ -437,6 +440,56 @@ joplin.plugins.register({
         console.error(`onNoteSelectionChange: ${error}`);
       }
     });
+
+    // Render the tab panel with current state right away instead of leaving the
+    // "Loading panel..." placeholder (panel.ts's initial setHtml) up while the
+    // note-restore retry logic below runs - it'll re-render again once that
+    // resolves, via the onNoteSelectionChange handler above.
+    await panel.updateWebview();
+
+    // On a cold launch, Joplin auto-selects the top note (by current sort order) of
+    // the last-active notebook - its own per-folder "last selected note" memory
+    // (lastSelectedNotesIds) lives only in the running process's redux state and
+    // is empty again on every restart, so that auto-selection has already happened
+    // and rendered by the time this listener is registered, with no selection-change
+    // event fired for it. Override it with our own persisted last-open note, if any.
+    try {
+      let restoredNote: any = null;
+      if (settings.lastOpenNoteId) {
+        try {
+          restoredNote = await DATA.get(['notes', settings.lastOpenNoteId], { fields: ['id'] });
+        } catch (error) {
+          restoredNote = null;
+        }
+      }
+
+      if (restoredNote) {
+        // Joplin's own note-list/editor UI may not have attached a runtime for the
+        // "openNote" command yet this early in startup - retry briefly rather than
+        // give up and leave the wrong note showing.
+        for (let attempt = 1; attempt <= 5; attempt++) {
+          try {
+            await COMMANDS.execute('openNote', restoredNote.id);
+            break;
+          } catch (error) {
+            if (attempt === 5) throw error;
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
+        }
+        // addTab()/lastActiveNote/updateWebview() are handled by onNoteSelectionChange
+      } else {
+        // no persisted note yet (first run) or it no longer exists - at least
+        // track whatever Joplin ended up auto-selecting instead of leaving it tab-less
+        const initialNote: any = await WORKSPACE.selectedNote();
+        if (initialNote) {
+          await addTab(initialNote.id);
+          lastActiveNote.id = initialNote.id;
+          await settings.storeLastOpenNoteId(initialNote.id);
+        }
+      }
+    } catch (error) {
+      console.error(`onStart initial selection restore gave up: ${error}`);
+    }
 
     // ItemChangeEventType { Create = 1, Update = 2, Delete = 3 }
     WORKSPACE.onNoteChange(async (ev: any) => {

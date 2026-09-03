@@ -42,6 +42,7 @@ export enum LayoutMode {
 export class Settings {
   // private settings
   private _noteTabs: any[] = new Array();
+  private _lastOpenNoteId: string = '';
   // general settings
   private _enableDragAndDrop: boolean = true;
   private _showTodoCheckboxes: boolean = false;
@@ -77,6 +78,10 @@ export class Settings {
 
   get noteTabs(): any[] {
     return this._noteTabs;
+  }
+
+  get lastOpenNoteId(): string {
+    return this._lastOpenNoteId;
   }
 
   get enableDragAndDrop(): boolean {
@@ -198,6 +203,13 @@ export class Settings {
         section: 'note.tabs.settings',
         public: false,
         label: 'Note tabs'
+      },
+      lastOpenNoteId: {
+        value: '',
+        type: SettingItemType.String,
+        section: 'note.tabs.settings',
+        public: false,
+        label: 'Last open note id'
       },
       // general settings
       enableDragAndDrop: {
@@ -422,6 +434,7 @@ export class Settings {
       }
     });
     this._noteTabs = await joplin.settings.value('noteTabs');
+    this._lastOpenNoteId = await joplin.settings.value('lastOpenNoteId');
 
     // initially read settings
     await this.read();
@@ -474,6 +487,16 @@ export class Settings {
    */
   async storeTabs() {
     await joplin.settings.setValue('noteTabs', this._noteTabs);
+  }
+
+  /**
+   * Store the id of the currently active note, so it can be restored on next
+   * startup - Joplin's own per-folder "last selected note" memory
+   * (lastSelectedNotesIds) is session-only and doesn't survive a full restart.
+   */
+  async storeLastOpenNoteId(noteId: string) {
+    this._lastOpenNoteId = noteId;
+    await joplin.settings.setValue('lastOpenNoteId', noteId);
   }
 
   /**
