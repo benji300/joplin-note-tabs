@@ -12,6 +12,7 @@
     "url": "git+https://github.com/benji300/joplin-note-tabs.git"
   },
   "scripts": {
+    "test": "node --test tests/*.test.js",
     "dist": "webpack --joplin-plugin-config buildMain && webpack --joplin-plugin-config buildExtraScripts && webpack --joplin-plugin-config createArchive",
     "prepare": "npm run dist",
     "update": "npm install -g generator-joplin && yo joplin --update"

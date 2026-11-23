@@ -278,6 +278,27 @@ joplin.plugins.register({
       }
     });
 
+    // Commands: tabsSwitchFirst / tabsSwitchLast
+    // Open the endpoint directly, without visiting intermediate notes.
+    for (const endpoint of ['First', 'Last']) {
+      await COMMANDS.register({
+        name: `tabsSwitch${endpoint}`,
+        label: `Switch to ${endpoint.toLowerCase()} Tab`,
+        iconName: endpoint === 'First' ? 'fas fa-fast-backward' : 'fas fa-fast-forward',
+        enabledCondition: 'oneNoteSelected',
+        execute: async () => {
+          if (tabs.length === 0) return;
+          const selectedNote: any = await WORKSPACE.selectedNote();
+          if (!selectedNote) return;
+
+          const target = tabs.get(endpoint === 'First' ? 0 : tabs.length - 1);
+          if (target.id === selectedNote.id) return;
+          await COMMANDS.execute('openNote', target.id);
+          // updateWebview() is called from onNoteSelectionChange event
+        }
+      });
+    }
+
     // Command: tabsClear
     // Desc: Remove all pinned tabs
     await COMMANDS.register({
@@ -334,6 +355,14 @@ joplin.plugins.register({
       {
         commandName: 'tabsSwitchRight',
         label: 'Switch to right Tab'
+      },
+      {
+        commandName: 'tabsSwitchFirst',
+        label: 'Switch to first Tab'
+      },
+      {
+        commandName: 'tabsSwitchLast',
+        label: 'Switch to last Tab'
       },
       {
         commandName: 'tabsMoveLeft',
